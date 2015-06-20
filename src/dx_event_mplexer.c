@@ -51,7 +51,7 @@ int dx_event_mplexer_create() {
 		return -1;
 	}
 
-	__dx_mplexer->events = (struct epoll_event*)malloc(sizeof(struct epoll_event) * OD_MAX_EVENT_POLL_SIZE);
+	__dx_mplexer->events = (struct epoll_event*)malloc(sizeof(struct epoll_event) * DX_MAX_EVENT_POLL_SIZE);
 
 	return 0;
 }
@@ -76,7 +76,7 @@ int dx_event_mplexer_poll() {
 
 	__dx_mplexer->state = 0;
 
-	n = epoll_wait(__dx_mplexer->fd, __dx_mplexer->events, OD_MAX_EVENT_POLL_SIZE, -1);
+	n = epoll_wait(__dx_mplexer->fd, __dx_mplexer->events, DX_MAX_EVENT_POLL_SIZE, -1);
 	if(-1 == n) {
 		perror("Multiplexer - epoll_wait() error");
 		exit(1);

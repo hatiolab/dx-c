@@ -21,7 +21,7 @@
  * Definitions
  */
 
-#define OD_MAX_EVENT_POLL_SIZE					20
+#define DX_MAX_EVENT_POLL_SIZE					20
 
 typedef struct dx_event_context dx_event_context_t;
 typedef int (*dx_event_handler)(dx_event_context_t*);

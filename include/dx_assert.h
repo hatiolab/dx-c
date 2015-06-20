@@ -21,4 +21,7 @@
 
 #define ASSERT(s,t)	if(!t) { printf("[ASSERT] : %s (%s(%d))\n", s, __FILE__, __LINE__); }
 
+#define MALLOC(z) (dxalloc(z, __FILE__, __LINE__))
+#define FREE(p) (dxfree(p))
+
 #endif /* DX_ASSERT_H */
