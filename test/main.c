@@ -6,6 +6,8 @@
 void util_buffer_test();
 void debug_malloc_test();
 void util_lock_test();
+void event_pipe_test();
+void event_console_test();
 
 int main(void) {
 
@@ -19,6 +21,14 @@ int main(void) {
 
 	printf("\nTest - util_lock_test()..\n");
 	util_lock_test();
+	printf("..Done\n");
+
+	//	printf("\nTest - event_pipe_test()..\n");
+	//	event_pipe_test();
+	//	printf("..Done\n");
+
+	printf("\nTest - event_console_test()..\n");
+	event_console_test();
 	printf("..Done\n");
 
 	return EXIT_SUCCESS;

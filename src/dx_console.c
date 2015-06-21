@@ -10,28 +10,21 @@
 // PARTICULAR PURPOSE.
 //
 
+#include <dx.h>
+#include <dx_console_usage.h>
+#include <dx_debug_malloc.h>
+#include <dx_event_mplexer.h>
+#include <dx_net_client.h>
+#include <dx_net_dgram.h>
+#include <dx_net_discovery.h>
+#include <dx_net_packet.h>
+#include <dx_net_packet_file.h>
+#include <dx_util_trim.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>			// For read
 #include <strings.h>		// For bzero
-#include <sys/socket.h>
 #include <sys/epoll.h>		// For epoll
-
-#include "dx_debug_assert.h"
-#include "dx_debug_malloc.h"
-
-#include "dx_util_trim.h"
-
-#include "dx_console_usage.h"
-#include "dx_event_mplexer.h"
-
-#include "dx_net_client.h"
-#include "dx_net_packet.h"
-#include "dx_net_packet_file.h"
-#include "dx_net_server.h"
-#include "dx_net_dgram.h"
-#include "dx_net_discovery.h"
-
-#include "dx.h"
+#include <unistd.h>			// For read
 #include "dx_console.h"
 
 #define DISCOVERY_SERVICE_PORT	3456
@@ -45,6 +38,21 @@ int last_client_fd;
 
 dx_dgram_context_t* dx_client;
 dx_dgram_context_t* dx_server;
+
+int dx_console_start() {
+	dx_event_context_t* pcontext;
+
+	// STDIN_FILENO를 이벤트 컨텍스트로 등록한다.
+	pcontext = dx_event_context_create();
+	pcontext->fd = STDIN_FILENO;
+	pcontext->readable_handler = dx_console_handler;
+	pcontext->writable_handler = NULL;
+	pcontext->error_handler = NULL;
+
+	dx_add_event_context(pcontext, EPOLLIN);
+
+	return 0;
+}
 
 int dx_console_handler(dx_event_context_t* context) {
     char buf[128];
