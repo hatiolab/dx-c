@@ -20,6 +20,6 @@
  * Definitions
  */
 
-#define ASSERT(s,t)	while(1) { if(!t) { printf("[ASSERT] : %s (%s(%d))\n", s, __FILE__, __LINE__); exit(EXIT_FAILURE); } else break; }
+#define ASSERT(s,t)	if(!(t)) { printf("[ASSERT] : %s (%s(%d))\n", (s), __FILE__, __LINE__); exit(EXIT_FAILURE); }
 
 #endif /* DX_ASSERT_H */

@@ -35,6 +35,7 @@ int dx_buffer_getpos(dx_buffer_t* pbuf);
 void dx_buffer_setlimit(dx_buffer_t* pbuf, int limit);
 int dx_buffer_getlimit(dx_buffer_t* pbuf);
 int dx_buffer_capacity(dx_buffer_t* pbuf);
+int dx_buffer_remains(dx_buffer_t* pbuf);
 int dx_buffer_put(dx_buffer_t* pbuf, void* psrc, int sz);
 int dx_buffer_get(dx_buffer_t* pbuf, void* pdest, int sz);
 

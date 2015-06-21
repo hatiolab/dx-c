@@ -65,6 +65,10 @@ int dx_buffer_capacity(dx_buffer_t* pbuf) {
 	return pbuf->capacity;
 }
 
+int dx_buffer_remains(dx_buffer_t* pbuf) {
+	return pbuf->limit - pbuf->position;
+}
+
 int dx_buffer_put(dx_buffer_t* pbuf, void* psrc, int sz) {
 	int remains = pbuf->limit - pbuf->position;
 	int copied = sz > remains ? remains : sz;
