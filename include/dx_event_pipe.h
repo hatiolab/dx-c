@@ -22,6 +22,6 @@ typedef struct dx_event_pipe_context {
 	int write_pipe;
 } dx_event_pipe_context_t;
 
-dx_event_pipe_context_t* dx_event_pipe_start();
+dx_event_pipe_context_t* dx_event_pipe_start(dx_event_handler handler);
 
 #endif /* __DX_EVENT_PIPE_H */

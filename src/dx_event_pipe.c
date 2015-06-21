@@ -15,7 +15,6 @@
 #include <unistd.h>		// For pipe
 #include <fcntl.h>		// For fcntl
 #include <stddef.h>		// For NULL
-#include <strings.h>	// For bzero
 #include <sys/epoll.h>	// For EPOLLIN
 
 #include "dx_debug_assert.h"
@@ -24,9 +23,7 @@
 #include "dx_event_mplexer.h"
 #include "dx_event_pipe.h"
 
-int dx_event_pipe_handler(dx_event_context_t* context);
-
-dx_event_pipe_context_t* dx_event_pipe_start() {
+dx_event_pipe_context_t* dx_event_pipe_start(dx_event_handler handler) {
 	int pipefds[2] = {};
 	dx_event_context_t* pcontext;
 	int flags;
@@ -47,35 +44,13 @@ dx_event_pipe_context_t* dx_event_pipe_start() {
 
 	pcontext = dx_event_context_create();
 	pcontext->fd = epc->read_pipe;
-	pcontext->readable_handler = dx_event_pipe_handler;
+	pcontext->readable_handler = handler;
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
 
 	dx_add_event_context(pcontext, EPOLLIN);
 
 	return epc;
-}
-
-int dx_event_pipe_handler(dx_event_context_t* context) {
-
-    char buf[128];
-
-    bzero(buf, 128);
-
-    ssize_t nbytes = read(context->fd, buf, sizeof(buf));
-    if(0 == nbytes) {
-        printf("Console hung up\n");
-        return -1;
-    } else if(0 > nbytes) {
-        perror("Console read() error");
-        close(context->fd);
-        dx_del_event_context(context);
-        return -2;
-    }
-
-    printf("[READ FROM PIPE] %s\n", buf);
-
-    return 0;
 }
 
 int dx_send_to_pipe(dx_event_pipe_context_t* pcontext, int8_t* data, int sz) {

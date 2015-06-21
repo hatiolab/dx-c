@@ -19,6 +19,6 @@
  * Definitions
  */
 
-int dx_console_handler(dx_event_context_t* context);
+int dx_console_start(dx_event_handler handler);
 
 #endif /* __DX_CONSOLE_H */
