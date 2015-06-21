@@ -121,7 +121,7 @@ int send_stream(int fd) {
 	int j = 0;
 	int k = 0;
 	int l = 0;
-	uint8_t* data = (uint8_t*)malloc(800*480*2);
+	uint8_t* data = (uint8_t*)MALLOC(800*480*2);
 
 	for(l = 0;l < 100;l++) {
 		for(i = 0;i < 480;i++) {
@@ -134,7 +134,7 @@ int send_stream(int fd) {
 		dx_packet_send_stream(fd, DX_STREAM, 0, data, 800*480*2);
 	}
 
-	free(data);
+	FREE(data);
 
 	return 0;
 }

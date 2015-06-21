@@ -31,7 +31,7 @@ int dx_event_context_destroyer(void* data) {
 
 	epoll_ctl(__dx_mplexer->fd, EPOLL_CTL_DEL, context->fd, NULL);
 
-	free(context);
+	FREE(context);
 
 	return 0;
 }
@@ -41,7 +41,7 @@ int dx_event_mplexer_create() {
 	if(__dx_mplexer)
 		return 0; // Already exist.
 
-	__dx_mplexer = (dx_event_mplexer_t*)malloc(sizeof(dx_event_mplexer_t));
+	__dx_mplexer = (dx_event_mplexer_t*)MALLOC(sizeof(dx_event_mplexer_t));
 
 	dx_list_init(&__dx_mplexer->context_list, dx_event_context_find, dx_event_context_destroyer);
 
@@ -51,7 +51,7 @@ int dx_event_mplexer_create() {
 		return -1;
 	}
 
-	__dx_mplexer->events = (struct epoll_event*)malloc(sizeof(struct epoll_event) * DX_MAX_EVENT_POLL_SIZE);
+	__dx_mplexer->events = (struct epoll_event*)MALLOC(sizeof(struct epoll_event) * DX_MAX_EVENT_POLL_SIZE);
 
 	return 0;
 }
@@ -60,12 +60,12 @@ int dx_event_mplexer_destroy() {
 	dx_clear_event_context();
 	dx_list_clear(&__dx_mplexer->context_list);
 
-	free(__dx_mplexer->events);
+	FREE(__dx_mplexer->events);
 
 	close(__dx_mplexer->fd);
 	__dx_mplexer->fd = 0;
 
-	free(__dx_mplexer);
+	FREE(__dx_mplexer);
 	__dx_mplexer = NULL;
 
 	return 0;
@@ -110,7 +110,7 @@ int dx_add_event_context(int fd, uint32_t events, dx_event_handler readable_hand
 	struct dx_event_context* context;
 	struct epoll_event event;
 
-	context = malloc(sizeof(struct dx_event_context));
+	context = MALLOC(sizeof(struct dx_event_context));
 
 	context->fd = fd;
 

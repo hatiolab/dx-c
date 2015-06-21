@@ -98,7 +98,7 @@ int dx_server_create() {
 	int yes = 1;
 	int flags;
 
-	__osc = malloc(sizeof(struct dx_server_context));
+	__osc = MALLOC(sizeof(struct dx_server_context));
 
 	__osc->server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(__osc->server_socket_fd == -1) {
@@ -122,7 +122,7 @@ int dx_server_destroy() {
 	if(!__osc->server_socket_fd)
 		return 0;
 
-	free(__osc);
+	FREE(__osc);
 
 	__osc = NULL;
 

@@ -80,7 +80,7 @@ int dx_packet_send_filelist(int fd, char* path) {
 
 		dx_write(fd, packet, packet_len);
 
-		free(packet);
+		FREE(packet);
 	}
 
 	return 0;
@@ -90,7 +90,7 @@ int dx_packet_get_file(int fd, char* path, uint32_t begin, uint32_t end) {
 	dx_file_query_packet_t* packet;
 	uint32_t len = DX_FILE_QUERY_PACKET_SIZE;
 
-	packet = (dx_file_query_packet_t*)malloc(len);
+	packet = (dx_file_query_packet_t*)mallocf(len);
 
 	packet->header.len = htonl(len);
 	packet->header.type = DX_PACKET_TYPE_FILE;
@@ -103,7 +103,7 @@ int dx_packet_get_file(int fd, char* path, uint32_t begin, uint32_t end) {
 
 	dx_write(fd, packet, len);
 
-	free(packet);
+	FREE(packet);
 
 	return 0;
 }
@@ -173,11 +173,11 @@ int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {
 
 		dx_write(fd, packet, packet_len);
 
-		free(packet);
+		FREE(packet);
 	}
 
 	if(data)
-		free(data);
+		FREE(data);
 
 	return 0;
 }

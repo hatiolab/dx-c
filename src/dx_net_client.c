@@ -35,7 +35,7 @@ int dx_client_get_fd() {
 
 int dx_client_create() {
 	if(!__occ)
-		__occ = (dx_client_context_t*)malloc(sizeof(dx_client_context_t));
+		__occ = (dx_client_context_t*)MALLOC(sizeof(dx_client_context_t));
 	else
 		return -1;
 
@@ -96,7 +96,7 @@ int dx_client_destroy() {
 	if(__occ->socket_fd)
 		close(__occ->socket_fd);
 
-	free(__occ);
+	FREE(__occ);
     __occ = NULL;
 
 	return 0;

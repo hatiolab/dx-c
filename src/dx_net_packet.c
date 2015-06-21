@@ -91,7 +91,7 @@ int dx_packet_alloc(int fd, dx_packet_t** ppacket) {
 
 	header.len = ntohl(header.len);
 
-	packet = (dx_packet_t*)malloc(header.len);
+	packet = (dx_packet_t*)MALLOC(header.len);
 	memcpy(packet, &header, DX_PACKET_HEADER_SIZE);
 
 	if(header.len > DX_PACKET_HEADER_SIZE) {
@@ -101,7 +101,7 @@ int dx_packet_alloc(int fd, dx_packet_t** ppacket) {
 		nread = dx_read(fd, ((void*)packet) + DX_PACKET_HEADER_SIZE, header.len - DX_PACKET_HEADER_SIZE);
 
 		if(nread < 1) {
-			free(packet);
+			FREE(packet);
 			packet = NULL;
 			return nread;
 		}
@@ -118,7 +118,7 @@ int dx_packet_send_header(int fd, int type, int code) {
 
 	len = DX_PACKET_HEADER_SIZE;
 
-	packet = (dx_packet_t*)malloc(len);
+	packet = (dx_packet_t*)MALLOC(len);
 	packet->header.len = htonl(len);
 	packet->header.type = type;
 	packet->header.code = code;
@@ -126,7 +126,7 @@ int dx_packet_send_header(int fd, int type, int code) {
 
 	dx_write(fd, packet, len);
 
-	free(packet);
+	FREE(packet);
 
 	return 0;
 }
@@ -137,7 +137,7 @@ int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t dat
 
 	len = DX_PRIMITIVE_PACKET_SIZE;
 
-	packet = (dx_primitive_packet_t*)malloc(len);
+	packet = (dx_primitive_packet_t*)MALLOC(len);
 	packet->header.len = htonl(len);
 	packet->header.type = type;
 	packet->header.code = code;
@@ -146,7 +146,7 @@ int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t dat
 
 	dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE);
 
-	free(packet);
+	FREE(packet);
 
 	return 0;
 }
@@ -280,7 +280,7 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
 	dx_u8_array_packet_t* packet;
 	uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
 
-	packet = (dx_u8_array_packet_t*)malloc(len);
+	packet = (dx_u8_array_packet_t*)MALLOC(len);
 
 	packet->header.len = htonl(len);
 	packet->header.type = type;
@@ -293,7 +293,7 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
 
 	dx_write(fd, packet, len);
 
-	free(packet);
+	FREE(packet);
 
 	return 0;
 }
@@ -304,7 +304,7 @@ int dx_packet_send_string(int fd, int type, int code, char* data) {
 	int datalen = strlen(data);
 	uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
 
-	packet = (dx_u8_array_packet_t*)malloc(len);
+	packet = (dx_u8_array_packet_t*)MALLOC(len);
 
 	packet->header.len = htonl(len);
 	packet->header.type = type;
@@ -317,7 +317,7 @@ int dx_packet_send_string(int fd, int type, int code, char* data) {
 
 	dx_write(fd, packet, len);
 
-	free(packet);
+	FREE(packet);
 
 	return 0;
 }
@@ -326,7 +326,7 @@ int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int data
 	dx_stream_packet_t* packet;
 	uint32_t len = DX_STREAM_PACKET_SIZE(datalen);
 
-	packet = (dx_stream_packet_t*)malloc(len);
+	packet = (dx_stream_packet_t*)MALLOC(len);
 
 	packet->header.len = htonl(len);
 	packet->header.type = DX_PACKET_TYPE_STREAM;
@@ -340,7 +340,7 @@ int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int data
 
 	dx_write(fd, packet, len);
 
-	free(packet);
+	FREE(packet);
 
 	return 0;
 }
