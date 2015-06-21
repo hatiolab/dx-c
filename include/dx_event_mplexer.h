@@ -30,6 +30,7 @@
 
 typedef struct dx_event_context dx_event_context_t;
 typedef int (*dx_event_handler)(dx_event_context_t*);
+typedef int (*dx_event_context_destroy_handler)(void*);
 
 struct dx_event_context {
     int         fd;
@@ -40,6 +41,11 @@ struct dx_event_context {
 
     /* 현재 읽기 진행중인 바이트 버퍼 */
 	dx_buffer_t* pbuf_reading;
+
+	/* 사용자 데이타 - 커스터마이징 용도 */
+	void*	pdata;
+	/* 사용자 데이타 destroyer */
+	dx_event_context_destroy_handler on_destroy;
 };
 
 struct dx_event_mplexer {

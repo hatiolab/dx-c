@@ -12,82 +12,17 @@
 
 #include "dx_net_packet.h"
 
-#include <stdio.h>		// For FILE, fopen, fclose
 #include <stddef.h>		// For NULL
 #include <string.h>		// For memcpy
 #include <sys/socket.h>
 #include <netinet/in.h> // For htonl, ...
-#include <stdlib.h>		// For malloc
-#include <fcntl.h>		// For read, write
 #include <stdint.h>		// For uint32_t, ...
-#include <sys/stat.h>	// For stat
-#include <dirent.h>		// For DIR, opendir, ...
 #include <errno.h>		// For errno
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
-int dx_write(int fd, const void* buf, ssize_t sz) {
-	int twrite = 0;
-	int nwrite = 0;
-	int flags;
-
-	/* Set socket to blocking mode */
-	flags = fcntl(fd, F_GETFL);
-	fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
-
-	while(sz - twrite > 0) {
-		nwrite = write(fd, buf + twrite, sz - twrite);
-		if(nwrite <= 0) {
-			perror("write() error");
-			break;
-		}
-		twrite += nwrite;
-	}
-
-	if(sz != twrite) {
-		printf("dx_write() mismatch [%d - %d]\n", twrite, (int)sz);
-	}
-
-	/* Set socket to non-blocking again */
-	flags = fcntl(fd, F_GETFL);
-	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-
-	return twrite;
-}
-
-//
-//int dx_packet_alloc(int fd, dx_packet_t** ppacket) {
-//	dx_packet_t* packet;
-//	dx_packet_header_t header;
-//	ssize_t	nbytes;
-//
-//	nbytes = dx_read(fd, &header, DX_PACKET_HEADER_SIZE);
-//	if(nbytes < 1)
-//		return nbytes;
-//
-//	header.len = ntohl(header.len);
-//
-//	packet = (dx_packet_t*)MALLOC(header.len);
-//	memcpy(packet, &header, DX_PACKET_HEADER_SIZE);
-//
-//	if(header.len > DX_PACKET_HEADER_SIZE) {
-//
-//		ssize_t nread;
-//
-//		nread = dx_read(fd, ((void*)packet) + DX_PACKET_HEADER_SIZE, header.len - DX_PACKET_HEADER_SIZE);
-//
-//		if(nread < 1) {
-//			FREE(packet);
-//			packet = NULL;
-//			return nread;
-//		}
-//	}
-//
-//	*ppacket = packet;
-//
-//	return header.len;
-//}
+#include "dx_net_packet_io.h"
 
 int dx_packet_send_header(int fd, int type, int code) {
 	dx_packet_t* packet;

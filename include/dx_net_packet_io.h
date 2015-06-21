@@ -22,6 +22,8 @@
 
 /* APIs */
 
+int dx_write(int fd, const void* buf, ssize_t sz);
+
 int dx_read_with_block_mode(int fd, void* buf, ssize_t sz);
 int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket);
 

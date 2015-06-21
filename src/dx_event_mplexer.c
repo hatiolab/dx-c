@@ -140,6 +140,8 @@ dx_event_context_t* dx_event_context_create() {
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
 	pcontext->pbuf_reading = NULL;
+	pcontext->pdata = NULL;
+	pcontext->on_destroy = NULL;
 
 	return pcontext;
 }
@@ -159,6 +161,10 @@ int dx_event_context_destroyer(void* data) {
 	 */
 	if(context->pbuf_reading != NULL)
 		dx_buffer_free(context->pbuf_reading);
+
+	/* 각자 사용한 pdata를 해제할 수 있는 기회를 제공한다. */
+	if(context->on_destroy != NULL)
+		context->on_destroy(context->pdata);
 
 	FREE(context);
 

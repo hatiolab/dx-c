@@ -24,6 +24,36 @@
 #include "dx_net_packet.h"	// For DX_PACKET_HEADER_SIZE
 #include "dx_net_packet_io.h"
 
+
+int dx_write(int fd, const void* buf, ssize_t sz) {
+	int twrite = 0;
+	int nwrite = 0;
+	int flags;
+
+	/* Set socket to blocking mode */
+	flags = fcntl(fd, F_GETFL);
+	fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+
+	while(sz - twrite > 0) {
+		nwrite = write(fd, buf + twrite, sz - twrite);
+		if(nwrite <= 0) {
+			perror("write() error");
+			break;
+		}
+		twrite += nwrite;
+	}
+
+	if(sz != twrite) {
+		printf("dx_write() mismatch [%d - %d]\n", twrite, (int)sz);
+	}
+
+	/* Set socket to non-blocking again */
+	flags = fcntl(fd, F_GETFL);
+	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+
+	return twrite;
+}
+
 int dx_read_with_block_mode(int fd, void* buf, ssize_t sz) {
 	int tread = 0; /* 전체 읽은 바이트 수 */
 	int nread = 0; /* read()시 읽은 바이트 수 */
