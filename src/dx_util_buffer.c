@@ -27,14 +27,13 @@ void dx_buffer_free(dx_buffer_t* pbuf) {
 	FREE(pbuf);
 }
 
-int dx_buffer_clear(dx_buffer_t* pbuf) {
+void dx_buffer_clear(dx_buffer_t* pbuf) {
 	pbuf->position = 0;
 	pbuf->limit = pbuf->capacity;
 	pbuf->mark = -1;
-	return 0;
 }
 
-int dx_buffer_reset(dx_buffer_t* pbuf) {
+void dx_buffer_reset(dx_buffer_t* pbuf) {
 	ASSERT("Buffer Mark should not be negative value.", pbuf->mark >= 0);
 	pbuf->position = pbuf->mark;
 }

@@ -27,8 +27,8 @@ typedef struct dx_buffer {
 
 dx_buffer_t* dx_buffer_alloc(int capacity);
 void dx_buffer_free(dx_buffer_t* pbuf);
-int dx_buffer_clear(dx_buffer_t* pbuf);
-int dx_buffer_reset(dx_buffer_t* pbuf);
+void dx_buffer_clear(dx_buffer_t* pbuf);
+void dx_buffer_reset(dx_buffer_t* pbuf);
 void dx_buffer_flip(dx_buffer_t* pbuf);
 void dx_buffer_setpos(dx_buffer_t* pbuf, int pos);
 int dx_buffer_getpos(dx_buffer_t* pbuf);

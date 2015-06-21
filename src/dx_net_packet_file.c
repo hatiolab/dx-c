@@ -41,7 +41,7 @@ int dx_packet_send_filelist(int fd, char* path) {
 	dir = opendir(path);
 	if(NULL != dir) {
 		/* scan to get count */
-		while(entry = readdir(dir)) {
+		while((entry = readdir(dir))) {
 			sprintf(fullpath, "%s/%s", path, entry->d_name);
 			if(-1 == stat(fullpath, &statbuf)) {
 				perror("stat() error");
@@ -62,7 +62,7 @@ int dx_packet_send_filelist(int fd, char* path) {
 
 		/* reopen */
 		dir = opendir(path);
-		while(entry = readdir(dir)) {
+		while((entry = readdir(dir))) {
 			sprintf(fullpath, "%s/%s", path, entry->d_name);
 			if(-1 == stat(fullpath, &statbuf)) {
 				perror("Packet - stat() error");
@@ -109,6 +109,7 @@ int dx_packet_get_file(int fd, char* path, uint32_t begin, uint32_t end) {
 }
 
 int dx_packet_delete_file(int fd, char* path) {
+	return 0;
 }
 
 int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {

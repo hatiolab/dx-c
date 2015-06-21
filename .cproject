@@ -512,6 +512,9 @@
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.890076159" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1628527159" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base">
+								<option id="gnu.c.link.option.libs.653406656" superClass="gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pthread"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.348635577" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

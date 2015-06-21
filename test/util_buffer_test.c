@@ -1,13 +1,3 @@
-/*
- ============================================================================
- Name        : dx-c-sample.c
- Author      : hatiolab
- Version     :
- Copyright   : Just Free
- Description : Hello World in C, Ansi-style
- ============================================================================
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 
