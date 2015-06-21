@@ -58,7 +58,8 @@ int dx_event_mplexer_destroy();
 int dx_event_mplexer_poll();
 int dx_event_mplexer_kill(int signo);
 
-int dx_add_event_context(int fd, uint32_t events, dx_event_handler readable_handler, dx_event_handler writable_handler, dx_event_handler error_handler);
+dx_event_context_t* dx_event_context_create();
+int dx_add_event_context(struct dx_event_context* pcontext, uint32_t events);
 int dx_mod_event_context(dx_event_context_t* context, uint32_t events);
 int dx_del_event_context(dx_event_context_t* context);
 int dx_clear_event_context();

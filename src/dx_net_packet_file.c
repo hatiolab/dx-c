@@ -14,6 +14,7 @@
 
 #include <stdio.h>		// For FILE, fopen, fclose
 #include <stddef.h>		// For NULL
+#include <string.h>		// For memcpy
 #include <sys/socket.h>
 #include <stdlib.h>		// For malloc
 #include <fcntl.h>		// For read, write
@@ -63,7 +64,7 @@ int dx_packet_send_filelist(int fd, char* path) {
 		packet->header.code = DX_FILE_LIST;
 		packet->header.data_type = DX_DATA_TYPE_FILEINFO_ARRAY;
 		packet->array.len = htonl(count);
-		strncpy(packet->array.path, path, DX_PATH_MAX_SIZE);
+		strncpy((char*)packet->array.path, path, DX_PATH_MAX_SIZE);
 
 		/* reopen */
 		dir = opendir(path);
@@ -74,7 +75,7 @@ int dx_packet_send_filelist(int fd, char* path) {
 			} else if(S_ISREG(statbuf.st_mode)) {
 				struct dx_fileinfo_data* info = &(packet->array.fileinfo[i]);
 
-				strncpy(info->path, entry->d_name, DX_PATH_MAX_SIZE);
+				strncpy((char*)info->path, entry->d_name, DX_PATH_MAX_SIZE);
 				info->size = htonl(statbuf.st_size);
 				info->mtime = htonl(statbuf.st_mtime);
 				if(++i >= count)
@@ -104,7 +105,7 @@ int dx_packet_get_file(int fd, char* path, uint32_t begin, uint32_t end) {
 	packet->file.offset_begin = htonl(begin);
 	packet->file.offset_end = htonl(end);
 
-	strncpy(&(packet->file.path), path, DX_PATH_MAX_SIZE);
+	strncpy((char*)&(packet->file.path), path, DX_PATH_MAX_SIZE);
 
 	dx_write(fd, packet, len);
 
@@ -160,7 +161,7 @@ int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {
 		dx_file_packet_t* packet;
 		uint32_t packet_len = DX_FILE_PACKET_SIZE(partial_len);
 
-		packet = (dx_u8_array_packet_t*)MALLOC(packet_len);
+		packet = (dx_file_packet_t*)MALLOC(packet_len);
 
 		packet->header.len = htonl(packet_len);
 		packet->header.type = DX_PACKET_TYPE_FILE;
@@ -171,7 +172,7 @@ int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {
 		packet->file.offset_begin = htonl(begin);
 		packet->file.offset_end = htonl(end);
 
-		strncpy(packet->file.path, path, DX_PATH_MAX_SIZE);
+		strncpy((char*)packet->file.path, path, DX_PATH_MAX_SIZE);
 
 		if(partial_len)
 			memcpy(&(packet->file.content), data, partial_len);

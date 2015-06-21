@@ -22,4 +22,6 @@
 dx_dgram_context_t* dx_discovery_server_start();
 dx_dgram_context_t* dx_discovery_client_start();
 
+int dx_discovery_send_broadcast(dx_dgram_context_t* odc, int port);
+
 #endif /* __DX_DISCOVERY_H */

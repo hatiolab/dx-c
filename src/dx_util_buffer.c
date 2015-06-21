@@ -11,6 +11,7 @@
 //
 
 #include <string.h> // For memcpy
+#include <unistd.h>	// For read
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"

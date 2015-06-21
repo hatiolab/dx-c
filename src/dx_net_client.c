@@ -22,12 +22,14 @@
 
 #include "dx.h"
 
-#include "dx_net_client.h"
-#include "dx_event_mplexer.h"
-#include "dx_util_buffer.h"
-
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
+
+#include "dx_util_buffer.h"
+
+#include "dx_event_mplexer.h"
+#include "dx_net_packet_io.h"
+#include "dx_net_client.h"
 
 typedef struct dx_client_context dx_client_context_t;
 
@@ -133,6 +135,7 @@ int dx_client_readable_handler(dx_event_context_t* context) {
 		dx_del_event_context(context);
 		dx_client_destroy();
 
+
 		/* Generate DISCONNECT Event on Purpose */
 		packet = (dx_packet_t*)malloc(DX_PRIMITIVE_PACKET_SIZE);
 		packet->header.len = DX_PRIMITIVE_PACKET_SIZE;
@@ -176,12 +179,13 @@ int dx_client_readable_handler(dx_event_context_t* context) {
 //		break;
 //	}
 
-	free(packet);
+//	free(packet);
 
 	return 0;
 }
 
 int dx_client_start(char* hostname, int port) {
+	dx_event_context_t* pcontext;
 
 	if(-1 == dx_client_create())
 		return -1;
@@ -190,7 +194,14 @@ int dx_client_start(char* hostname, int port) {
 
 	dx_client_connect(hostname, port);
 
-	dx_add_event_context(dx_client_get_fd(), EPOLLIN | EPOLLOUT, dx_client_readable_handler, dx_client_writable_handler, NULL);
+	pcontext = dx_event_context_create();
+	pcontext->fd = dx_client_get_fd();
+	pcontext->readable_handler = dx_client_readable_handler;
+	pcontext->writable_handler = dx_client_writable_handler;
+	pcontext->error_handler = NULL;
+	pcontext->pbuf_reading = NULL;
+
+	dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
 
 	return 1;
 }

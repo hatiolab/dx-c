@@ -12,6 +12,7 @@
 
 #include <stdint.h> // For uint8_t
 #include <stdlib.h> // For malloc, free, size_t
+#include <string.h>	// For memset
 
 #include "dx_debug_assert.h"
 
@@ -80,5 +81,5 @@ void dx_free(void* p, char* filename, int line) {
 }
 
 void dx_chkmem() {
-	printf("[CHKMEM] %l Allocated, %l Freed. \n", __dx_alloc_count, __dx_free_count);
+	printf("[CHKMEM] %ld Allocated, %ld Freed. \n", __dx_alloc_count, __dx_free_count);
 }

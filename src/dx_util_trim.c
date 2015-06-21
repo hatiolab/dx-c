@@ -25,7 +25,7 @@ char* strcpytrim(char*dest, char* src, int mode, char* delim) {
 	if(!delim)
 		delim = " \t\n\f";
 	while(*delim)
-		dtab[*delim++] = 1;
+		dtab[(int)*delim++] = 1;
 
 	while((*dest = *src++) != 0) {
 		if(!dtab[0xFF & (unsigned int)*dest]) {

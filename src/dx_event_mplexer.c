@@ -27,34 +27,8 @@
 
 dx_event_mplexer_t* __dx_mplexer;
 
-/*
- * event_context_list에서 event_list를 찾기 위해 사용되는 비교함수이다.
- * event_context의 fd가 같으면 같은 event_context로 간주한다.
- */
-int dx_event_context_compare(void* context1, void* context2) {
-	return ((dx_event_context_t*)context1)->fd - ((dx_event_context_t*)context2)->fd;
-}
-
-/*
- * 클로즈된 이벤트 컨텍스트를 파괴한다.
- *
- * 읽기 전용 바이트버퍼를 해제하고, 이벤트 컨텍스트에 할당된 메모리를 해제한다.
- */
-int dx_event_context_destroyer(void* data) {
-	dx_event_context_t* context = (dx_event_context_t*)data;
-
-	epoll_ctl(__dx_mplexer->fd, EPOLL_CTL_DEL, context->fd, NULL);
-
-	/*
-	 * 바이트버퍼들을 해제한다.
-	 */
-	if(context->pbuf_reading != NULL)
-		dx_buffer_free(context->pbuf_reading);
-
-	FREE(context);
-
-	return 0;
-}
+int dx_event_context_compare(void* context1, void* context2);
+int dx_event_context_destroyer(void* data);
 
 int dx_event_mplexer_create() {
 
@@ -149,24 +123,57 @@ int dx_event_mplexer_kill(int signo) {
 	return 0;
 }
 
-int dx_add_event_context(int fd, uint32_t events, dx_event_handler readable_handler, dx_event_handler writable_handler, dx_event_handler error_handler) {
-	struct dx_event_context* context;
+/*
+ * event_context_list에서 event_list를 찾기 위해 사용되는 비교함수이다.
+ * event_context의 fd가 같으면 같은 event_context로 간주한다.
+ */
+int dx_event_context_compare(void* context1, void* context2) {
+	return ((dx_event_context_t*)context1)->fd - ((dx_event_context_t*)context2)->fd;
+}
+
+dx_event_context_t* dx_event_context_create() {
+	dx_event_context_t* pcontext;
+
+	pcontext = (dx_event_context_t*)MALLOC(sizeof(struct dx_event_context));
+	pcontext->fd = -1;
+	pcontext->readable_handler = NULL;
+	pcontext->writable_handler = NULL;
+	pcontext->error_handler = NULL;
+	pcontext->pbuf_reading = NULL;
+
+	return pcontext;
+}
+
+/*
+ * 클로즈된 이벤트 컨텍스트를 파괴한다.
+ *
+ * 읽기 전용 바이트버퍼를 해제하고, 이벤트 컨텍스트에 할당된 메모리를 해제한다.
+ */
+int dx_event_context_destroyer(void* data) {
+	dx_event_context_t* context = (dx_event_context_t*)data;
+
+	epoll_ctl(__dx_mplexer->fd, EPOLL_CTL_DEL, context->fd, NULL);
+
+	/*
+	 * 바이트버퍼들을 해제한다.
+	 */
+	if(context->pbuf_reading != NULL)
+		dx_buffer_free(context->pbuf_reading);
+
+	FREE(context);
+
+	return 0;
+}
+
+int dx_add_event_context(struct dx_event_context* pcontext, uint32_t events) {
 	struct epoll_event event;
 
-	context = MALLOC(sizeof(struct dx_event_context));
-
-	context->fd = fd;
-
-	context->readable_handler = readable_handler;
-	context->writable_handler = writable_handler;
-	context->error_handler = error_handler;
-	context->pbuf_reading = NULL;
-
-	dx_list_add(&__dx_mplexer->context_list, context);
+	dx_list_add(&__dx_mplexer->context_list, pcontext);
 
 	event.events = events;
-	event.data.ptr = context;
-	epoll_ctl(__dx_mplexer->fd, EPOLL_CTL_ADD, fd, &event);
+	event.data.ptr = pcontext;
+
+	epoll_ctl(__dx_mplexer->fd, EPOLL_CTL_ADD, pcontext->fd, &event);
 
 	return 0;
 }

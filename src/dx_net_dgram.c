@@ -51,7 +51,7 @@ int dx_dgram_listen(dx_dgram_context_t* odc) {
 	}
 
 	/* TODO 여기에서 실제로 바인드된 포트를 알아낸다. */
-	getsockname(odc->socket_fd, (struct sockaddr*)&serveraddr, &len);
+	getsockname(odc->socket_fd, (struct sockaddr*)&serveraddr, (socklen_t*)&len);
 	odc->service_port = ntohs(serveraddr.sin_port);
 
 	return 1;

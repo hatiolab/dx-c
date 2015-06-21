@@ -39,23 +39,37 @@ int dx_discovery_server_handler(dx_event_context_t* context);
 int dx_discovery_client_handler(dx_event_context_t* context);
 
 dx_dgram_context_t* dx_discovery_server_start(int port) {
+	dx_event_context_t* pcontext;
 	dx_dgram_context_t* odc = dx_dgram_create();
 
 	dx_dgram_set_service_port(odc, port);
 	dx_dgram_listen(odc);
 
-	dx_add_event_context(dx_dgram_get_fd(odc), EPOLLIN, dx_discovery_server_handler, NULL, NULL);
+	pcontext = dx_event_context_create();
+	pcontext->fd = dx_dgram_get_fd(odc);
+	pcontext->readable_handler = dx_discovery_server_handler;
+	pcontext->writable_handler = NULL;
+	pcontext->error_handler = NULL;
+
+	dx_add_event_context(pcontext, EPOLLIN);
 
 	return odc;
 }
 
 dx_dgram_context_t* dx_discovery_client_start(int port) {
+	dx_event_context_t* pcontext;
 	dx_dgram_context_t* odc = dx_dgram_create();
 
 	dx_dgram_set_service_port(odc, port);
 	dx_dgram_listen(odc);
 
-	dx_add_event_context(dx_dgram_get_fd(odc), EPOLLIN, dx_discovery_client_handler, NULL, NULL);
+	pcontext = dx_event_context_create();
+	pcontext->fd = dx_dgram_get_fd(odc);
+	pcontext->readable_handler = dx_discovery_client_handler;
+	pcontext->writable_handler = NULL;
+	pcontext->error_handler = NULL;
+
+	dx_add_event_context(pcontext, EPOLLIN);
 
 	return odc;
 }

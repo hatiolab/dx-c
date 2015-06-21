@@ -55,7 +55,6 @@ int dx_read_with_block_mode(int fd, void* buf, ssize_t sz) {
 int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 
 	dx_buffer_t* pbuf_reading = pcontext->pbuf_reading;
-	dx_packet_header_t* pheader;
 	int fd = pcontext->fd;
 	int nread;
 
@@ -96,7 +95,7 @@ int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 	nread = dx_buffer_read_from(pbuf_reading, fd);
 
 	if(dx_buffer_remains(pbuf_reading) == 0)
-		*ppacket = &pbuf_reading->data[0];
+		*ppacket = (dx_packet_t*)&pbuf_reading->data[0];
 	else
 		*ppacket = NULL;
 

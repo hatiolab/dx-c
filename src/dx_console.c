@@ -12,23 +12,27 @@
 
 #include <stdio.h>
 #include <unistd.h>			// For read
+#include <strings.h>		// For bzero
 #include <sys/socket.h>
 #include <sys/epoll.h>		// For epoll
 
-#include "dx_console.h"
+#include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
+
+#include "dx_util_trim.h"
+
+#include "dx_console_usage.h"
 #include "dx_event_mplexer.h"
 
-#include "dx.h"
-#include "dx_console_usage.h"
 #include "dx_net_client.h"
 #include "dx_net_packet.h"
 #include "dx_net_packet_file.h"
 #include "dx_net_server.h"
 #include "dx_net_dgram.h"
-#include "dx_util_trim.h"
+#include "dx_net_discovery.h"
 
-#include "dx_debug_assert.h"
-#include "dx_debug_malloc.h"
+#include "dx.h"
+#include "dx_console.h"
 
 #define DISCOVERY_SERVICE_PORT	3456
 
@@ -98,7 +102,6 @@ int dx_console_handler(dx_event_context_t* context) {
     case    'e':
     case    'E':
         printf("Event : \n");
-        send_event();
         break;
     case    'p':
     case    'P':
@@ -114,10 +117,6 @@ int dx_console_handler(dx_event_context_t* context) {
     }
 
     return 0;
-}
-
-int send_event() {
-	return 0;
 }
 
 int send_stream(int fd) {

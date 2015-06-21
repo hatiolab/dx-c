@@ -138,11 +138,17 @@ int dx_server_destroy() {
 }
 
 int dx_server_acceptable_handler(dx_event_context_t* context) {
-
+	dx_event_context_t* pcontext;
 	int client_fd = dx_accept_client();
 
 	printf("A Client tried to connect.. \n");
-	dx_add_event_context(client_fd, EPOLLIN | EPOLLOUT, dx_server_readable_handler, dx_server_writable_handler, NULL);
+	pcontext = dx_event_context_create();
+	pcontext->fd = client_fd;
+	pcontext->readable_handler = dx_server_readable_handler;
+	pcontext->writable_handler = dx_server_writable_handler;
+	pcontext->error_handler = NULL;
+
+	dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
 	printf("A Client tried to connect.. Accepted.\n");
 
 	return 0;
@@ -165,7 +171,6 @@ int dx_server_readable_handler(dx_event_context_t* context) {
 
 	if(0 == ret) {
 		printf("Client hung up\n");
-		close(context->fd);
 		dx_del_event_context(context);
 		return -1;
 	} else if(0 > ret) {
@@ -213,13 +218,21 @@ int dx_server_readable_handler(dx_event_context_t* context) {
 }
 
 int dx_server_start(int port) {
+	dx_event_context_t* pcontext;
+
 	/* create server */
 	dx_server_create();
 
 	dx_server_set_service_port(port);
 	dx_server_listen();
 
-	dx_add_event_context(dx_server_get_fd(), EPOLLIN, dx_server_acceptable_handler, NULL, NULL);
+	pcontext = dx_event_context_create();
+	pcontext->fd = dx_server_get_fd();
+	pcontext->readable_handler = dx_server_acceptable_handler;
+	pcontext->writable_handler = NULL;
+	pcontext->error_handler = NULL;
+
+	dx_add_event_context(pcontext, EPOLLIN);
 
 	return 0;
 }
