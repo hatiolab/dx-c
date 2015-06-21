@@ -33,6 +33,13 @@ typedef struct dx_malloc {
 #define DX_MALLOC_HEAD_SIZE (sizeof(dx_malloc_head_t))
 
 /*
+ * 메모리 할당 및 해제 횟수를 유지함.
+ * 성능 하락을 방지하기 위해서 Lock 은 적용하지 않으므로, 정확성은 신뢰할 수 없음.
+ */
+long __dx_alloc_count = 0;
+long __dx_free_count = 0;
+
+/*
  * 메모리 할당과 해제를 검증하기 위한 몇가지 작업을 포함한 메모리 할당
  * 1. 메모리 할당 관련 워터마크
  * 2. 메모리가 할당된 소스의 위치를 기록
@@ -46,6 +53,8 @@ void* dx_malloc(size_t sz, char* fname, int line) {
 	strncpy(head->filename, fname, sizeof(head->filename));
 	head->line = line;
 	head->size = sz;
+
+	__dx_alloc_count++;
 
 	return (void*)&(((dx_malloc_t*)head)->allocated[0]);
 }
@@ -65,9 +74,11 @@ void dx_free(void* p, char* filename, int line) {
 
 	memset(head->watermark, 0x0, DX_MALLOC_WATERMARK_SIZE);
 
+	__dx_free_count++;
+
 	free(head);
 }
 
 void dx_chkmem() {
-	printf("Checked.\n");
+	printf("[CHKMEM] %l Allocated, %l Freed. \n", __dx_alloc_count, __dx_free_count);
 }

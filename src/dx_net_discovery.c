@@ -12,6 +12,7 @@
 
 #include <stdint.h>			// For uint8_t
 #include <stdio.h>
+#include <string.h>			// For memset
 #include <unistd.h>			// For read
 #include <sys/socket.h>
 #include <sys/epoll.h>		// For epoll
@@ -22,9 +23,13 @@
 #include "dx_event_mplexer.h"
 
 #include "dx_net_client.h"
+#include "dx_net_server.h"
 #include "dx_net_packet.h"
 #include "dx_net_packet_file.h"
 #include "dx_net_dgram.h"
+
+#include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
 
 #define DISCOVERY_BUFFER_LENGTH DX_PRIMITIVE_PACKET_SIZE
 
@@ -60,11 +65,10 @@ int dx_discovery_server_handler(dx_event_context_t* context) {
 	struct sockaddr_in client_addr;
 	int ret, slen = sizeof(client_addr);
 	dx_packet_t* packet = NULL;
-	char hostname[INET_ADDRSTRLEN];
 
 	int client_discovery_port = 0;
 
-	ret = recvfrom(context->fd, __discovery_buffer, DISCOVERY_BUFFER_LENGTH, 0, (struct sockaddr*)&client_addr, &slen);
+	ret = recvfrom(context->fd, __discovery_buffer, DISCOVERY_BUFFER_LENGTH, 0, (struct sockaddr*)&client_addr, (socklen_t *)&slen);
 	if(ret == -1) {
 		perror("Discovery Server recvfrom() error");
 		close(context->fd);
@@ -113,7 +117,7 @@ int dx_discovery_client_handler(dx_event_context_t* context) {
 
 	int server_port = 0;
 
-	ret = recvfrom(context->fd, __discovery_buffer, DISCOVERY_BUFFER_LENGTH, 0, (struct sockaddr*)&server_addr, &slen);
+	ret = recvfrom(context->fd, __discovery_buffer, DISCOVERY_BUFFER_LENGTH, 0, (struct sockaddr*)&server_addr, (socklen_t *)&slen);
 	if(ret == -1) {
 		perror("Discovery Server recvfrom() error");
 		close(context->fd);
@@ -134,7 +138,7 @@ int dx_discovery_client_handler(dx_event_context_t* context) {
 		/*
 		 * Server에 아직 연결되지 않았다면, 서버 연결을 시도한다.
 		 */
-		dx_host_start(inet_ntoa(server_addr.sin_addr), server_port);
+		dx_client_start(inet_ntoa(server_addr.sin_addr), server_port);
 
 		break;
 

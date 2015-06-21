@@ -18,18 +18,38 @@
 #include <unistd.h>			// For close
 
 #include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
+
+#include "dx_util_buffer.h"
 #include "dx_util_list.h"
+
+#include "dx_net_packet.h"
 
 dx_event_mplexer_t* __dx_mplexer;
 
-int dx_event_context_find(void* context1, void* context2) {
+/*
+ * event_context_list에서 event_list를 찾기 위해 사용되는 비교함수이다.
+ * event_context의 fd가 같으면 같은 event_context로 간주한다.
+ */
+int dx_event_context_compare(void* context1, void* context2) {
 	return ((dx_event_context_t*)context1)->fd - ((dx_event_context_t*)context2)->fd;
 }
 
+/*
+ * 클로즈된 이벤트 컨텍스트를 파괴한다.
+ *
+ * 읽기 전용 바이트버퍼를 해제하고, 이벤트 컨텍스트에 할당된 메모리를 해제한다.
+ */
 int dx_event_context_destroyer(void* data) {
 	dx_event_context_t* context = (dx_event_context_t*)data;
 
 	epoll_ctl(__dx_mplexer->fd, EPOLL_CTL_DEL, context->fd, NULL);
+
+	/*
+	 * 바이트버퍼들을 해제한다.
+	 */
+	if(context->pbuf_reading != NULL)
+		dx_buffer_free(context->pbuf_reading);
 
 	FREE(context);
 
@@ -43,7 +63,7 @@ int dx_event_mplexer_create() {
 
 	__dx_mplexer = (dx_event_mplexer_t*)MALLOC(sizeof(dx_event_mplexer_t));
 
-	dx_list_init(&__dx_mplexer->context_list, dx_event_context_find, dx_event_context_destroyer);
+	dx_list_init(&__dx_mplexer->context_list, dx_event_context_compare, dx_event_context_destroyer);
 
 	__dx_mplexer->fd = epoll_create1(EPOLL_CLOEXEC);
 	if(__dx_mplexer->fd < 0) {
@@ -57,6 +77,11 @@ int dx_event_mplexer_create() {
 }
 
 int dx_event_mplexer_destroy() {
+	/*
+	 * TODO 현재 이벤트 폴링을 진행중인 쓰레드만이 이 메쏘드를 호출하도록 제한한다.
+	 */
+	ASSERT("Only Polling Thread can destroy Mplexer", __dx_mplexer->polling_thread)
+
 	dx_clear_event_context();
 	dx_list_clear(&__dx_mplexer->context_list);
 
@@ -74,14 +99,24 @@ int dx_event_mplexer_destroy() {
 int dx_event_mplexer_poll() {
 	int i, n;
 
-	__dx_mplexer->state = 0;
+	/*
+	 * 현재 쓰레드를 저장한다.
+	 */
+	__dx_mplexer->state = DX_EVENT_MPLEXER_STATE_POLLING;
+	__dx_mplexer->polling_thread = pthread_self();
 
 	n = epoll_wait(__dx_mplexer->fd, __dx_mplexer->events, DX_MAX_EVENT_POLL_SIZE, -1);
 	if(-1 == n) {
 		perror("Multiplexer - epoll_wait() error");
 		exit(1);
 	}
+	/*
+	 * TODO turn over된 태스크를 여기서 처리한다.
+	 */
 
+	/*
+	 * 발생한 모든 이벤트를 처리한다.
+	 */
 	for(i = 0;i < n;i++) {
 		struct dx_event_context *context = (struct dx_event_context*)__dx_mplexer->events[i].data.ptr;
 		uint32_t flags = __dx_mplexer->events[i].events;
@@ -97,10 +132,18 @@ int dx_event_mplexer_poll() {
 		}
 	}
 
+	/*
+	 * pthread_t 변수값을 초기화하는 공식적인 방법이 없으므로, 항상 mplexer의 state를 먼저 확인한다.
+	 */
+	__dx_mplexer->state = DX_EVENT_MPLEXER_STATE_NOTHING;
+
 	return __dx_mplexer->state;
 }
 
 int dx_event_mplexer_kill(int signo) {
+	/*
+	 * TODO event_mplexer를 poll_wait 상태에서 깨울 방법이 필요하다.
+	 */
 	__dx_mplexer->state = signo;
 
 	return 0;
@@ -117,6 +160,7 @@ int dx_add_event_context(int fd, uint32_t events, dx_event_handler readable_hand
 	context->readable_handler = readable_handler;
 	context->writable_handler = writable_handler;
 	context->error_handler = error_handler;
+	context->pbuf_reading = NULL;
 
 	dx_list_add(&__dx_mplexer->context_list, context);
 
@@ -127,7 +171,7 @@ int dx_add_event_context(int fd, uint32_t events, dx_event_handler readable_hand
 	return 0;
 }
 
-int dx_mdx_event_context(struct dx_event_context* context, uint32_t events) {
+int dx_mod_event_context(struct dx_event_context* context, uint32_t events) {
 	struct epoll_event event;
 
 	event.events = events;

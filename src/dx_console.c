@@ -27,16 +27,20 @@
 #include "dx_net_dgram.h"
 #include "dx_util_trim.h"
 
+#include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
+
 #define DISCOVERY_SERVICE_PORT	3456
 
-/* TODO fixme to find host file descriptors */
-extern int last_host_fd;
+/* TODO fixme to find client file descriptors */
+//extern int last_client_fd;
+int last_client_fd;
 
-#define	TO_DRIVE dx_client_get_fd()
-#define TO_HOST	last_host_fd
+#define	TO_SERVER dx_client_get_fd()
+#define TO_CLIENT	last_client_fd
 
-dx_dgram_context_t* odc_host;
-dx_dgram_context_t* odc_drive;
+dx_dgram_context_t* dx_client;
+dx_dgram_context_t* dx_server;
 
 int dx_console_handler(dx_event_context_t* context) {
     char buf[128];
@@ -56,28 +60,28 @@ int dx_console_handler(dx_event_context_t* context) {
 
     switch(buf[0]) {
     case	'f':
-    	dx_packet_get_filelist(TO_DRIVE, trim(&buf[1]));
+    	dx_packet_get_filelist(TO_SERVER, trim(&buf[1]));
     	break;
     case	'F':
-    	dx_packet_send_filelist(TO_HOST, trim(&buf[1]));
+    	dx_packet_send_filelist(TO_CLIENT, trim(&buf[1]));
     	break;
     case	'g':
-    	dx_packet_get_file(TO_DRIVE, trim(&buf[1]), 0, DX_FILE_PARTIAL_MAX_SIZE - 1);
+    	dx_packet_get_file(TO_SERVER, trim(&buf[1]), 0, DX_FILE_PARTIAL_MAX_SIZE - 1);
     	break;
     case	'G':
-//    	dx_packet_send_file(TO_HOST, trim(&buf[1]));
+//    	dx_packet_send_file(TO_CLIENT, trim(&buf[1]));
     	break;
     case    'd':
     case    'D':
-        dx_drive_start(0);
-        odc_drive = dx_discovery_server_start(DISCOVERY_SERVICE_PORT);
+//        dx_drive_start(0);
+        dx_server = dx_discovery_server_start(DISCOVERY_SERVICE_PORT);
         break;
     case    'h':
     case    'H':
-    	odc_host = dx_discovery_client_start(0);
+    	dx_client = dx_discovery_client_start(0);
         break;
     case    'v':
-    	dx_discovery_send_broadcast(odc_host, DISCOVERY_SERVICE_PORT);
+    	dx_discovery_send_broadcast(dx_client, DISCOVERY_SERVICE_PORT);
 		break;
     case    'b':
     case    'B':
@@ -89,7 +93,7 @@ int dx_console_handler(dx_event_context_t* context) {
         break;
     case    'k':
     case    'K':
-    	close(last_host_fd);
+    	close(last_client_fd);
         break;
     case    'e':
     case    'E':

@@ -51,6 +51,11 @@ int dx_buffer_getpos(dx_buffer_t* pbuf) {
 	return pbuf->position;
 }
 
+void dx_buffer_step_forward(dx_buffer_t* pbuf, int steps) {
+	pbuf->position += steps;
+	ASSERT("Buffer position should not greater than limit", pbuf->limit >= pbuf->position);
+}
+
 void dx_buffer_setlimit(dx_buffer_t* pbuf, int limit) {
 	ASSERT("Buffer Limit should not greater than capacity", limit > pbuf->capacity);
 	pbuf->limit = limit;
@@ -66,6 +71,10 @@ int dx_buffer_capacity(dx_buffer_t* pbuf) {
 
 int dx_buffer_remains(dx_buffer_t* pbuf) {
 	return pbuf->limit - pbuf->position;
+}
+
+uint8_t* dx_buffer_ppos(dx_buffer_t* pbuf) {
+	return &(pbuf->data[0]) + pbuf->position;
 }
 
 int dx_buffer_put(dx_buffer_t* pbuf, void* psrc, int sz) {
@@ -89,3 +98,14 @@ int dx_buffer_get(dx_buffer_t* pbuf, void* pdest, int sz) {
 
 	return copied;
 }
+
+int dx_buffer_read_from(dx_buffer_t* pbuf, int fd) {
+	int nread = dx_buffer_remains(pbuf);
+
+	nread = read(fd, dx_buffer_ppos(pbuf), nread);
+
+	dx_buffer_step_forward(pbuf, nread);
+
+	return nread;
+}
+

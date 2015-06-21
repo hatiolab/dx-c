@@ -214,7 +214,7 @@ typedef struct dx_stream_packet {
 
 int dx_write(int fd, const void* buf, ssize_t sz);
 
-int dx_packet_alloc(int fd, dx_packet_t** packet);
+//int dx_packet_alloc(int fd, dx_packet_t** packet);
 
 int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t data);
 

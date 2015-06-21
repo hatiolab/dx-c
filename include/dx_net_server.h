@@ -30,4 +30,9 @@ int dx_server_get_service_port();
 int	dx_server_set_service_port(uint16_t port);
 int dx_server_get_fd();
 
+int dx_server_acceptable_handler(dx_event_context_t* context);
+int dx_server_writable_handler(dx_event_context_t* context);
+int dx_server_readable_handler(dx_event_context_t* context);
+int dx_server_start(int port);
+
 #endif /* DX_NET_SERVER_H */

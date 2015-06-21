@@ -32,11 +32,30 @@ void dx_buffer_reset(dx_buffer_t* pbuf);
 void dx_buffer_flip(dx_buffer_t* pbuf);
 void dx_buffer_setpos(dx_buffer_t* pbuf, int pos);
 int dx_buffer_getpos(dx_buffer_t* pbuf);
+/*
+ * dx_buffer_step_forward
+ *
+ * 바이트 버퍼의 현재 포지션을 steps 만큼 앞으로 이동시킨다.
+ */
+void dx_buffer_step_forward(dx_buffer_t* pbuf, int steps);
 void dx_buffer_setlimit(dx_buffer_t* pbuf, int limit);
 int dx_buffer_getlimit(dx_buffer_t* pbuf);
 int dx_buffer_capacity(dx_buffer_t* pbuf);
 int dx_buffer_remains(dx_buffer_t* pbuf);
+/*
+ * dx_buffer_ppos
+ *
+ * 바이트 버퍼의 현재 포지션에 해당하는 주소를 반환한다.
+ */
+uint8_t* dx_buffer_ppos(dx_buffer_t* pbuf);
 int dx_buffer_put(dx_buffer_t* pbuf, void* psrc, int sz);
 int dx_buffer_get(dx_buffer_t* pbuf, void* pdest, int sz);
+
+/*
+ * dx_buffer_read_from
+ *
+ * 파일로부터 버퍼로 읽어온다.
+ */
+int dx_buffer_read_from(dx_buffer_t* pbuf, int fd);
 
 #endif /* __DX_UTIL_BUFFER_H */

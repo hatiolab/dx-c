@@ -10,27 +10,19 @@
 // PARTICULAR PURPOSE.
 //
 
-#ifndef __DX_NET_CLIENT_H
-#define __DX_NET_CLIENT_H
-
-#include <netinet/in.h>		// For uint16_t
+#ifndef __DX_NET_PACKET_IO_H
+#define __DX_NET_PACKET_IO_H
 
 #include "dx_event_mplexer.h"
-#include "dx_net.h"
+#include "dx_net_packet.h"
 
 /*
  * Definitions
  */
 
 /* APIs */
-int dx_client_create();
-int	dx_client_connect(char* hostname, uint16_t port);
-int dx_client_destroy();
 
-int dx_client_get_fd();
+int dx_read_with_block_mode(int fd, void* buf, ssize_t sz);
+int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket);
 
-int dx_client_writable_handler(dx_event_context_t* context);
-int dx_client_readable_handler(dx_event_context_t* context);
-int dx_client_start(char* hostname, int port);
-
-#endif /* DX_NET_CLIENT_H */
+#endif /* DX_NET_PACKET_IO_H */

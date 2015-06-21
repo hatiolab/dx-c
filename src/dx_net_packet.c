@@ -14,13 +14,18 @@
 
 #include <stdio.h>		// For FILE, fopen, fclose
 #include <stddef.h>		// For NULL
+#include <string.h>		// For memcpy
 #include <sys/socket.h>
+#include <netinet/in.h> // For htonl, ...
 #include <stdlib.h>		// For malloc
 #include <fcntl.h>		// For read, write
 #include <stdint.h>		// For uint32_t, ...
 #include <sys/stat.h>	// For stat
 #include <dirent.h>		// For DIR, opendir, ...
 #include <errno.h>		// For errno
+
+#include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
 
 int dx_write(int fd, const void* buf, ssize_t sz) {
 	int twrite = 0;
@@ -41,7 +46,7 @@ int dx_write(int fd, const void* buf, ssize_t sz) {
 	}
 
 	if(sz != twrite) {
-		printf("dx_write() mismatch [%d - %d]\n", twrite, sz);
+		printf("dx_write() mismatch [%d - %d]\n", twrite, (int)sz);
 	}
 
 	/* Set socket to non-blocking again */
@@ -51,66 +56,38 @@ int dx_write(int fd, const void* buf, ssize_t sz) {
 	return twrite;
 }
 
-int dx_read(int fd, void* buf, ssize_t sz) {
-	int tread = 0;
-	int nread = 0;
-	int flags;
-
-	/* Set socket to blocking mode */
-	flags = fcntl(fd, F_GETFL);
-	fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
-
-	while(sz - tread > 0) {
-		nread = read(fd, buf + tread, sz - tread);
-		if(nread <= 0) {
-			perror("read() error");
-			break;
-		}
-		tread += nread;
-	}
-
-	if(sz != tread) {
-		printf("dx_read() mismatch [%d - %d]\n", nread, sz);
-	}
-
-	/* Set socket to non-blocking again */
-	flags = fcntl(fd, F_GETFL);
-	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-
-	return tread;
-}
-
-int dx_packet_alloc(int fd, dx_packet_t** ppacket) {
-	dx_packet_header_t* packet;
-	dx_packet_header_t header;
-	ssize_t	nbytes;
-
-	nbytes = dx_read(fd, &header, DX_PACKET_HEADER_SIZE);
-	if(nbytes < 1)
-		return nbytes;
-
-	header.len = ntohl(header.len);
-
-	packet = (dx_packet_t*)MALLOC(header.len);
-	memcpy(packet, &header, DX_PACKET_HEADER_SIZE);
-
-	if(header.len > DX_PACKET_HEADER_SIZE) {
-
-		ssize_t nread;
-
-		nread = dx_read(fd, ((void*)packet) + DX_PACKET_HEADER_SIZE, header.len - DX_PACKET_HEADER_SIZE);
-
-		if(nread < 1) {
-			FREE(packet);
-			packet = NULL;
-			return nread;
-		}
-	}
-
-	*ppacket = packet;
-
-	return header.len;
-}
+//
+//int dx_packet_alloc(int fd, dx_packet_t** ppacket) {
+//	dx_packet_t* packet;
+//	dx_packet_header_t header;
+//	ssize_t	nbytes;
+//
+//	nbytes = dx_read(fd, &header, DX_PACKET_HEADER_SIZE);
+//	if(nbytes < 1)
+//		return nbytes;
+//
+//	header.len = ntohl(header.len);
+//
+//	packet = (dx_packet_t*)MALLOC(header.len);
+//	memcpy(packet, &header, DX_PACKET_HEADER_SIZE);
+//
+//	if(header.len > DX_PACKET_HEADER_SIZE) {
+//
+//		ssize_t nread;
+//
+//		nread = dx_read(fd, ((void*)packet) + DX_PACKET_HEADER_SIZE, header.len - DX_PACKET_HEADER_SIZE);
+//
+//		if(nread < 1) {
+//			FREE(packet);
+//			packet = NULL;
+//			return nread;
+//		}
+//	}
+//
+//	*ppacket = packet;
+//
+//	return header.len;
+//}
 
 int dx_packet_send_header(int fd, int type, int code) {
 	dx_packet_t* packet;
@@ -299,7 +276,7 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
 }
 
 int dx_packet_send_string(int fd, int type, int code, char* data) {
-	return dx_packet_send_array_u8(fd, type, code, data, strlen(data));
+	return dx_packet_send_array_u8(fd, type, code, (uint8_t*)data, strlen(data));
 	dx_u8_array_packet_t* packet;
 	int datalen = strlen(data);
 	uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);

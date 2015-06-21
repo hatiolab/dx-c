@@ -10,8 +10,6 @@
 // PARTICULAR PURPOSE.
 //
 
-#include "dx_net_server.h"
-
 #include <stdio.h>			// For printf, ..
 #include <stdlib.h>			// For exit, ..
 #include <unistd.h>			// For STDIN_FILENO, close
@@ -20,28 +18,38 @@
 #include <netinet/tcp.h>	// TCP_NODELAY, TCP_QUICKACK
 #include <string.h>			// For memset
 #include <fcntl.h>			// For fcntl
+#include <sys/epoll.h>		// For epoll
+
+#include "dx.h"
 
 #include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
+
+#include "dx_util_buffer.h"
+
+#include "dx_event_mplexer.h"
+#include "dx_net_packet_io.h"
+#include "dx_net_server.h"
 
 struct dx_server_context {
 
 	uint16_t	service_port;
 
 	int 		server_socket_fd;
-}* __osc;
+}* __dsc;
 
 int dx_server_set_service_port(uint16_t port) {
-	__osc->service_port = port;
+	__dsc->service_port = port;
 
 	return 0;
 }
 
 int dx_server_get_service_port() {
-	return __osc->service_port;
+	return __dsc->service_port;
 }
 
 int dx_server_get_fd() {
-	return __osc->server_socket_fd;
+	return __dsc->server_socket_fd;
 }
 
 int dx_accept_client() {
@@ -54,7 +62,7 @@ int dx_accept_client() {
 
 	addrlen = sizeof(clientaddr);
 
-	client_fd = accept(__osc->server_socket_fd, (struct sockaddr*)&clientaddr, &addrlen);
+	client_fd = accept(__dsc->server_socket_fd, (struct sockaddr*)&clientaddr, &addrlen);
 
 	/* Set Receive Buffer Size */
 	setsockopt(client_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
@@ -73,19 +81,19 @@ int dx_server_listen() {
 
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(__osc->service_port);
+	serveraddr.sin_port = htons(__dsc->service_port);
 	memset(&(serveraddr.sin_zero), '\0', 8);
 
-	if(-1 == bind(__osc->server_socket_fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) {
+	if(-1 == bind(__dsc->server_socket_fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) {
 		perror("Server-bind() error");
 		exit(1);
 	}
 
 	/* TODO 여기에서 실제로 바인드된 포트를 알아낸다. */
-	getsockname(__osc->server_socket_fd, (struct sockaddr*)&serveraddr, &len);
-	__osc->service_port = ntohs(serveraddr.sin_port);
+	getsockname(__dsc->server_socket_fd, (struct sockaddr*)&serveraddr, (socklen_t *)&len);
+	__dsc->service_port = ntohs(serveraddr.sin_port);
 
-	if(-1 == listen(__osc->server_socket_fd, 10)) {
+	if(-1 == listen(__dsc->server_socket_fd, 10)) {
 		perror("Server-listen() error");
 		exit(1);
 	}
@@ -98,19 +106,19 @@ int dx_server_create() {
 	int yes = 1;
 	int flags;
 
-	__osc = MALLOC(sizeof(struct dx_server_context));
+	__dsc = MALLOC(sizeof(struct dx_server_context));
 
-	__osc->server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if(__osc->server_socket_fd == -1) {
+	__dsc->server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if(__dsc->server_socket_fd == -1) {
 		perror("Server - socket() error");
 		exit(1);
 	}
 
 	/* Set socket to non-blocking mode */
-	flags = fcntl(__osc->server_socket_fd, F_GETFL);
-	fcntl(__osc->server_socket_fd, F_SETFL, flags | O_NONBLOCK);
+	flags = fcntl(__dsc->server_socket_fd, F_GETFL);
+	fcntl(__dsc->server_socket_fd, F_SETFL, flags | O_NONBLOCK);
 
-	if(-1 == setsockopt(__osc->server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
+	if(-1 == setsockopt(__dsc->server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
 		perror("Server-setsockopt() error");
 		exit(1);
 	}
@@ -119,12 +127,99 @@ int dx_server_create() {
 }
 
 int dx_server_destroy() {
-	if(!__osc->server_socket_fd)
+	if(!__dsc->server_socket_fd)
 		return 0;
 
-	FREE(__osc);
+	FREE(__dsc);
 
-	__osc = NULL;
+	__dsc = NULL;
+
+	return 0;
+}
+
+int dx_server_acceptable_handler(dx_event_context_t* context) {
+
+	int client_fd = dx_accept_client();
+
+	printf("A Client tried to connect.. \n");
+	dx_add_event_context(client_fd, EPOLLIN | EPOLLOUT, dx_server_readable_handler, dx_server_writable_handler, NULL);
+	printf("A Client tried to connect.. Accepted.\n");
+
+	return 0;
+}
+
+int dx_server_writable_handler(dx_event_context_t* context) {
+	dx_mod_event_context(context, EPOLLIN);
+
+	dx_packet_send_event_u32(context->fd, DX_EVT_CONNECT, 0);
+
+	return 0;
+}
+
+int dx_server_readable_handler(dx_event_context_t* context) {
+
+	dx_packet_t* packet = NULL;
+	int ret;
+
+	ret = dx_receive_packet(context, &packet);
+
+	if(0 == ret) {
+		printf("Client hung up\n");
+		close(context->fd);
+		dx_del_event_context(context);
+		return -1;
+	} else if(0 > ret) {
+		perror("Server read() error");
+		close(context->fd);
+		dx_del_event_context(context);
+		return -2;
+	}
+
+	/* 이번 이벤트처리시에 패킷 데이타를 다 못읽었기 때문에, 다음 이벤트에서 계속 진행하도록 리턴함 */
+	if(packet == NULL)
+		return 0;
+
+//	switch(packet->header.type) {
+//	case DX_PACKET_TYPE_HB : /* Heart Beat */
+//		dx_server_handler_hb(context->fd, packet);
+//		break;
+//	case DX_PACKET_TYPE_GET_SETTING	: /* Get Setting */
+//		dx_server_handler_get_setting(context->fd, packet);
+//		break;
+//	case DX_PACKET_TYPE_SET_SETTING : /* Set Setting */
+//		dx_server_handler_set_setting(context->fd, packet);
+//		break;
+//	case DX_PACKET_TYPE_GET_STATE : /* Get State */
+//		dx_server_handler_get_state(context->fd, packet);
+//		break;
+//	case DX_PACKET_TYPE_SET_STATE : /* Set State */
+//		dx_server_handler_set_state(context->fd, packet);
+//		break;
+//	case DX_PACKET_TYPE_EVENT : /* Event */
+//		dx_server_handler_event(context->fd, packet);
+//		break;
+//	case DX_PACKET_TYPE_COMMAND : /* Command */
+//		dx_server_handler_command(context->fd, packet);
+//		break;
+//	case DX_PACKET_TYPE_FILE 	: /* File */
+//		dx_server_handler_file(context->fd, packet);
+//		break;
+//	default:	/* Should not reach to here */
+//		ASSERT("Server Event Handling.. should not reach to here.", !!0);
+//		break;
+//	}
+
+	return 0;
+}
+
+int dx_server_start(int port) {
+	/* create server */
+	dx_server_create();
+
+	dx_server_set_service_port(port);
+	dx_server_listen();
+
+	dx_add_event_context(dx_server_get_fd(), EPOLLIN, dx_server_acceptable_handler, NULL, NULL);
 
 	return 0;
 }

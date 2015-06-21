@@ -24,6 +24,11 @@
 
 #include "dx.h"
 
+#include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
+
+#include "dx_net_packet_io.h"
+
 int dx_packet_get_filelist(int fd, char* path) {
 	return dx_packet_send_string(fd, DX_PACKET_TYPE_FILE, DX_FILE_GET_LIST, path);
 }
@@ -52,7 +57,7 @@ int dx_packet_send_filelist(int fd, char* path) {
 		closedir(dir);
 
 		packet_len = DX_FILEINFO_ARRAY_PACKET_SIZE(count);
-		packet = (dx_fileinfo_array_packet_t*)malloc(packet_len);
+		packet = (dx_fileinfo_array_packet_t*)MALLOC(packet_len);
 		packet->header.len = htonl(packet_len);
 		packet->header.type = DX_PACKET_TYPE_FILE;
 		packet->header.code = DX_FILE_LIST;
@@ -90,7 +95,7 @@ int dx_packet_get_file(int fd, char* path, uint32_t begin, uint32_t end) {
 	dx_file_query_packet_t* packet;
 	uint32_t len = DX_FILE_QUERY_PACKET_SIZE;
 
-	packet = (dx_file_query_packet_t*)mallocf(len);
+	packet = (dx_file_query_packet_t*)MALLOC(len);
 
 	packet->header.len = htonl(len);
 	packet->header.type = DX_PACKET_TYPE_FILE;
@@ -133,12 +138,12 @@ int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {
 		partial_len = end - begin + 1;
 
 		nread = 0, n;
-		data = malloc(partial_len);
+		data = MALLOC(partial_len);
 
 		lseek(file, begin, SEEK_SET);
 
 		while(partial_len - nread > 0) {
-			n = dx_read(file, data + nread, partial_len - nread);
+			n = dx_read_with_block_mode(file, data + nread, partial_len - nread);
 			if(n > 0) {
 				nread += n;
 			} else {
@@ -155,7 +160,7 @@ int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {
 		dx_file_packet_t* packet;
 		uint32_t packet_len = DX_FILE_PACKET_SIZE(partial_len);
 
-		packet = (dx_u8_array_packet_t*)malloc(packet_len);
+		packet = (dx_u8_array_packet_t*)MALLOC(packet_len);
 
 		packet->header.len = htonl(packet_len);
 		packet->header.type = DX_PACKET_TYPE_FILE;

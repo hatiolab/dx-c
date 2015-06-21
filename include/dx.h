@@ -39,6 +39,8 @@
 /* Event Types */
 
 #define DX_EVT_BASE                     0x00
+#define DX_EVT_CONNECT                  (DX_EVT_BASE + 0)   /* 옴니드라이브가 연결되었을 때 발생 */
+#define DX_EVT_DISCONNECT               (DX_EVT_BASE + 1)   /* 옴니드라이브 연결이 끊겼을 때 발생 */
 
 /* Alarm Code */
 
