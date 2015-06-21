@@ -15,6 +15,7 @@
 #include <stdlib.h>	// For malloc
 
 #include "../include/dx_debug_assert.h"
+#include "../include/dx_debug_malloc.h"
 
 int dx_list_init(dx_list_t* plist, dx_find_function finder, dx_destroyer_function destroyer) {
 
@@ -30,7 +31,7 @@ int dx_list_init(dx_list_t* plist, dx_find_function finder, dx_destroyer_functio
 int dx_list_add(dx_list_t* plist, void* data) {
 	dx_list_node_t*	pnode;
 
-	pnode = (dx_list_node_t*)malloc(sizeof(dx_list_node_t));
+	pnode = (dx_list_node_t*)MALLOC(sizeof(dx_list_node_t));
 
 	pnode->data = data;
 
@@ -70,7 +71,7 @@ int dx_list_remove(dx_list_t* plist, void* data) {
 	}
 
 	plist->destroyer(pnode->data);
-	free(pnode);
+	FREE(pnode);
 
 	return 0;
 }
