@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "dx_util_lock.h"
 #include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
+
+#include "dx_util_lock.h"
 
 #define UTIL_LOCK_TEST_THREAD_COUNT 16
 
@@ -41,7 +43,7 @@ void util_lock_test() {
 
 	ASSERT("Lock dosen't work.", _util_lock_test_counter == 0xFFFFFFL * UTIL_LOCK_TEST_THREAD_COUNT)
 
-	printf("..Done\n");
+	CHKMEM();
 
 	dx_lock_destroy();
 }

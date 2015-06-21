@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "dx_util_buffer.h"
 #include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
+
+#include "dx_util_buffer.h"
 
 void util_buffer_test() {
 	dx_buffer_t* pbuf = dx_buffer_alloc(1000);
@@ -31,4 +33,6 @@ void util_buffer_test() {
 	ASSERT("Buffer Remains should be 0", dx_buffer_remains(pbuf) == 0)
 
 	dx_buffer_free(pbuf);
+
+	CHKMEM();
 }

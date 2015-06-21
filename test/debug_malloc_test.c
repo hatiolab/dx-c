@@ -21,8 +21,8 @@ void debug_malloc_test() {
 	printf("First Try for Free\n");
 	FREE(p);
 
-	printf("Second Try for Free\n");
-	FREE(p);
+//	printf("Second Try for Free\n");
+//	FREE(p);
 
 	CHKMEM();
 }
