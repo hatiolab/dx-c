@@ -10,7 +10,7 @@
 // PARTICULAR PURPOSE.
 //
 
-#include "../include/dx_net_packet_file.h"
+#include "dx_net_packet_file.h"
 
 #include <stdio.h>		// For FILE, fopen, fclose
 #include <stddef.h>		// For NULL
@@ -22,7 +22,7 @@
 #include <dirent.h>		// For DIR, opendir, ...
 #include <errno.h>		// For errno
 
-#include "../include/dx.h"
+#include "dx.h"
 
 int dx_packet_get_filelist(int fd, char* path) {
 	return dx_packet_send_string(fd, DX_PACKET_TYPE_FILE, DX_FILE_GET_LIST, path);

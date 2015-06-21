@@ -12,9 +12,9 @@
 
 #include <string.h> // For memcpy
 
-#include "../include/dx_debug_assert.h"
-#include "../include/dx_debug_malloc.h"
-#include "../include/dx_util_buffer.h"
+#include "dx_debug_assert.h"
+#include "dx_debug_malloc.h"
+#include "dx_util_buffer.h"
 
 dx_buffer_t* dx_buffer_alloc(int capacity) {
 	dx_buffer_t* pbuf = (dx_buffer_t*)MALLOC(DX_BUFFER_SIZE(capacity));

@@ -10,7 +10,7 @@
 // PARTICULAR PURPOSE.
 //
 
-#include "../include/dx_net_packet.h"
+#include "dx_net_packet.h"
 
 #include <stdio.h>		// For FILE, fopen, fclose
 #include <stddef.h>		// For NULL

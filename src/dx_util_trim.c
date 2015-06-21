@@ -10,7 +10,7 @@
 // PARTICULAR PURPOSE.
 //
 
-#include "../include/dx_util_trim.h"
+#include "dx_util_trim.h"
 
 #include <fcntl.h>
 

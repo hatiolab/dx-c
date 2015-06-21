@@ -12,7 +12,7 @@
 
 #include <pthread.h>
 
-#include "../include/dx_debug_assert.h"
+#include "dx_debug_assert.h"
 
 pthread_mutex_t __dx_lock;
 

@@ -13,7 +13,7 @@
 #include <stdint.h> // For uint8_t
 #include <stdlib.h> // For malloc, free, size_t
 
-#include "../include/dx_debug_assert.h"
+#include "dx_debug_assert.h"
 
 #define DX_MALLOC_WATERMARK "DXMAWTMR"
 #define DX_MALLOC_WATERMARK_SIZE 8

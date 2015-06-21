@@ -10,7 +10,7 @@
 // PARTICULAR PURPOSE.
 //
 
-#include "../include/dx_net_server.h"
+#include "dx_net_server.h"
 
 #include <stdio.h>			// For printf, ..
 #include <stdlib.h>			// For exit, ..
@@ -21,7 +21,7 @@
 #include <string.h>			// For memset
 #include <fcntl.h>			// For fcntl
 
-#include "../include/dx_debug_assert.h"
+#include "dx_debug_assert.h"
 
 struct dx_server_context {
 

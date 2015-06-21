@@ -10,7 +10,7 @@
 // PARTICULAR PURPOSE.
 //
 
-#include "../include/dx_net_dgram.h"
+#include "dx_net_dgram.h"
 
 #include <stdio.h>			// For printf, ..
 #include <stdlib.h>			// For exit, ..
@@ -20,7 +20,7 @@
 #include <string.h>			// For memset
 #include <fcntl.h>			// For fcntl
 
-#include "../include/dx_debug_assert.h"
+#include "dx_debug_assert.h"
 
 int dx_dgram_set_service_port(dx_dgram_context_t* odc, uint16_t port) {
 	odc->service_port = port;
