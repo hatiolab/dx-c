@@ -13,15 +13,14 @@
 #include <stdint.h> // For uint8_t
 #include <stdlib.h> // For malloc, free, size_t
 
-#include "../include/dx_assert.h"
+#include "../include/dx_debug_assert.h"
 
-#define DX_MALLOC_WATERMARK "DXMA"
-#define DX_MALLOC_WATERMARK_FREE "DXFR"
-#define DX_MALLOC_WATERMARK_SIZE 4
+#define DX_MALLOC_WATERMARK "DXMAWTMR"
+#define DX_MALLOC_WATERMARK_SIZE 8
 
 typedef struct dx_malloc_head {
-	char watermark[4];
-	char filename[52];
+	char watermark[DX_MALLOC_WATERMARK_SIZE];
+	char filename[48];
 	int line;
 	int size;
 } dx_malloc_head_t;
@@ -59,7 +58,7 @@ void* dx_malloc(size_t sz, char* fname, int line) {
  */
 void dx_free(void* p, char* filename, int line) {
 	dx_malloc_head_t* head = (dx_malloc_head_t*)(p - DX_MALLOC_HEAD_SIZE);
-	if(0 != strncmp(head->watermark, DX_MALLOC_WATERMARK, DX_MALLOC_WATERMARK_SIZE)) {
+	if(0 != memcmp(head->watermark, DX_MALLOC_WATERMARK, DX_MALLOC_WATERMARK_SIZE)) {
 		printf("[ASSERT FREE] allocated at %20s:%d(sized %d), freed at %s:%d", head->filename, head->line, head->size, filename, line);
 		exit(0);
 	}

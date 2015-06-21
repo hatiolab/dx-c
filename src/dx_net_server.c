@@ -20,7 +20,8 @@
 #include <netinet/tcp.h>	// TCP_NODELAY, TCP_QUICKACK
 #include <string.h>			// For memset
 #include <fcntl.h>			// For fcntl
-#include "../include/dx_assert.h"
+
+#include "../include/dx_debug_assert.h"
 
 struct dx_server_context {
 

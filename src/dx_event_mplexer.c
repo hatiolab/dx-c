@@ -17,7 +17,7 @@
 #include <sys/epoll.h>		// For epoll
 #include <unistd.h>			// For close
 
-#include "../include/dx_assert.h"
+#include "../include/dx_debug_assert.h"
 #include "../include/dx_util_list.h"
 
 dx_event_mplexer_t* __dx_mplexer;

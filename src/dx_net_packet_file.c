@@ -21,6 +21,7 @@
 #include <sys/stat.h>	// For stat
 #include <dirent.h>		// For DIR, opendir, ...
 #include <errno.h>		// For errno
+
 #include "../include/dx.h"
 
 int dx_packet_get_filelist(int fd, char* path) {

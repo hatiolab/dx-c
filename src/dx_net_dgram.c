@@ -19,7 +19,8 @@
 #include <netinet/in.h>		// For uint16_t, ...
 #include <string.h>			// For memset
 #include <fcntl.h>			// For fcntl
-#include "../include/dx_assert.h"
+
+#include "../include/dx_debug_assert.h"
 
 int dx_dgram_set_service_port(dx_dgram_context_t* odc, uint16_t port) {
 	odc->service_port = port;

@@ -20,7 +20,8 @@
 #include <netdb.h>			// For gethostbyname
 #include <fcntl.h>			// For fcntl
 #include <errno.h>			// For errno
-#include "../include/dx_assert.h"
+
+#include "../include/dx_debug_assert.h"
 
 typedef struct dx_client_context dx_client_context_t;
 

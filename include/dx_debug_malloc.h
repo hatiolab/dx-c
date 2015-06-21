@@ -10,18 +10,19 @@
 // PARTICULAR PURPOSE.
 //
 
-#ifndef __DX_ASSERT_H
-#define __DX_ASSERT_H
-
-#include <stdio.h>
+#ifndef __DX_UTIL_MALLOC_H
+#define __DX_UTIL_MALLOC_H
 
 /*
  * Definitions
  */
 
-#define ASSERT(s,t)	if(!t) { printf("[ASSERT] : %s (%s(%d))\n", s, __FILE__, __LINE__); }
+void* dx_malloc(size_t sz, char* fname, int line);
+void dx_free(void* p, char* filename, int line);
+void dx_chkmem();
 
-#define MALLOC(z) (dxalloc(z, __FILE__, __LINE__))
-#define FREE(p) (dxfree(p))
+#define MALLOC(z) (dx_malloc(z, __FILE__, __LINE__))
+#define FREE(p) (dx_free(p, __FILE__, __LINE__))
+#define CHKMEM() (dx_chkmem())
 
-#endif /* DX_ASSERT_H */
+#endif /* DX_UTIL_MALLOC_H */

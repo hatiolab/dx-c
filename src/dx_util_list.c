@@ -13,7 +13,8 @@
 #include "../include/dx_util_list.h"
 
 #include <stdlib.h>	// For malloc
-#include "../include/dx_assert.h"
+
+#include "../include/dx_debug_assert.h"
 
 int dx_list_init(dx_list_t* plist, dx_find_function finder, dx_destroyer_function destroyer) {
 
