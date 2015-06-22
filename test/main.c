@@ -41,5 +41,9 @@ int main(void) {
 	net_server_test();
 	printf("..Done\n");
 
+//	printf("\nTest - net_dgram_loopback_test()..\n");
+//	net_dgram_loopback_test();
+//	printf("..Done\n");
+
 	return EXIT_SUCCESS;
 }

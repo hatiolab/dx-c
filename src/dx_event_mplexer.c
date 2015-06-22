@@ -70,7 +70,7 @@ int dx_event_mplexer_destroy() {
 	return 0;
 }
 
-int dx_event_mplexer_poll() {
+int dx_event_mplexer_poll(int ts) {
 	int i, n;
 
 	/*
@@ -79,7 +79,7 @@ int dx_event_mplexer_poll() {
 	__dx_mplexer->state = DX_EVENT_MPLEXER_STATE_POLLING;
 	__dx_mplexer->polling_thread = pthread_self();
 
-	n = epoll_wait(__dx_mplexer->fd, __dx_mplexer->events, DX_MAX_EVENT_POLL_SIZE, -1);
+	n = epoll_wait(__dx_mplexer->fd, __dx_mplexer->events, DX_MAX_EVENT_POLL_SIZE, ts);
 	if(-1 == n) {
 		perror("Multiplexer - epoll_wait() error");
 		exit(1);

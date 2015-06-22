@@ -24,6 +24,8 @@
 #include "dx_net_packet.h"	// For DX_PACKET_HEADER_SIZE
 #include "dx_net_packet_io.h"
 
+#include "dx_net_dgram.h"	// For DX_DGRAM_MAX_PACKET_SIZE
+
 
 int dx_write(int fd, const void* buf, ssize_t sz) {
 	int twrite = 0;
@@ -54,6 +56,9 @@ int dx_write(int fd, const void* buf, ssize_t sz) {
 	return twrite;
 }
 
+/*
+ *  파일에서 읽는 경우에 사용함.
+ */
 int dx_read_with_block_mode(int fd, void* buf, ssize_t sz) {
 	int tread = 0; /* 전체 읽은 바이트 수 */
 	int nread = 0; /* read()시 읽은 바이트 수 */
@@ -125,7 +130,7 @@ int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 	nread = dx_buffer_read_from(pbuf_reading, fd);
 
 	if(dx_buffer_remains(pbuf_reading) == 0) {
-		*ppacket = (dx_packet_t*)&pbuf_reading->data[0];
+		*ppacket = (dx_packet_t*)pbuf_reading->data;
 		dx_buffer_clear(pbuf_reading);
 	} else {
 		*ppacket = NULL;
@@ -133,3 +138,62 @@ int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 
 	return nread;
 }
+
+int dx_receive_dgram(dx_event_context_t* pcontext, dx_packet_t** ppacket, struct sockaddr* peer_addr) {
+
+	dx_buffer_t* pbuf_reading = pcontext->pbuf_reading;
+	int fd = pcontext->fd;
+	int nread;
+	socklen_t slen;
+
+	/* 각 세션별 패킷용 바이트버퍼를 찾아와서, 상태를 확인한다. */
+	if(pbuf_reading == NULL) {
+		pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(DX_DGRAM_MAX_PACKET_SIZE);
+	}
+
+	nread = recvfrom(fd, pbuf_reading->data, DX_DGRAM_MAX_PACKET_SIZE, 0, peer_addr, &slen);
+	if(nread <= 0) /* 오류 상황임 */
+		return nread;
+
+	*ppacket = (dx_packet_t*)pbuf_reading->data;
+
+	return nread;
+}
+
+/*
+ * dx_send_packet_to
+ *
+ * Datagram Socket으로 패킷을 전송한다.
+ */
+int dx_send_to(int fd, dx_packet_t* packet, struct sockaddr_in* to) {
+
+	uint32_t len = ntohl(packet->header.len);
+
+	/* Send to broadcast */
+
+	len = sendto(fd, packet, len, 0, (struct sockaddr*)to, sizeof(struct sockaddr_in));
+	if(len == -1) {
+		perror("Send packet to datagram error. - sendto()");
+	}
+
+	return len;
+}
+
+/*
+ * dx_send_broadcast
+ *
+ * Datagram Socket으로 패킷을 Broadcast 한다.
+ */
+int dx_send_broadcast(int fd, dx_packet_t* packet, int port) {
+	struct sockaddr_in	broadcast_addr;
+
+	/* Send to broadcast */
+
+	broadcast_addr.sin_family = AF_INET;
+	broadcast_addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+	broadcast_addr.sin_port = htons(port);
+	memset(&(broadcast_addr.sin_zero), '\0', 8);
+
+	return dx_send_to(fd, packet, &broadcast_addr);
+}
+

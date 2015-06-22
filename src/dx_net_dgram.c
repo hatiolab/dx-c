@@ -19,40 +19,43 @@
 #include <netinet/in.h>		// For uint16_t, ...
 #include <string.h>			// For memset
 #include <fcntl.h>			// For fcntl
+#include <sys/epoll.h>		// For EPOLLIN
 
 #include "dx_debug_assert.h"
 
-int dx_dgram_set_service_port(dx_dgram_context_t* odc, uint16_t port) {
-	odc->service_port = port;
+int dx_dgram_readable_handler(dx_event_context_t* context);
+
+int dx_dgram_set_service_port(dx_dgram_context_t* ddc, uint16_t port) {
+	ddc->service_port = port;
 
 	return 0;
 }
 
-int dx_dgram_get_service_port(dx_dgram_context_t* odc) {
-	return odc->service_port;
+int dx_dgram_get_service_port(dx_dgram_context_t* ddc) {
+	return ddc->service_port;
 }
 
-int dx_dgram_get_fd(dx_dgram_context_t* odc) {
-	return odc->socket_fd;
+int dx_dgram_get_fd(dx_dgram_context_t* ddc) {
+	return ddc->socket_fd;
 }
 
-int dx_dgram_listen(dx_dgram_context_t* odc) {
+int dx_dgram_listen(dx_dgram_context_t* ddc) {
 	struct sockaddr_in	serveraddr;
 	int len = sizeof(serveraddr);
 
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(odc->service_port);
+	serveraddr.sin_port = htons(ddc->service_port);
 	memset(&(serveraddr.sin_zero), '\0', 8);
 
-	if(-1 == bind(odc->socket_fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) {
+	if(-1 == bind(ddc->socket_fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) {
 		perror("Server-bind() error");
 		exit(1);
 	}
 
 	/* TODO 여기에서 실제로 바인드된 포트를 알아낸다. */
-	getsockname(odc->socket_fd, (struct sockaddr*)&serveraddr, (socklen_t*)&len);
-	odc->service_port = ntohs(serveraddr.sin_port);
+	getsockname(ddc->socket_fd, (struct sockaddr*)&serveraddr, (socklen_t*)&len);
+	ddc->service_port = ntohs(serveraddr.sin_port);
 
 	return 1;
 }
@@ -64,43 +67,82 @@ dx_dgram_context_t* dx_dgram_create() {
 	int rcvbufsize = DX_SOCKET_BUF_SIZE;
 	int sndbufsize = DX_SOCKET_BUF_SIZE;
 
-	dx_dgram_context_t* odc = malloc(sizeof(struct dx_dgram_context));
+	dx_dgram_context_t* ddc = malloc(sizeof(struct dx_dgram_context));
 
-	odc->socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
-	if(odc->socket_fd == -1) {
+	ddc->socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if(ddc->socket_fd == -1) {
 		perror("Server - socket() error");
 		exit(1);
 	}
 
 	/* Set socket to non-blocking mode */
-	flags = fcntl(odc->socket_fd, F_GETFL);
-	fcntl(odc->socket_fd, F_SETFL, flags | O_NONBLOCK);
+	flags = fcntl(ddc->socket_fd, F_GETFL);
+	fcntl(ddc->socket_fd, F_SETFL, flags | O_NONBLOCK);
 
-	if(-1 == setsockopt(odc->socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
+	if(-1 == setsockopt(ddc->socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
 		perror("Server-setsockopt() error : SO_REUSEADDR");
 		exit(1);
 	}
 
 	yes = 1;
-	if(-1 == setsockopt(odc->socket_fd, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(int))) {
+	if(-1 == setsockopt(ddc->socket_fd, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(int))) {
 		perror("Server-setsockopt() error : SO_BROADCAST");
 		exit(1);
 	}
 
 	/* Set Receive Buffer Size */
-	setsockopt(odc->socket_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
-	setsockopt(odc->socket_fd, SOL_SOCKET, SO_SNDBUF, &sndbufsize, sizeof(sndbufsize));
+	setsockopt(ddc->socket_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
+	setsockopt(ddc->socket_fd, SOL_SOCKET, SO_SNDBUF, &sndbufsize, sizeof(sndbufsize));
 
-	return odc;
+	return ddc;
 }
 
-int dx_dgram_destroy(dx_dgram_context_t* odc) {
-	if(!odc->socket_fd)
+int dx_dgram_destroy(dx_dgram_context_t* ddc) {
+	if(!ddc->socket_fd)
 		return 0;
 
-	free(odc);
+	free(ddc);
 
-	odc = NULL;
+	ddc = NULL;
+
+	return 0;
+}
+
+int dx_dgram_start(dx_dgram_context_t* ddc, dx_dgram_event_handler handler) {
+	dx_event_context_t* pcontext;
+
+	dx_dgram_listen(ddc);
+
+	pcontext = dx_event_context_create();
+	pcontext->fd = ddc->socket_fd;
+	pcontext->readable_handler = dx_dgram_readable_handler;
+	pcontext->writable_handler = NULL;
+	pcontext->error_handler = NULL;
+
+	pcontext->pdata = handler;
+
+	dx_add_event_context(pcontext, EPOLLIN);
+
+	return 0;
+}
+
+int dx_dgram_readable_handler(dx_event_context_t* context) {
+
+	struct sockaddr_in peer_addr;
+	dx_packet_t* packet = NULL;
+	int nread;
+
+	nread = dx_receive_dgram(context, &packet, &peer_addr);
+
+	if(0 > nread) {
+		perror("Reading Datagram - recvfrom() error");
+		close(context->fd);
+		dx_del_event_context(context);
+		return nread;
+	}
+
+	/* 받은 메시지로 완성된 패킷을 핸들러(사용자 로직)로 보내서 처리한다. */
+	((dx_dgram_event_handler)context->pdata)(context, packet, &peer_addr);
 
 	return 0;
 }

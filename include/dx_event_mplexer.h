@@ -42,7 +42,12 @@ struct dx_event_context {
     /* 현재 읽기 진행중인 바이트 버퍼 */
 	dx_buffer_t* pbuf_reading;
 
-	/* 사용자 데이타 - 커스터마이징 용도 */
+	/* 현재 쓰기 진행중인 바이트 버퍼 리스트 */
+	dx_list_t* plist_writing;
+
+	/* 사용자정의 이벤트 핸들러 - 커스터마이징 용도 */
+	void*	user_handler;
+	/* 사용자정의 데이타 - 커스터마이징 용도 */
 	void*	pdata;
 	/* 사용자 데이타 destroyer */
 	dx_event_context_destroy_handler on_destroy;
@@ -61,7 +66,7 @@ typedef struct dx_event_mplexer dx_event_mplexer_t;
 int dx_event_mplexer_create();
 int dx_event_mplexer_destroy();
 
-int dx_event_mplexer_poll();
+int dx_event_mplexer_poll(int ts);
 int dx_event_mplexer_kill(int signo);
 
 dx_event_context_t* dx_event_context_create();

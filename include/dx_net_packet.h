@@ -137,6 +137,7 @@ typedef struct dx_packet {
 } dx_packet_t;
 
 typedef dx_packet_t dx_packet_hb_t;
+typedef dx_packet_t dx_packet_discovery_t;
 
 #define DX_PACKET_HB_SIZE	8
 

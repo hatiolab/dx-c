@@ -21,7 +21,7 @@ void net_pipe_test() {
 
 	dx_event_pipe_start(dx_net_pipe_handler);
 
-	dx_event_mplexer_poll();
+	dx_event_mplexer_poll(-1);
 
 	CHKMEM();
 }

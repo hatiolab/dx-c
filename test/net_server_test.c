@@ -53,8 +53,13 @@ void net_server_test() {
 	dx_server_start(TEST_SERVICE_PORT, dx_net_server_handler);
 	dx_client_start("localhost", TEST_SERVICE_PORT, dx_net_client_handler);
 
+	/* Big Loop */
 	while(i++ < 1000) {
-		dx_event_mplexer_poll();
+		dx_event_mplexer_poll(1000);
+
+		if(i == 1) {
+			dx_packet_send_heartbeat(dx_client_get_fd(), 0);
+		}
 	}
 
 	dx_event_mplexer_destroy();
