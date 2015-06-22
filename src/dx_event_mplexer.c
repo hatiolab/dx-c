@@ -24,6 +24,7 @@
 #include "dx_util_list.h"
 
 #include "dx_net_packet.h"
+#include "dx_event_control.h"
 
 dx_event_mplexer_t* __dx_mplexer;
 
@@ -31,6 +32,7 @@ int dx_event_context_compare(void* context1, void* context2);
 int dx_event_context_destroyer(void* data);
 
 int dx_event_mplexer_create() {
+	int control_pipe;
 
 	if(__dx_mplexer)
 		return 0; // Already exist.
@@ -46,6 +48,8 @@ int dx_event_mplexer_create() {
 	}
 
 	__dx_mplexer->events = (struct epoll_event*)MALLOC(sizeof(struct epoll_event) * DX_MAX_EVENT_POLL_SIZE);
+
+	dx_event_control_start(&__dx_mplexer->control_fd);
 
 	return 0;
 }
@@ -114,11 +118,12 @@ int dx_event_mplexer_poll(int ts) {
 	return __dx_mplexer->state;
 }
 
-int dx_event_mplexer_kill(int signo) {
+int dx_event_mplexer_wakeup() {
 	/*
 	 * TODO event_mplexer를 poll_wait 상태에서 깨울 방법이 필요하다.
 	 */
-	__dx_mplexer->state = signo;
+	uint8_t control = 0;
+	write(__dx_mplexer->control_fd, &control, 1);
 
 	return 0;
 }

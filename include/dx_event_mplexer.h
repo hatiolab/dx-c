@@ -56,9 +56,11 @@ struct dx_event_context {
 struct dx_event_mplexer {
 	int	fd;
 	int state;
+	int signo;
 	dx_list_t	context_list;
 	pthread_t	polling_thread;
 	struct epoll_event* events;
+	int control_fd;
 };
 
 typedef struct dx_event_mplexer dx_event_mplexer_t;
@@ -67,7 +69,7 @@ int dx_event_mplexer_create();
 int dx_event_mplexer_destroy();
 
 int dx_event_mplexer_poll(int ts);
-int dx_event_mplexer_kill(int signo);
+int dx_event_mplexer_wakeup();
 
 dx_event_context_t* dx_event_context_create();
 int dx_add_event_context(struct dx_event_context* pcontext, uint32_t events);

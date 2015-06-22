@@ -76,11 +76,11 @@ int dx_console_handler(dx_event_context_t* context) {
     case    'd':
     case    'D':
 //        dx_drive_start(0);
-        dx_server = dx_discovery_server_start(DISCOVERY_SERVICE_PORT);
+//        dx_server = dx_discovery_server_start(DISCOVERY_SERVICE_PORT);
         break;
     case    'h':
     case    'H':
-    	dx_client = dx_discovery_client_start(0);
+//    	dx_client = dx_discovery_client_start(0);
         break;
     case    'v':
     	dx_discovery_send_broadcast(dx_client, DISCOVERY_SERVICE_PORT);
@@ -106,7 +106,7 @@ int dx_console_handler(dx_event_context_t* context) {
         break;
     case    'Q':
     case    'q':
-    	dx_event_mplexer_kill(-1);
+    	dx_event_mplexer_wakeup();
         break;
     default:
         printf("Unknown Command : %c\n", buf[0]);
