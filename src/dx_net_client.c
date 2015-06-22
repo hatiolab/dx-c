@@ -122,7 +122,7 @@ int dx_client_readable_handler(dx_event_context_t* context) {
 		return 0;
 
 	/* 서버로부터 받은 메시지로 완성된 패킷을 핸들러(사용자 로직)로 보내서 처리한다. */
-	((dx_client_event_handler)context->pdata)(context, packet);
+	((dx_client_event_handler)context->user_handler)(context, packet);
 
 	return 0;
 }
@@ -140,7 +140,7 @@ int dx_client_start(char* hostname, int port, dx_client_event_handler handler) {
 	pcontext->error_handler = NULL;
 	pcontext->pbuf_reading = NULL;
 
-	pcontext->pdata = handler;
+	pcontext->user_handler = handler;
 
 	dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
 

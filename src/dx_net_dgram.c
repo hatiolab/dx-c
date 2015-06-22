@@ -98,7 +98,7 @@ int dx_dgram_start(int port, dx_dgram_event_handler handler) {
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
 
-	pcontext->pdata = handler;
+	pcontext->user_handler = handler;
 
 	dx_add_event_context(pcontext, EPOLLIN);
 
@@ -121,7 +121,7 @@ int dx_dgram_readable_handler(dx_event_context_t* context) {
 	}
 
 	/* 받은 메시지로 완성된 패킷을 핸들러(사용자 로직)로 보내서 처리한다. */
-	((dx_dgram_event_handler)context->pdata)(context, packet, &peer_addr);
+	((dx_dgram_event_handler)context->user_handler)(context, packet, &peer_addr);
 
 	return 0;
 }

@@ -121,7 +121,7 @@ int dx_server_acceptable_handler(dx_event_context_t* server_context) {
 	pcontext->writable_handler = dx_server_writable_handler;
 	pcontext->error_handler = NULL;
 
-	pcontext->pdata = server_context->pdata;
+	pcontext->user_handler = server_context->user_handler;
 
 	dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
 	printf("A Client tried to connect.. Accepted.\n");
@@ -160,7 +160,7 @@ int dx_server_readable_handler(dx_event_context_t* context) {
 		return 0;
 
 	/* 받은 메시지로 완성된 패킷을 핸들러(사용자 로직)로 보내서 처리한다. */
-	((dx_server_event_handler)context->pdata)(context, packet);
+	((dx_server_event_handler)context->user_handler)(context, packet);
 
 	return 0;
 }
@@ -182,7 +182,7 @@ int dx_server_start(int port, dx_server_event_handler handler) {
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
 
-	pcontext->pdata = handler;
+	pcontext->user_handler = handler;
 
 	dx_add_event_context(pcontext, EPOLLIN);
 
