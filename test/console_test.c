@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
@@ -33,7 +34,7 @@ dx_dgram_context_t* dx_server;
 int send_stream(int fd);
 int dx_console_handler(dx_event_context_t* context);
 
-void event_console_test() {
+void console_test() {
 	dx_event_mplexer_create();
 
 	dx_console_start(dx_console_handler);
@@ -86,7 +87,7 @@ int dx_console_handler(dx_event_context_t* context) {
 		break;
     case    'b':
     case    'B':
-    	dx_packet_send_heartbeat(dx_client_get_fd(), 0); /* Host to Drive */
+    	dx_packet_send_heartbeat(dx_client_get_fd(), 0); /* Client to Server */
         break;
     case    'x':
     case    'X':

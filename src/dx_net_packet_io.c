@@ -124,10 +124,12 @@ int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 
 	nread = dx_buffer_read_from(pbuf_reading, fd);
 
-	if(dx_buffer_remains(pbuf_reading) == 0)
+	if(dx_buffer_remains(pbuf_reading) == 0) {
 		*ppacket = (dx_packet_t*)&pbuf_reading->data[0];
-	else
+		dx_buffer_clear(pbuf_reading);
+	} else {
 		*ppacket = NULL;
+	}
 
 	return nread;
 }

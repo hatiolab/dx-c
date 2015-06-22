@@ -16,6 +16,8 @@
 
 #include "dx_debug_assert.h"
 
+#include "dx_util_list.h"
+
 #define DX_MALLOC_WATERMARK "DXMAWTMR"
 #define DX_MALLOC_WATERMARK_SIZE 8
 
@@ -41,13 +43,37 @@ long __dx_alloc_count = 0;
 long __dx_free_count = 0;
 
 /*
+ * 메모리 할당된 아이템들의 리스트를 유지함.
+ * 성능 하락을 방지하기 위해서 Lock 은 적용하지 않으므로, 정확성은 신뢰할 수 없음.
+ */
+dx_list_t __dx_alloc_list;
+
+/*
+ * 무한 Loop를 방지하기 위해서 사용되는 Flag
+ */
+int __dx_alloc_except_flag = 0;
+
+void dx_malloc_set_except_flag(int flag) {
+	__dx_alloc_except_flag = flag;
+}
+
+/*
  * 메모리 할당과 해제를 검증하기 위한 몇가지 작업을 포함한 메모리 할당
  * 1. 메모리 할당 관련 워터마크
  * 2. 메모리가 할당된 소스의 위치를 기록
  */
 void* dx_malloc(size_t sz, char* fname, int line) {
-	void* p = malloc(sz + DX_MALLOC_HEAD_SIZE);
-	dx_malloc_head_t* head = (dx_malloc_head_t*)p;
+	void* p;
+	dx_malloc_head_t* head;
+
+	if(__dx_alloc_except_flag)
+		return malloc(sz);
+
+	p = malloc(sz + DX_MALLOC_HEAD_SIZE);
+	head = (dx_malloc_head_t*)p;
+
+	if(__dx_alloc_count == 0)
+		dx_list_init(&__dx_alloc_list, NULL, NULL);
 
 	memset(head, 0, DX_MALLOC_HEAD_SIZE);
 	strncpy(head->watermark, DX_MALLOC_WATERMARK, DX_MALLOC_WATERMARK_SIZE);
@@ -56,6 +82,10 @@ void* dx_malloc(size_t sz, char* fname, int line) {
 	head->size = sz;
 
 	__dx_alloc_count++;
+
+	dx_malloc_set_except_flag(1);
+	dx_list_add(&__dx_alloc_list, p);
+	dx_malloc_set_except_flag(0);
 
 	return (void*)&(((dx_malloc_t*)head)->allocated[0]);
 }
@@ -67,6 +97,11 @@ void* dx_malloc(size_t sz, char* fname, int line) {
  *
  */
 void dx_free(void* p, char* filename, int line) {
+	if(__dx_alloc_except_flag) {
+		free(p);
+		return;
+	}
+
 	dx_malloc_head_t* head = (dx_malloc_head_t*)(p - DX_MALLOC_HEAD_SIZE);
 	if(0 != memcmp(head->watermark, DX_MALLOC_WATERMARK, DX_MALLOC_WATERMARK_SIZE)) {
 		printf("[ASSERT FREE] allocated at %20s:%d(sized %d), freed at %s:%d", head->filename, head->line, head->size, filename, line);
@@ -77,9 +112,19 @@ void dx_free(void* p, char* filename, int line) {
 
 	__dx_free_count++;
 
+	dx_malloc_set_except_flag(1);
+	dx_list_remove(&__dx_alloc_list, head);
+	dx_malloc_set_except_flag(0);
+
 	free(head);
+}
+
+void dx_chkmem_callback(dx_malloc_head_t* p) {
+	printf("[MEM] allocated on %48s:%d(size %d)\n", p->filename, p->line, p->size);
 }
 
 void dx_chkmem() {
 	printf("[CHKMEM] %ld Allocated, %ld Freed. \n", __dx_alloc_count, __dx_free_count);
+
+	dx_list_iterator(&__dx_alloc_list, dx_chkmem_callback);
 }

@@ -58,7 +58,7 @@ void dx_buffer_step_forward(dx_buffer_t* pbuf, int steps) {
 }
 
 void dx_buffer_setlimit(dx_buffer_t* pbuf, int limit) {
-	ASSERT("Buffer Limit should not greater than capacity", limit > pbuf->capacity);
+	ASSERT("Buffer Limit should not greater than capacity", limit <= pbuf->capacity);
 	pbuf->limit = limit;
 }
 

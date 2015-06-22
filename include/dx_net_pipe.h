@@ -10,18 +10,18 @@
 // PARTICULAR PURPOSE.
 //
 
-#ifndef __DX_EVENT_PIPE_H
-#define __DX_EVENT_PIPE_H
+#ifndef __DX_NET_PIPE_H
+#define __DX_NET_PIPE_H
 
 /*
  * Definitions
  */
-typedef struct dx_event_pipe_context {
+typedef struct dx_pipe_context {
 
 	int	read_pipe;
 	int write_pipe;
-} dx_event_pipe_context_t;
+} dx_pipe_context_t;
 
-dx_event_pipe_context_t* dx_event_pipe_start(dx_event_handler handler);
+dx_pipe_context_t* dx_event_pipe_start(dx_event_handler handler);
 
-#endif /* __DX_EVENT_PIPE_H */
+#endif /* __DX_NET_PIPE_H */

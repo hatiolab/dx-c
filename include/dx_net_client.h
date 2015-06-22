@@ -16,11 +16,14 @@
 #include <netinet/in.h>		// For uint16_t
 
 #include "dx_event_mplexer.h"
+
 #include "dx_net.h"
+#include "dx_net_packet.h"
 
 /*
  * Definitions
  */
+typedef int (*dx_client_event_handler)(dx_event_context_t* pcontext, dx_packet_t* packet);
 
 /* APIs */
 int dx_client_create();
@@ -31,6 +34,6 @@ int dx_client_get_fd();
 
 int dx_client_writable_handler(dx_event_context_t* context);
 int dx_client_readable_handler(dx_event_context_t* context);
-int dx_client_start(char* hostname, int port);
+int dx_client_start(char* hostname, int port, dx_client_event_handler handler);
 
 #endif /* DX_NET_CLIENT_H */

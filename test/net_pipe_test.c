@@ -12,21 +12,21 @@
 #include "dx_util_buffer.h"
 
 #include "dx_event_mplexer.h"
-#include "dx_event_pipe.h"
+#include "dx_net_pipe.h"
 
-int dx_event_pipe_handler(dx_event_context_t* context);
+int dx_net_pipe_handler(dx_event_context_t* context);
 
-void event_pipe_test() {
+void net_pipe_test() {
 	dx_event_mplexer_create();
 
-	dx_event_pipe_start(dx_event_pipe_handler);
+	dx_event_pipe_start(dx_net_pipe_handler);
 
 	dx_event_mplexer_poll();
 
 	CHKMEM();
 }
 
-int dx_event_pipe_handler(dx_event_context_t* context) {
+int dx_net_pipe_handler(dx_event_context_t* context) {
 
     char buf[128];
 

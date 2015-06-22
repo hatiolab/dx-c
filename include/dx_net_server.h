@@ -14,11 +14,14 @@
 #define __DX_NET_SERVER_H
 
 #include <netinet/in.h>		// For uint16_t
+
 #include "dx_net.h"
+#include "dx_net_packet.h"
 
 /*
  * Definitions
  */
+typedef int (*dx_server_event_handler)(dx_event_context_t* pcontext, dx_packet_t* packet);
 
 /* APIs */
 
@@ -33,6 +36,7 @@ int dx_server_get_fd();
 int dx_server_acceptable_handler(dx_event_context_t* context);
 int dx_server_writable_handler(dx_event_context_t* context);
 int dx_server_readable_handler(dx_event_context_t* context);
-int dx_server_start(int port);
+
+int dx_server_start(int port, dx_server_event_handler handler);
 
 #endif /* DX_NET_SERVER_H */

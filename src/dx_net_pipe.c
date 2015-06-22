@@ -21,9 +21,9 @@
 #include "dx_debug_malloc.h"
 
 #include "dx_event_mplexer.h"
-#include "dx_event_pipe.h"
+#include "dx_net_pipe.h"
 
-dx_event_pipe_context_t* dx_event_pipe_start(dx_event_handler handler) {
+dx_pipe_context_t* dx_event_pipe_start(dx_event_handler handler) {
 	int pipefds[2] = {};
 	dx_event_context_t* pcontext;
 	int flags;
@@ -33,7 +33,7 @@ dx_event_pipe_context_t* dx_event_pipe_start(dx_event_handler handler) {
 
 	ASSERT("Pipe Creating Error.\n", ret == 0);
 
-	dx_event_pipe_context_t* epc = (dx_event_pipe_context_t*)MALLOC(sizeof(dx_event_context_t));
+	dx_pipe_context_t* epc = (dx_pipe_context_t*)MALLOC(sizeof(dx_event_context_t));
 
 	epc->read_pipe = pipefds[0];
 	epc->write_pipe = pipefds[1];
@@ -53,7 +53,7 @@ dx_event_pipe_context_t* dx_event_pipe_start(dx_event_handler handler) {
 	return epc;
 }
 
-int dx_send_to_pipe(dx_event_pipe_context_t* pcontext, int8_t* data, int sz) {
+int dx_send_to_pipe(dx_pipe_context_t* pcontext, int8_t* data, int sz) {
 	int nwrite = write(pcontext->write_pipe, data, sz);
 	return nwrite;
 }

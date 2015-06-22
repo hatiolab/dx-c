@@ -150,9 +150,9 @@ int dx_discovery_client_handler(dx_event_context_t* context) {
 		printf("(Discovery Event Handling) Discovery(%d)\n", server_port);
 
 		/*
-		 * Server에 아직 연결되지 않았다면, 서버 연결을 시도한다.
+		 * TODO Server에 아직 연결되지 않았다면, 서버 연결을 시도한다.
 		 */
-		dx_client_start(inet_ntoa(server_addr.sin_addr), server_port);
+//		dx_client_start(inet_ntoa(server_addr.sin_addr), server_port);
 
 		break;
 

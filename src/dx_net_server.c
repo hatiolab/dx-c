@@ -148,6 +148,8 @@ int dx_server_acceptable_handler(dx_event_context_t* context) {
 	pcontext->writable_handler = dx_server_writable_handler;
 	pcontext->error_handler = NULL;
 
+	pcontext->pdata = context->pdata;
+
 	dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
 	printf("A Client tried to connect.. Accepted.\n");
 
@@ -184,40 +186,13 @@ int dx_server_readable_handler(dx_event_context_t* context) {
 	if(packet == NULL)
 		return 0;
 
-//	switch(packet->header.type) {
-//	case DX_PACKET_TYPE_HB : /* Heart Beat */
-//		dx_server_handler_hb(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_GET_SETTING	: /* Get Setting */
-//		dx_server_handler_get_setting(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_SET_SETTING : /* Set Setting */
-//		dx_server_handler_set_setting(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_GET_STATE : /* Get State */
-//		dx_server_handler_get_state(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_SET_STATE : /* Set State */
-//		dx_server_handler_set_state(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_EVENT : /* Event */
-//		dx_server_handler_event(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_COMMAND : /* Command */
-//		dx_server_handler_command(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_FILE 	: /* File */
-//		dx_server_handler_file(context->fd, packet);
-//		break;
-//	default:	/* Should not reach to here */
-//		ASSERT("Server Event Handling.. should not reach to here.", !!0);
-//		break;
-//	}
+	/* 받은 메시지로 완성된 패킷을 핸들러(사용자 로직)로 보내서 처리한다. */
+	((dx_server_event_handler)context->pdata)(context, packet);
 
 	return 0;
 }
 
-int dx_server_start(int port) {
+int dx_server_start(int port, dx_server_event_handler handler) {
 	dx_event_context_t* pcontext;
 
 	/* create server */
@@ -231,6 +206,8 @@ int dx_server_start(int port) {
 	pcontext->readable_handler = dx_server_acceptable_handler;
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
+
+	pcontext->pdata = handler;
 
 	dx_add_event_context(pcontext, EPOLLIN);
 

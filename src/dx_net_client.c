@@ -18,7 +18,7 @@
 #include <netdb.h>			// For gethostbyname
 #include <fcntl.h>			// For fcntl
 #include <errno.h>			// For errno
-#include <sys/epoll.h>			// For EPOLLIN
+#include <sys/epoll.h>		// For EPOLLIN
 
 #include "dx.h"
 
@@ -114,6 +114,10 @@ int dx_client_writable_handler(dx_event_context_t* context) {
 	if(context->fd)
 		dx_mod_event_context(context, EPOLLIN);
 
+	/*
+	 * TODO 여기에서 커넥션이 연결되었다는 콜백을 호출해준다.
+	 */
+
 	return 0;
 }
 
@@ -149,42 +153,13 @@ int dx_client_readable_handler(dx_event_context_t* context) {
 	if(packet == NULL)
 		return 0;
 
-//	switch(packet->header.type) {
-//	case DX_PACKET_TYPE_HB : /* Heart Beat */
-//		dx_client_handler_hb(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_GET_SETTING	: /* Get Setting */
-//		dx_client_handler_get_setting(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_SET_SETTING : /* Set Setting */
-//		dx_client_handler_set_setting(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_GET_STATE : /* Get State */
-//		dx_client_handler_get_state(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_SET_STATE : /* Set State */
-//		dx_client_handler_set_state(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_EVENT : /* Event */
-//		dx_client_handler_event(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_COMMAND : /* Command */
-//		dx_client_handler_command(context->fd, packet);
-//		break;
-//	case DX_PACKET_TYPE_FILE : /* File */
-//		dx_client_handler_file(context->fd, packet);
-//		break;
-//	default:	/* Should not reach to here */
-//		ASSERT("Client Event Handling.. should not reach to here.", !!0);
-//		break;
-//	}
-
-//	free(packet);
+	/* 서버로부터 받은 메시지로 완성된 패킷을 핸들러(사용자 로직)로 보내서 처리한다. */
+	((dx_client_event_handler)context->pdata)(context, packet);
 
 	return 0;
 }
 
-int dx_client_start(char* hostname, int port) {
+int dx_client_start(char* hostname, int port, dx_client_event_handler handler) {
 	dx_event_context_t* pcontext;
 
 	if(-1 == dx_client_create())
@@ -200,6 +175,8 @@ int dx_client_start(char* hostname, int port) {
 	pcontext->writable_handler = dx_client_writable_handler;
 	pcontext->error_handler = NULL;
 	pcontext->pbuf_reading = NULL;
+
+	pcontext->pdata = handler;
 
 	dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
 

@@ -20,6 +20,8 @@
 typedef	int (*dx_find_function)(void* data1, void* data2);
 typedef	int (*dx_destroyer_function)(void* data1);
 
+typedef void (*dx_list_iterator_callback)(void* p);
+
 typedef struct dx_list_node dx_list_node_t;
 
 struct dx_list_node {
@@ -37,6 +39,7 @@ typedef struct dx_list {
 } dx_list_t;
 
 int dx_list_init(dx_list_t* plist, dx_find_function finder, dx_destroyer_function destroyer);
+int dx_list_size(dx_list_t* plist);
 int dx_list_add(dx_list_t* plist, void* data);
 int dx_list_remove(dx_list_t* plist, void* data);
 int dx_list_clear(dx_list_t* plist);
