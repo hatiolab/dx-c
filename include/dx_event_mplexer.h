@@ -72,6 +72,7 @@ int dx_event_mplexer_poll(int ts);
 int dx_event_mplexer_wakeup();
 
 dx_event_context_t* dx_event_context_create();
+dx_event_context_t* dx_get_event_context(int fd);
 int dx_add_event_context(struct dx_event_context* pcontext, uint32_t events);
 int dx_mod_event_context(dx_event_context_t* context, uint32_t events);
 int dx_del_event_context(dx_event_context_t* context);

@@ -58,7 +58,7 @@ void net_server_test() {
 	while(i++ < 1000) {
 		dx_event_mplexer_poll(1000);
 
-		if(i == 1) {
+		if(i == 10) {
 			dx_packet_send_heartbeat(client, 0);
 		}
 	}

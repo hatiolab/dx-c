@@ -213,3 +213,13 @@ int dx_clear_event_context() {
 	return 0;
 }
 
+dx_event_context_t* dx_get_event_context(int fd) {
+	dx_list_t* plist = &__dx_mplexer->context_list;
+
+	dx_list_node_t* pnode = plist->head;
+
+	while(pnode != NULL && ((dx_event_context_t*)pnode->data)->fd != fd)
+		pnode = pnode->next;
+
+	return pnode == NULL ? NULL : (dx_event_context_t*)pnode->data;
+}

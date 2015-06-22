@@ -130,11 +130,24 @@ int dx_server_acceptable_handler(dx_event_context_t* server_context) {
 }
 
 int dx_server_writable_handler(dx_event_context_t* context) {
-	dx_mod_event_context(context, EPOLLIN);
 
-	dx_packet_send_event_u32(context->fd, DX_EVT_CONNECT, 0);
+	if(context->plist_writing == NULL) {
 
-	return 0;
+		dx_mod_event_context(context, EPOLLIN);
+		dx_packet_send_event_u32(context->fd, DX_EVT_CONNECT, 0);
+
+		return 0;
+	} else {
+		int nwrite = dx_write_by_poller(context);
+		if(nwrite < 0) {
+			perror("Server write() error");
+			close(context->fd);
+			dx_del_event_context(context);
+			return -2;
+		}
+
+		return nwrite;
+	}
 }
 
 int dx_server_readable_handler(dx_event_context_t* context) {

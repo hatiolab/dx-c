@@ -13,7 +13,8 @@
 #include <stddef.h>		// For NULL
 #include <unistd.h>		// For ssize_t
 #include <fcntl.h>		// For read, write
-#include <strings.h>	// For memset
+#include <string.h>	// For memset
+#include <sys/epoll.h>	// For EPOLLIN, EPOLLOUT
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
@@ -27,34 +28,117 @@
 
 #include "dx_net_dgram.h"	// For DX_DGRAM_MAX_PACKET_SIZE
 
+//int dx_write(int fd, const void* buf, ssize_t sz) {
+//	int twrite = 0;
+//	int nwrite = 0;
+//	int flags;
+//
+//	/* Set socket to blocking mode */
+//	flags = fcntl(fd, F_GETFL);
+//	fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+//
+//	while(sz - twrite > 0) {
+//		nwrite = write(fd, buf + twrite, sz - twrite);
+//		if(nwrite <= 0) {
+//			perror("write() error");
+//			break;
+//		}
+//		twrite += nwrite;
+//	}
+//
+//	if(sz != twrite) {
+//		printf("dx_write() mismatch [%d - %d]\n", twrite, (int)sz);
+//	}
+//
+//	/* Set socket to non-blocking again */
+//	flags = fcntl(fd, F_GETFL);
+//	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+//
+//	return twrite;
+//}
+
+int dx_write_by_poller(dx_event_context_t* pcontext) {
+	dx_list_t* plist = pcontext->plist_writing;
+	dx_buffer_t* pbuf;
+	int nwrite, twrite = 0;
+	dx_list_node_t* pnode;
+
+	if(plist == NULL) {
+		/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
+		dx_mod_event_context(pcontext, EPOLLIN);
+
+		return 0;
+	}
+
+	pnode = plist->head;
+	if(pnode == NULL) {
+		/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
+		dx_mod_event_context(pcontext, EPOLLIN);
+
+		return 0;
+	}
+
+	pbuf = (dx_buffer_t*)pnode->data;
+	ASSERT("Buffer should not be NULL\n", pbuf != NULL)
+
+	/* TODO 먼저 버퍼리스트의 크기가 일정 갯수(3개) 이상이면, discardable buffer들을 찾아서, 제거한다 */
+
+	while(1) {
+		nwrite = write(pcontext->fd, dx_buffer_ppos(pbuf), dx_buffer_remains(pbuf));
+		if(nwrite <= 0)
+			return -1;
+
+		twrite += nwrite;
+
+		dx_buffer_step_forward(pbuf, nwrite);
+		if(dx_buffer_remains(pbuf) != 0)
+			return nwrite;
+
+		dx_list_remove(plist, pbuf);
+
+		pnode = plist->head;
+		if(pnode == NULL) {
+			/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
+			dx_mod_event_context(pcontext, EPOLLIN);
+
+			return 0;
+		}
+
+		pbuf = (dx_buffer_t*)pnode->data;
+		ASSERT("Buffer should not be NULL\n", pbuf != NULL)
+	}
+
+	/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
+	dx_mod_event_context(pcontext, EPOLLIN);
+
+	return nwrite;
+}
 
 int dx_write(int fd, const void* buf, ssize_t sz) {
-	int twrite = 0;
-	int nwrite = 0;
-	int flags;
+	dx_event_context_t* pcontext = dx_get_event_context(fd);
+	dx_list_t* plist = pcontext->plist_writing;
+	dx_buffer_t* pbuf = dx_buffer_alloc(sz);
 
-	/* Set socket to blocking mode */
-	flags = fcntl(fd, F_GETFL);
-	fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+	memcpy(pbuf->data, buf, sz);
 
-	while(sz - twrite > 0) {
-		nwrite = write(fd, buf + twrite, sz - twrite);
-		if(nwrite <= 0) {
-			perror("write() error");
-			break;
-		}
-		twrite += nwrite;
+	if(plist == NULL) {
+		pcontext->plist_writing = plist = (dx_list_t*)MALLOC(sizeof(dx_list_t));
+		dx_list_init(plist, NULL, NULL);
 	}
 
-	if(sz != twrite) {
-		printf("dx_write() mismatch [%d - %d]\n", twrite, (int)sz);
-	}
+	dx_list_add(plist, pbuf);
 
-	/* Set socket to non-blocking again */
-	flags = fcntl(fd, F_GETFL);
-	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+	/* TODO 현재의 값을 가져와서 EPOLLOUT을 추가하는 방법으로 수정해야 함. */
+	dx_mod_event_context(pcontext, EPOLLIN | EPOLLOUT);
 
-	return twrite;
+	/* TODO 내가 만일 POLLING 쓰레드라면, 직접 write를 한다. */
+	dx_event_mplexer_wakeup();
+
+	return 0;
+}
+
+int dx_write_packet(int fd, const dx_packet_t* packet) {
+	return dx_write(fd, packet, ntohl(packet->header.len));
 }
 
 /*
