@@ -95,13 +95,14 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 			return nwrite;
 
 		dx_list_remove(plist, pbuf);
+		/* 여기에서 버퍼를 free해줄 필요없음 - destroyer에 의해서 자동 free됨 */
 
 		pnode = plist->head;
 		if(pnode == NULL) {
 			/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
 			dx_mod_event_context(pcontext, EPOLLIN);
 
-			return 0;
+			return twrite;
 		}
 
 		pbuf = (dx_buffer_t*)pnode->data;
@@ -123,7 +124,7 @@ int dx_write(int fd, const void* buf, ssize_t sz) {
 
 	if(plist == NULL) {
 		pcontext->plist_writing = plist = (dx_list_t*)MALLOC(sizeof(dx_list_t));
-		dx_list_init(plist, NULL, NULL);
+		dx_list_init(plist, NULL, dx_buffer_free);
 	}
 
 	dx_list_add(plist, pbuf);

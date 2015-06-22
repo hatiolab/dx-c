@@ -26,7 +26,7 @@ int main(void) {
 //	printf("\nTest - util_lock_test()..\n");
 //	util_lock_test();
 //	printf("..Done\n");
-//
+
 //	printf("\nTest - util_list_test()..\n");
 //	util_list_test();
 //	printf("..Done\n");
@@ -54,6 +54,8 @@ int main(void) {
 //	printf("\nTest - event_control_test()..\n");
 //	event_control_test();
 //	printf("..Done\n");
+
+	fflush(stdout);
 
 	return EXIT_SUCCESS;
 }

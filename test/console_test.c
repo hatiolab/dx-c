@@ -23,10 +23,9 @@
 #define DISCOVERY_SERVICE_PORT	3456
 
 /* TODO fixme to find client file descriptors */
-int last_client_fd;
 
-#define	TO_SERVER dx_client_get_fd()
-#define TO_CLIENT	last_client_fd
+#define	TO_SERVER dx_client
+#define TO_CLIENT dx_server
 
 int dx_client;
 int dx_server;
@@ -87,14 +86,14 @@ int dx_console_handler(dx_event_context_t* context) {
 		break;
     case    'b':
     case    'B':
-//    	dx_packet_send_heartbeat(dx_client_get_fd(), 0); /* Client to Server */
+    	dx_packet_send_heartbeat(dx_client, 0); /* Client to Server */
         break;
     case    'x':
     case    'X':
         break;
     case    'k':
     case    'K':
-    	close(last_client_fd);
+    	close(dx_client);
         break;
     case    'e':
     case    'E':

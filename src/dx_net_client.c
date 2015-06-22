@@ -81,14 +81,26 @@ int	dx_client_connect(char* hostname, uint16_t port) {
 }
 
 int dx_client_writable_handler(dx_event_context_t* context) {
-	if(context->fd)
+	if(context->plist_writing == NULL) {
+		/*
+		 * TODO 여기에서 커넥션이 연결되었다는 콜백을 호출해준다.
+		 */
+
 		dx_mod_event_context(context, EPOLLIN);
+//		dx_packet_send_event_u32(context->fd, DX_EVT_CONNECT, 0);
 
-	/*
-	 * TODO 여기에서 커넥션이 연결되었다는 콜백을 호출해준다.
-	 */
+		return 0;
+	} else {
+		int nwrite = dx_write_by_poller(context);
+		if(nwrite < 0) {
+			perror("Server write() error");
+			close(context->fd);
+			dx_del_event_context(context);
+			return -2;
+		}
 
-	return 0;
+		return nwrite;
+	}
 }
 
 int dx_client_readable_handler(dx_event_context_t* context) {

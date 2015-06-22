@@ -167,6 +167,11 @@ int dx_event_context_destroyer(void* data) {
 	if(context->pbuf_reading != NULL)
 		dx_buffer_free(context->pbuf_reading);
 
+	if(context->plist_writing != NULL) {
+		dx_list_clear(context->plist_writing);
+		FREE(context->plist_writing);
+	}
+
 	/* 각자 사용한 pdata를 해제할 수 있는 기회를 제공한다. */
 	if(context->on_destroy != NULL)
 		context->on_destroy(context->pdata);
