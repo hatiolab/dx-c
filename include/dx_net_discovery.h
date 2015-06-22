@@ -19,9 +19,9 @@
  * Definitions
  */
 
-dx_dgram_context_t* dx_discovery_server_start();
-dx_dgram_context_t* dx_discovery_client_start();
+int dx_discovery_server_start(int fd);
+int dx_discovery_client_start(int fd);
 
-int dx_discovery_send_broadcast(dx_dgram_context_t* odc, int port);
+int dx_discovery_send_broadcast(int fd, int port);
 
 #endif /* __DX_DISCOVERY_H */

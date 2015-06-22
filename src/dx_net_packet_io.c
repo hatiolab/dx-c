@@ -13,6 +13,7 @@
 #include <stddef.h>		// For NULL
 #include <unistd.h>		// For ssize_t
 #include <fcntl.h>		// For read, write
+#include <strings.h>	// For memset
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"

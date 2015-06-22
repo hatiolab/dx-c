@@ -27,21 +27,18 @@
 
 typedef void (*dx_dgram_event_handler)(dx_event_context_t* pcontext, dx_packet_t* ppacket, struct sockaddr_in* peer_addr);
 
-typedef struct dx_dgram_context {
-
-	uint16_t	service_port;
-	int 		socket_fd;
-} dx_dgram_context_t;
-
 /* APIs */
 
-int dx_dgram_set_service_port(dx_dgram_context_t* ddc, uint16_t port);
-int dx_dgram_get_service_port(dx_dgram_context_t* ddc);
-int dx_dgram_get_fd(dx_dgram_context_t* ddc);
-int dx_dgram_listen(dx_dgram_context_t* ddc);
-dx_dgram_context_t* dx_dgram_create();
-int dx_dgram_destroy(dx_dgram_context_t* ddc);
+int dx_dgram_create();
+int dx_dgram_get_service_port(int fd);
+int dx_dgram_listen(int fd, int port);
 
-int dx_dgram_start(dx_dgram_context_t* ddc, dx_dgram_event_handler handler);
+/*
+ * dx_dgram_start
+ *
+ * 아래 작업을 한번에 제공한다.
+ * dx_dgram_create() => dx_dgram_listen() => register to event multiplexer
+ */
+int dx_dgram_start(int port, dx_dgram_event_handler handler);
 
 #endif /* DX_NET_DGRAM_H */

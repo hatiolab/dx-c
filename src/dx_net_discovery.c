@@ -38,40 +38,40 @@ uint8_t __discovery_buffer[DISCOVERY_BUFFER_LENGTH];
 int dx_discovery_server_handler(dx_event_context_t* context);
 int dx_discovery_client_handler(dx_event_context_t* context);
 
-dx_dgram_context_t* dx_discovery_server_start(int port) {
+int dx_discovery_server_start(int port) {
 	dx_event_context_t* pcontext;
-	dx_dgram_context_t* odc = dx_dgram_create();
 
-	dx_dgram_set_service_port(odc, port);
-	dx_dgram_listen(odc);
+	int fd = dx_dgram_create();
+
+	dx_dgram_listen(fd, port);
 
 	pcontext = dx_event_context_create();
-	pcontext->fd = dx_dgram_get_fd(odc);
+	pcontext->fd = fd;
 	pcontext->readable_handler = dx_discovery_server_handler;
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
 
 	dx_add_event_context(pcontext, EPOLLIN);
 
-	return odc;
+	return fd;
 }
 
-dx_dgram_context_t* dx_discovery_client_start(int port) {
+int dx_discovery_client_start(int port) {
 	dx_event_context_t* pcontext;
-	dx_dgram_context_t* odc = dx_dgram_create();
 
-	dx_dgram_set_service_port(odc, port);
-	dx_dgram_listen(odc);
+	int fd = dx_dgram_create();
+
+	dx_dgram_listen(fd, port);
 
 	pcontext = dx_event_context_create();
-	pcontext->fd = dx_dgram_get_fd(odc);
+	pcontext->fd = fd;
 	pcontext->readable_handler = dx_discovery_client_handler;
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
 
 	dx_add_event_context(pcontext, EPOLLIN);
 
-	return odc;
+	return fd;
 }
 
 int dx_discovery_server_handler(dx_event_context_t* context) {
@@ -98,7 +98,10 @@ int dx_discovery_server_handler(dx_event_context_t* context) {
 
 		client_discovery_port = ntohl(((dx_primitive_packet_t*)packet)->data.s32);
 
-		((dx_primitive_packet_t*)packet)->data.s32 = htonl(dx_server_get_service_port());
+		/*
+		 * TODO 여기서 서버를 찾는 방법이 필요하다.
+		 */
+//		((dx_primitive_packet_t*)packet)->data.s32 = htonl(dx_server_get_service_port());
 
 		client_addr.sin_port = htons(client_discovery_port);
 
@@ -164,7 +167,7 @@ int dx_discovery_client_handler(dx_event_context_t* context) {
     return 0;
 }
 
-int dx_discovery_send_broadcast(dx_dgram_context_t* odc, int port) {
+int dx_discovery_send_broadcast(int fd, int port) {
 	struct sockaddr_in	broadcast_addr;
 	dx_primitive_packet_t* packet;
 	uint32_t	len, ret;
@@ -176,7 +179,7 @@ int dx_discovery_send_broadcast(dx_dgram_context_t* odc, int port) {
 	packet->header.type = DX_PACKET_TYPE_DISCOVERY;
 	packet->header.code = DX_DISCOVERY_REQ;
 	packet->header.data_type = DX_DATA_TYPE_PRIMITIVE;
-	packet->data.s32 = htonl(dx_dgram_get_service_port(odc));
+	packet->data.s32 = htonl(dx_dgram_get_service_port(fd));
 
 	/* Send to broadcast */
 
@@ -185,7 +188,7 @@ int dx_discovery_send_broadcast(dx_dgram_context_t* odc, int port) {
 	broadcast_addr.sin_port = htons(port);
 	memset(&(broadcast_addr.sin_zero), '\0', 8);
 
-	ret = sendto(odc->socket_fd, __discovery_buffer, len, 0, (struct sockaddr*)&broadcast_addr, sizeof(broadcast_addr));
+	ret = sendto(fd, __discovery_buffer, len, 0, (struct sockaddr*)&broadcast_addr, sizeof(broadcast_addr));
 	if(ret == -1) {
 		perror("dx_discovery_send_broadcast");
 	}

@@ -13,26 +13,26 @@ void util_list_test();
 
 int main(void) {
 
-//	printf("\nTest - debug_malloc_test()..\n");
-//	debug_malloc_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - util_buffer_test()..\n");
-//	util_buffer_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - util_lock_test()..\n");
-//	util_lock_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - util_list_test()..\n");
-//	util_list_test();
-//	printf("..Done\n");
-//
+	printf("\nTest - debug_malloc_test()..\n");
+	debug_malloc_test();
+	printf("..Done\n");
+
+	printf("\nTest - util_buffer_test()..\n");
+	util_buffer_test();
+	printf("..Done\n");
+
+	printf("\nTest - util_lock_test()..\n");
+	util_lock_test();
+	printf("..Done\n");
+
+	printf("\nTest - util_list_test()..\n");
+	util_list_test();
+	printf("..Done\n");
+
 //	printf("\nTest - net_pipe_test()..\n");
 //	net_pipe_test();
 //	printf("..Done\n");
-//
+
 //	printf("\nTest - event_console_test()..\n");
 //	console_test();
 //	printf("..Done\n");
@@ -41,9 +41,9 @@ int main(void) {
 	net_server_test();
 	printf("..Done\n");
 
-//	printf("\nTest - net_dgram_loopback_test()..\n");
-//	net_dgram_loopback_test();
-//	printf("..Done\n");
+	printf("\nTest - net_dgram_loopback_test()..\n");
+	net_dgram_loopback_test();
+	printf("..Done\n");
 
 	return EXIT_SUCCESS;
 }

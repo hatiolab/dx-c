@@ -45,27 +45,25 @@ int dx_client_handler_file(dx_event_context_t* context, dx_packet_t* packet);
 
 void net_server_test() {
 	int i = 0;
+	int server, client;
 
 	dx_event_mplexer_create();
 
 	dx_console_start(dx_console_handler);
 
-	dx_server_start(TEST_SERVICE_PORT, dx_net_server_handler);
-	dx_client_start("localhost", TEST_SERVICE_PORT, dx_net_client_handler);
+	server = dx_server_start(TEST_SERVICE_PORT, dx_net_server_handler);
+	client = dx_client_start("localhost", TEST_SERVICE_PORT, dx_net_client_handler);
 
 	/* Big Loop */
 	while(i++ < 1000) {
 		dx_event_mplexer_poll(1000);
 
 		if(i == 1) {
-			dx_packet_send_heartbeat(dx_client_get_fd(), 0);
+			dx_packet_send_heartbeat(client, 0);
 		}
 	}
 
 	dx_event_mplexer_destroy();
-
-	dx_server_destroy();
-	dx_client_destroy();
 
 	CHKMEM();
 }

@@ -31,28 +31,15 @@
 #include "dx_net_packet_io.h"
 #include "dx_net_server.h"
 
-struct dx_server_context {
+int dx_server_get_service_port(int fd) {
+	struct sockaddr_in	serveraddr;
+	int len = sizeof(serveraddr);
 
-	uint16_t	service_port;
-
-	int 		server_socket_fd;
-}* __dsc;
-
-int dx_server_set_service_port(uint16_t port) {
-	__dsc->service_port = port;
-
-	return 0;
+	getsockname(fd, (struct sockaddr*)&serveraddr, (socklen_t *)&len);
+	return ntohs(serveraddr.sin_port);
 }
 
-int dx_server_get_service_port() {
-	return __dsc->service_port;
-}
-
-int dx_server_get_fd() {
-	return __dsc->server_socket_fd;
-}
-
-int dx_accept_client() {
+int dx_accept_client(int fd) {
 	struct sockaddr_in	clientaddr;
 	socklen_t addrlen;
 	int client_fd;
@@ -62,7 +49,7 @@ int dx_accept_client() {
 
 	addrlen = sizeof(clientaddr);
 
-	client_fd = accept(__dsc->server_socket_fd, (struct sockaddr*)&clientaddr, &addrlen);
+	client_fd = accept(fd, (struct sockaddr*)&clientaddr, &addrlen);
 
 	/* Set Receive Buffer Size */
 	setsockopt(client_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
@@ -75,71 +62,57 @@ int dx_accept_client() {
 	return client_fd;
 }
 
-int dx_server_listen() {
+int dx_server_listen(int fd, int port) {
 	struct sockaddr_in	serveraddr;
-	int len = sizeof(serveraddr);
 
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(__dsc->service_port);
+	serveraddr.sin_port = htons(port);
 	memset(&(serveraddr.sin_zero), '\0', 8);
 
-	if(-1 == bind(__dsc->server_socket_fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) {
+	if(-1 == bind(fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) {
 		perror("Server-bind() error");
 		exit(1);
 	}
 
-	/* TODO 여기에서 실제로 바인드된 포트를 알아낸다. */
-	getsockname(__dsc->server_socket_fd, (struct sockaddr*)&serveraddr, (socklen_t *)&len);
-	__dsc->service_port = ntohs(serveraddr.sin_port);
-
-	if(-1 == listen(__dsc->server_socket_fd, 10)) {
+	if(-1 == listen(fd, 10)) {
 		perror("Server-listen() error");
 		exit(1);
 	}
 
-	return 1;
+	return fd;
 }
 
+/*
+ * 서버를 생성 후에 파일디스크립터를 반환한다.
+ */
 int dx_server_create() {
 
 	int yes = 1;
 	int flags;
+	int fd;
 
-	__dsc = MALLOC(sizeof(struct dx_server_context));
-
-	__dsc->server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if(__dsc->server_socket_fd == -1) {
+	fd = socket(AF_INET, SOCK_STREAM, 0);
+	if(fd == -1) {
 		perror("Server - socket() error");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/* Set socket to non-blocking mode */
-	flags = fcntl(__dsc->server_socket_fd, F_GETFL);
-	fcntl(__dsc->server_socket_fd, F_SETFL, flags | O_NONBLOCK);
+	flags = fcntl(fd, F_GETFL);
+	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 
-	if(-1 == setsockopt(__dsc->server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
+	if(-1 == setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
 		perror("Server-setsockopt() error");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
-	return 1;
+	return fd;
 }
 
-int dx_server_destroy() {
-	if(!__dsc->server_socket_fd)
-		return 0;
-
-	FREE(__dsc);
-
-	__dsc = NULL;
-
-	return 0;
-}
-
-int dx_server_acceptable_handler(dx_event_context_t* context) {
+int dx_server_acceptable_handler(dx_event_context_t* server_context) {
 	dx_event_context_t* pcontext;
-	int client_fd = dx_accept_client();
+	int client_fd = dx_accept_client(server_context->fd);
 
 	printf("A Client tried to connect.. \n");
 	pcontext = dx_event_context_create();
@@ -148,7 +121,7 @@ int dx_server_acceptable_handler(dx_event_context_t* context) {
 	pcontext->writable_handler = dx_server_writable_handler;
 	pcontext->error_handler = NULL;
 
-	pcontext->pdata = context->pdata;
+	pcontext->pdata = server_context->pdata;
 
 	dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
 	printf("A Client tried to connect.. Accepted.\n");
@@ -192,17 +165,19 @@ int dx_server_readable_handler(dx_event_context_t* context) {
 	return 0;
 }
 
+/*
+ * 서버를 생성 및 Listen 후에 event multiplexer에 등록 후 파일디스크립터를 반환한다.
+ */
 int dx_server_start(int port, dx_server_event_handler handler) {
 	dx_event_context_t* pcontext;
 
 	/* create server */
-	dx_server_create();
+	int fd = dx_server_create();
 
-	dx_server_set_service_port(port);
-	dx_server_listen();
+	dx_server_listen(fd, port);
 
 	pcontext = dx_event_context_create();
-	pcontext->fd = dx_server_get_fd();
+	pcontext->fd = fd;
 	pcontext->readable_handler = dx_server_acceptable_handler;
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
@@ -211,5 +186,5 @@ int dx_server_start(int port, dx_server_event_handler handler) {
 
 	dx_add_event_context(pcontext, EPOLLIN);
 
-	return 0;
+	return fd;
 }

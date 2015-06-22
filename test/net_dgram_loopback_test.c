@@ -15,35 +15,30 @@
 #include "dx_net_packet.h"
 #include "dx_net_dgram.h"
 
-int dx_net_dgram_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr);
+int net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr);
 
 #define TEST_DGRAM_PORT 2017
 
 int dx_send_hearbeat_broadcast(int fd, int to_port);
 
 void net_dgram_loopback_test() {
-	dx_dgram_context_t* pdgram;
+	int fd;
 	int i = 0;
 
 	/* event multiplexer start */
 	dx_event_mplexer_create();
 
 	/* datagram server start */
-	pdgram = dx_dgram_create();
-
-	dx_dgram_set_service_port(pdgram, TEST_DGRAM_PORT);
-	dx_dgram_start(pdgram, dx_net_dgram_handler);
+	fd = dx_dgram_start(TEST_DGRAM_PORT, net_dgram_loopback_handler);
 
 	/* Big Loop */
 	while(i++ < 1000) {
 		dx_event_mplexer_poll(1000);
 
 		if(i == 1) {
-			dx_send_hearbeat_broadcast(pdgram->socket_fd, TEST_DGRAM_PORT);
+			dx_send_hearbeat_broadcast(fd, TEST_DGRAM_PORT);
 		}
 	}
-
-	dx_dgram_destroy(pdgram);
 
 	dx_event_mplexer_destroy();
 
@@ -69,7 +64,7 @@ int dx_send_hearbeat_broadcast(int fd, int to_port) {
 	return 0;
 }
 
-int dx_net_dgram_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr) {
+int net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr) {
 	switch(packet->header.type) {
 	case DX_PACKET_TYPE_DISCOVERY : /* Discovery */
 

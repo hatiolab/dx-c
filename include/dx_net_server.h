@@ -26,12 +26,9 @@ typedef int (*dx_server_event_handler)(dx_event_context_t* pcontext, dx_packet_t
 /* APIs */
 
 int dx_server_create();
-int dx_server_listen();
-int dx_server_destroy();
-int dx_server_accept_client();
-int dx_server_get_service_port();
-int	dx_server_set_service_port(uint16_t port);
-int dx_server_get_fd();
+int dx_server_listen(int fd, int port);
+int dx_server_accept_client(int fd);
+int dx_server_get_service_port(int fd);
 
 int dx_server_acceptable_handler(dx_event_context_t* context);
 int dx_server_writable_handler(dx_event_context_t* context);

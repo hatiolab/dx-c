@@ -28,8 +28,8 @@ int last_client_fd;
 #define	TO_SERVER dx_client_get_fd()
 #define TO_CLIENT	last_client_fd
 
-dx_dgram_context_t* dx_client;
-dx_dgram_context_t* dx_server;
+int dx_client;
+int dx_server;
 
 int send_stream(int fd);
 int dx_console_handler(dx_event_context_t* context);
@@ -62,13 +62,13 @@ int dx_console_handler(dx_event_context_t* context) {
 
     switch(buf[0]) {
     case	'f':
-    	dx_packet_get_filelist(TO_SERVER, trim(&buf[1]));
+//    	dx_packet_get_filelist(TO_SERVER, trim(&buf[1]));
     	break;
     case	'F':
     	dx_packet_send_filelist(TO_CLIENT, trim(&buf[1]));
     	break;
     case	'g':
-    	dx_packet_get_file(TO_SERVER, trim(&buf[1]), 0, DX_FILE_PARTIAL_MAX_SIZE - 1);
+//    	dx_packet_get_file(TO_SERVER, trim(&buf[1]), 0, DX_FILE_PARTIAL_MAX_SIZE - 1);
     	break;
     case	'G':
 //    	dx_packet_send_file(TO_CLIENT, trim(&buf[1]));
@@ -87,11 +87,10 @@ int dx_console_handler(dx_event_context_t* context) {
 		break;
     case    'b':
     case    'B':
-    	dx_packet_send_heartbeat(dx_client_get_fd(), 0); /* Client to Server */
+//    	dx_packet_send_heartbeat(dx_client_get_fd(), 0); /* Client to Server */
         break;
     case    'x':
     case    'X':
-    	dx_client_destroy();
         break;
     case    'k':
     case    'K':

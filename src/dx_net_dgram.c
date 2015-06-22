@@ -25,96 +25,75 @@
 
 int dx_dgram_readable_handler(dx_event_context_t* context);
 
-int dx_dgram_set_service_port(dx_dgram_context_t* ddc, uint16_t port) {
-	ddc->service_port = port;
-
-	return 0;
-}
-
-int dx_dgram_get_service_port(dx_dgram_context_t* ddc) {
-	return ddc->service_port;
-}
-
-int dx_dgram_get_fd(dx_dgram_context_t* ddc) {
-	return ddc->socket_fd;
-}
-
-int dx_dgram_listen(dx_dgram_context_t* ddc) {
+int dx_dgram_get_service_port(int fd) {
 	struct sockaddr_in	serveraddr;
 	int len = sizeof(serveraddr);
 
+	getsockname(fd, (struct sockaddr*)&serveraddr, (socklen_t*)&len);
+	return ntohs(serveraddr.sin_port);
+}
+
+int dx_dgram_listen(int fd, int port) {
+	struct sockaddr_in	serveraddr;
+
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(ddc->service_port);
+	serveraddr.sin_port = htons(port);
 	memset(&(serveraddr.sin_zero), '\0', 8);
 
-	if(-1 == bind(ddc->socket_fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) {
+	if(-1 == bind(fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr))) {
 		perror("Server-bind() error");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
-
-	/* TODO 여기에서 실제로 바인드된 포트를 알아낸다. */
-	getsockname(ddc->socket_fd, (struct sockaddr*)&serveraddr, (socklen_t*)&len);
-	ddc->service_port = ntohs(serveraddr.sin_port);
 
 	return 1;
 }
 
-dx_dgram_context_t* dx_dgram_create() {
+int dx_dgram_create() {
 
 	int yes = 1;
 	int flags;
 	int rcvbufsize = DX_SOCKET_BUF_SIZE;
 	int sndbufsize = DX_SOCKET_BUF_SIZE;
 
-	dx_dgram_context_t* ddc = malloc(sizeof(struct dx_dgram_context));
+	int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
-	ddc->socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
-	if(ddc->socket_fd == -1) {
+	if(fd == -1) {
 		perror("Server - socket() error");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/* Set socket to non-blocking mode */
-	flags = fcntl(ddc->socket_fd, F_GETFL);
-	fcntl(ddc->socket_fd, F_SETFL, flags | O_NONBLOCK);
+	flags = fcntl(fd, F_GETFL);
+	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 
-	if(-1 == setsockopt(ddc->socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
+	if(-1 == setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
 		perror("Server-setsockopt() error : SO_REUSEADDR");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	yes = 1;
-	if(-1 == setsockopt(ddc->socket_fd, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(int))) {
+	if(-1 == setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(int))) {
 		perror("Server-setsockopt() error : SO_BROADCAST");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/* Set Receive Buffer Size */
-	setsockopt(ddc->socket_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
-	setsockopt(ddc->socket_fd, SOL_SOCKET, SO_SNDBUF, &sndbufsize, sizeof(sndbufsize));
+	setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
+	setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbufsize, sizeof(sndbufsize));
 
-	return ddc;
+	return fd;
 }
 
-int dx_dgram_destroy(dx_dgram_context_t* ddc) {
-	if(!ddc->socket_fd)
-		return 0;
+int dx_dgram_start(int port, dx_dgram_event_handler handler) {
+	int fd = dx_dgram_create();
 
-	free(ddc);
-
-	ddc = NULL;
-
-	return 0;
-}
-
-int dx_dgram_start(dx_dgram_context_t* ddc, dx_dgram_event_handler handler) {
 	dx_event_context_t* pcontext;
 
-	dx_dgram_listen(ddc);
+	dx_dgram_listen(fd, port);
 
 	pcontext = dx_event_context_create();
-	pcontext->fd = ddc->socket_fd;
+	pcontext->fd = fd;
 	pcontext->readable_handler = dx_dgram_readable_handler;
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
@@ -123,7 +102,7 @@ int dx_dgram_start(dx_dgram_context_t* ddc, dx_dgram_event_handler handler) {
 
 	dx_add_event_context(pcontext, EPOLLIN);
 
-	return 0;
+	return fd;
 }
 
 int dx_dgram_readable_handler(dx_event_context_t* context) {

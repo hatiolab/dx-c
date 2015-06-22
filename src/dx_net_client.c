@@ -33,23 +33,6 @@
 
 typedef struct dx_client_context dx_client_context_t;
 
-struct dx_client_context {
-	int 		socket_fd;
-} *__dcc;
-
-int dx_client_get_fd() {
-	return __dcc->socket_fd;
-}
-
-int dx_client_create() {
-	if(!__dcc)
-		__dcc = (dx_client_context_t*)MALLOC(sizeof(dx_client_context_t));
-	else
-		return -1;
-
-	return 0;
-}
-
 int	dx_client_connect(char* hostname, uint16_t port) {
 	struct sockaddr_in serv_addr;
 	struct hostent* server;
@@ -57,29 +40,29 @@ int	dx_client_connect(char* hostname, uint16_t port) {
 	int sndbufsize = DX_SOCKET_BUF_SIZE;
 	int flags, yes = 1;
 
-	__dcc->socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	int fd = socket(AF_INET, SOCK_STREAM, 0);
 
-	if(__dcc->socket_fd < 0) {
+	if(fd < 0) {
 		perror("Client - socket() error");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/* Set Receive Buffer Size */
-	setsockopt(__dcc->socket_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
-	setsockopt(__dcc->socket_fd, SOL_SOCKET, SO_SNDBUF, &sndbufsize, sizeof(sndbufsize));
+	setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
+	setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbufsize, sizeof(sndbufsize));
 
-	setsockopt(__dcc->socket_fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
+	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
 	yes = 1;
-	setsockopt(__dcc->socket_fd, IPPROTO_TCP, TCP_QUICKACK, &yes, sizeof(yes));
+	setsockopt(fd, IPPROTO_TCP, TCP_QUICKACK, &yes, sizeof(yes));
 
 	/* Set socket to non-blocking mode */
-	flags = fcntl(__dcc->socket_fd, F_GETFL);
-	fcntl(__dcc->socket_fd, F_SETFL, flags | O_NONBLOCK);
+	flags = fcntl(fd, F_GETFL);
+	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 
 	server = gethostbyname(hostname);
 	if(NULL == server) {
 		fprintf(stderr, "Client - no such host(%s)\n", hostname);
-		exit(0);
+		exit(EXIT_FAILURE);
 	}
 
 	bzero((char*)&serv_addr, sizeof(serv_addr));
@@ -87,27 +70,14 @@ int	dx_client_connect(char* hostname, uint16_t port) {
 	bcopy((char*)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length);
 	serv_addr.sin_port = htons(port);
 
-	if(connect(__dcc->socket_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+	if(connect(fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
 		if(errno != EINPROGRESS) {
 			perror("Client - connect() error");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 	}
 
-	return 0;
-}
-
-int dx_client_destroy() {
-	if(!__dcc)
-		return 0;
-
-	if(__dcc->socket_fd)
-		close(__dcc->socket_fd);
-
-	FREE(__dcc);
-    __dcc = NULL;
-
-	return 0;
+	return fd;
 }
 
 int dx_client_writable_handler(dx_event_context_t* context) {
@@ -137,8 +107,6 @@ int dx_client_readable_handler(dx_event_context_t* context) {
 		}
 
 		dx_del_event_context(context);
-		dx_client_destroy();
-
 
 		/* Generate DISCONNECT Event on Purpose */
 		packet = (dx_packet_t*)malloc(DX_PRIMITIVE_PACKET_SIZE);
@@ -161,16 +129,12 @@ int dx_client_readable_handler(dx_event_context_t* context) {
 
 int dx_client_start(char* hostname, int port, dx_client_event_handler handler) {
 	dx_event_context_t* pcontext;
+	int fd;
 
-	if(-1 == dx_client_create())
-		return -1;
-
-	printf("Start client to drive (%s) ..\n", hostname);
-
-	dx_client_connect(hostname, port);
+	fd = dx_client_connect(hostname, port);
 
 	pcontext = dx_event_context_create();
-	pcontext->fd = dx_client_get_fd();
+	pcontext->fd = fd;
 	pcontext->readable_handler = dx_client_readable_handler;
 	pcontext->writable_handler = dx_client_writable_handler;
 	pcontext->error_handler = NULL;
@@ -180,5 +144,5 @@ int dx_client_start(char* hostname, int port, dx_client_event_handler handler) {
 
 	dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
 
-	return 1;
+	return fd;
 }
