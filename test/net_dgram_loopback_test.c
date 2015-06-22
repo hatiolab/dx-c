@@ -53,7 +53,7 @@ int dx_send_hearbeat_broadcast(int fd, int to_port) {
 
 	packet = (dx_packet_hb_t*)MALLOC(len);
 	packet->header.len = htonl(len);
-	packet->header.type = DX_PACKET_TYPE_DISCOVERY;
+	packet->header.type = DX_PACKET_TYPE_HB;
 	packet->header.code = 0;
 	packet->header.data_type = DX_DATA_TYPE_NONE;
 
@@ -66,9 +66,9 @@ int dx_send_hearbeat_broadcast(int fd, int to_port) {
 
 int net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr) {
 	switch(packet->header.type) {
-	case DX_PACKET_TYPE_DISCOVERY : /* Discovery */
+	case DX_PACKET_TYPE_HB : /* Heartbeat */
 
-		printf("[DGRAM] Receive DISCOVERY....\n");
+		printf("[DGRAM] Receive Heartbeat....\n");
 		dx_send_hearbeat_broadcast(context->fd, ntohs(peer_addr->sin_port));
 
 		break;

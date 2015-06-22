@@ -10,6 +10,7 @@ void net_pipe_test();
 void net_server_test();
 void console_test();
 void util_list_test();
+void net_discovery_test();
 
 int main(void) {
 
@@ -43,6 +44,10 @@ int main(void) {
 
 	printf("\nTest - net_dgram_loopback_test()..\n");
 	net_dgram_loopback_test();
+	printf("..Done\n");
+
+	printf("\nTest - net_discovery_test()..\n");
+	net_discovery_test();
 	printf("..Done\n");
 
 	return EXIT_SUCCESS;
