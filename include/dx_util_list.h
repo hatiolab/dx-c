@@ -1,6 +1,6 @@
 // Copyright (c) 2015 - 2015 All Right Reserved, http://hatiolab.com
 //
-// This source is subject to the ImageNext Permissive License.
+// This source is subject to the Hatio, Lab. Permissive License.
 // Please see the License.txt file for more information.
 // All other rights reserved.
 //
@@ -17,25 +17,25 @@
  * Definitions
  */
 
-typedef	int (*dx_find_function)(void* data1, void* data2);
-typedef	int (*dx_destroyer_function)(void* data1);
+typedef int (*dx_find_function)(void* data1, void* data2);
+typedef int (*dx_destroyer_function)(void* data1);
 
 typedef void (*dx_list_iterator_callback)(void* p);
 
 typedef struct dx_list_node dx_list_node_t;
 
 struct dx_list_node {
-	dx_list_node_t	*prev;
-	dx_list_node_t	*next;
+  dx_list_node_t  *prev;
+  dx_list_node_t  *next;
 
-	void			*data;
+  void      *data;
 };
 
 typedef struct dx_list {
-	dx_list_node_t			*head;
-	dx_list_node_t			*tail;
-	dx_find_function		finder;
-	dx_destroyer_function 	destroyer;
+  dx_list_node_t      *head;
+  dx_list_node_t      *tail;
+  dx_find_function    finder;
+  dx_destroyer_function   destroyer;
 } dx_list_t;
 
 int dx_list_init(dx_list_t* plist, dx_find_function finder, dx_destroyer_function destroyer);

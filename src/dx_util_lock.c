@@ -1,6 +1,6 @@
 // Copyright (c) 2015 - 2015 All Right Reserved, http://hatiolab.com
 //
-// This source is subject to the ImageNext Permissive License.
+// This source is subject to the Hatio, Lab. Permissive License.
 // Please see the License.txt file for more information.
 // All other rights reserved.
 //
@@ -17,18 +17,18 @@
 pthread_mutex_t __dx_lock;
 
 void dx_lock_init() {
-	int success = pthread_mutex_init(&__dx_lock, NULL);
-	ASSERT("Mutex Init Failed.\n", success == 0);
+  int success = pthread_mutex_init(&__dx_lock, NULL);
+  ASSERT("Mutex Init Failed.\n", success == 0);
 }
 
 void dx_lock_destroy() {
-	pthread_mutex_destroy(&__dx_lock);
+  pthread_mutex_destroy(&__dx_lock);
 }
 
 void dx_lock() {
-	pthread_mutex_lock(&__dx_lock);
+  pthread_mutex_lock(&__dx_lock);
 }
 
 void dx_unlock() {
-	pthread_mutex_unlock(&__dx_lock);
+  pthread_mutex_unlock(&__dx_lock);
 }

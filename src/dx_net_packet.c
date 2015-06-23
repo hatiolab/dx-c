@@ -1,6 +1,6 @@
 // Copyright (c) 2015 - 2015 All Right Reserved, http://hatiolab.com
 //
-// This source is subject to the ImageNext Permissive License.
+// This source is subject to the Hatio, Lab. Permissive License.
 // Please see the License.txt file for more information.
 // All other rights reserved.
 //
@@ -12,12 +12,12 @@
 
 #include "dx_net_packet.h"
 
-#include <stddef.h>		// For NULL
-#include <string.h>		// For memcpy
+#include <stddef.h>   // For NULL
+#include <string.h>   // For memcpy
 #include <sys/socket.h>
 #include <netinet/in.h> // For htonl, ...
-#include <stdint.h>		// For uint32_t, ...
-#include <errno.h>		// For errno
+#include <stdint.h>   // For uint32_t, ...
+#include <errno.h>    // For errno
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
@@ -25,99 +25,99 @@
 #include "dx_net_packet_io.h"
 
 int dx_packet_send_header(int fd, int type, int code) {
-	dx_packet_t* packet;
-	uint32_t	len;
+  dx_packet_t* packet;
+  uint32_t  len;
 
-	len = DX_PACKET_HEADER_SIZE;
+  len = DX_PACKET_HEADER_SIZE;
 
-	packet = (dx_packet_t*)MALLOC(len);
-	packet->header.len = htonl(len);
-	packet->header.type = type;
-	packet->header.code = code;
-	packet->header.data_type = DX_DATA_TYPE_NONE;
+  packet = (dx_packet_t*)MALLOC(len);
+  packet->header.len = htonl(len);
+  packet->header.type = type;
+  packet->header.code = code;
+  packet->header.data_type = DX_DATA_TYPE_NONE;
 
-	dx_write(fd, packet, len);
+  dx_write(fd, packet, len);
 
-	FREE(packet);
+  FREE(packet);
 
-	return 0;
+  return 0;
 }
 
 int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t data) {
-	dx_primitive_packet_t* packet;
-	uint32_t	len;
+  dx_primitive_packet_t* packet;
+  uint32_t  len;
 
-	len = DX_PRIMITIVE_PACKET_SIZE;
+  len = DX_PRIMITIVE_PACKET_SIZE;
 
-	packet = (dx_primitive_packet_t*)MALLOC(len);
-	packet->header.len = htonl(len);
-	packet->header.type = type;
-	packet->header.code = code;
-	packet->header.data_type = DX_DATA_TYPE_PRIMITIVE;
-	packet->data = data;
+  packet = (dx_primitive_packet_t*)MALLOC(len);
+  packet->header.len = htonl(len);
+  packet->header.type = type;
+  packet->header.code = code;
+  packet->header.data_type = DX_DATA_TYPE_PRIMITIVE;
+  packet->data = data;
 
-	dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE);
+  dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE);
 
-	FREE(packet);
+  FREE(packet);
 
-	return 0;
+  return 0;
 }
 
 int dx_packet_send_primitive_u8(int fd, int type, int code, uint8_t value) {
-	dx_primitive_data_t data;
+  dx_primitive_data_t data;
 
-	data.u8 = value;
+  data.u8 = value;
 
-	return dx_packet_send_primitive(fd, type, code, data);
+  return dx_packet_send_primitive(fd, type, code, data);
 }
 
 int dx_packet_send_primitive_s8(int fd, int type, int code, int8_t value) {
-	dx_primitive_data_t data;
+  dx_primitive_data_t data;
 
-	data.s8 = value;
+  data.s8 = value;
 
-	return dx_packet_send_primitive(fd, type, code, data);
+  return dx_packet_send_primitive(fd, type, code, data);
 }
 
 int dx_packet_send_primitive_u16(int fd, int type, int code, uint16_t value) {
-	dx_primitive_data_t data;
+  dx_primitive_data_t data;
 
-	data.u16 = htons(value);
+  data.u16 = htons(value);
 
-	return dx_packet_send_primitive(fd, type, code, data);
+  return dx_packet_send_primitive(fd, type, code, data);
 }
 
 int dx_packet_send_primitive_s16(int fd, int type, int code, int16_t value) {
-	dx_primitive_data_t data;
+  dx_primitive_data_t data;
 
-	data.s16 = htons(value);
+  data.s16 = htons(value);
 
-	return dx_packet_send_primitive(fd, type, code, data);
+  return dx_packet_send_primitive(fd, type, code, data);
 }
 
 int dx_packet_send_primitive_u32(int fd, int type, int code, uint32_t value) {
-	dx_primitive_data_t data;
+  dx_primitive_data_t data;
 
-	data.u32 = htonl(value);
+  data.u32 = htonl(value);
 
-	return dx_packet_send_primitive(fd, type, code, data);
+  return dx_packet_send_primitive(fd, type, code, data);
 }
 
 int dx_packet_send_primitive_s32(int fd, int type, int code, int32_t value) {
-	dx_primitive_data_t data;
+  dx_primitive_data_t data;
 
-	data.s32 = htonl(value);
+  data.s32 = htonl(value);
 
-	return dx_packet_send_primitive(fd, type, code, data);
+  return dx_packet_send_primitive(fd, type, code, data);
 }
 
 int dx_packet_send_primitive_f32(int fd, int type, int code, float value) {
-	dx_primitive_data_t data;
+  dx_primitive_data_t data;
 
-	data.f32 = value;
-	data.s32 = htonl(data.s32);
+  data.f32 = value;
+  data.s32 = htonl(data.s32);
 
-	return dx_packet_send_primitive(fd, type, code, data);
+  return dx_packet_send_primitive(fd, type, code, data);
 }
 
 #define DX_PACKET_SEND_HEADER(t) dx_packet_send_##t
@@ -189,70 +189,70 @@ DECLARE_DX_PACKET_SEND_PRIMITIVE_S32(command, DX_PACKET_TYPE_COMMAND)
 DECLARE_DX_PACKET_SEND_PRIMITIVE_F32(command, DX_PACKET_TYPE_COMMAND)
 
 int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datalen) {
-	dx_u8_array_packet_t* packet;
-	uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
+  dx_u8_array_packet_t* packet;
+  uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
 
-	packet = (dx_u8_array_packet_t*)MALLOC(len);
+  packet = (dx_u8_array_packet_t*)MALLOC(len);
 
-	packet->header.len = htonl(len);
-	packet->header.type = type;
-	packet->header.code = code;
-	packet->header.data_type = DX_DATA_TYPE_U8_ARRAY;
-	packet->array.len = htonl(datalen);
+  packet->header.len = htonl(len);
+  packet->header.type = type;
+  packet->header.code = code;
+  packet->header.data_type = DX_DATA_TYPE_U8_ARRAY;
+  packet->array.len = htonl(datalen);
 
-	if(datalen)
-		memcpy(&(packet->array.data), data, datalen);
+  if(datalen)
+    memcpy(&(packet->array.data), data, datalen);
 
-	dx_write(fd, packet, len);
+  dx_write(fd, packet, len);
 
-	FREE(packet);
+  FREE(packet);
 
-	return 0;
+  return 0;
 }
 
 int dx_packet_send_string(int fd, int type, int code, char* data) {
-	return dx_packet_send_array_u8(fd, type, code, (uint8_t*)data, strlen(data));
-	dx_u8_array_packet_t* packet;
-	int datalen = strlen(data);
-	uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
+  return dx_packet_send_array_u8(fd, type, code, (uint8_t*)data, strlen(data));
+  dx_u8_array_packet_t* packet;
+  int datalen = strlen(data);
+  uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
 
-	packet = (dx_u8_array_packet_t*)MALLOC(len);
+  packet = (dx_u8_array_packet_t*)MALLOC(len);
 
-	packet->header.len = htonl(len);
-	packet->header.type = type;
-	packet->header.code = code;
-	packet->header.data_type = DX_DATA_TYPE_STRING;
-	packet->array.len = htonl(datalen);
+  packet->header.len = htonl(len);
+  packet->header.type = type;
+  packet->header.code = code;
+  packet->header.data_type = DX_DATA_TYPE_STRING;
+  packet->array.len = htonl(datalen);
 
-	if(datalen)
-		memcpy(&(packet->array.data), data, datalen);
+  if(datalen)
+    memcpy(&(packet->array.data), data, datalen);
 
-	dx_write(fd, packet, len);
+  dx_write(fd, packet, len);
 
-	FREE(packet);
+  FREE(packet);
 
-	return 0;
+  return 0;
 }
 
 int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int datalen) {
-	dx_stream_packet_t* packet;
-	uint32_t len = DX_STREAM_PACKET_SIZE(datalen);
+  dx_stream_packet_t* packet;
+  uint32_t len = DX_STREAM_PACKET_SIZE(datalen);
 
-	packet = (dx_stream_packet_t*)MALLOC(len);
+  packet = (dx_stream_packet_t*)MALLOC(len);
 
-	packet->header.len = htonl(len);
-	packet->header.type = DX_PACKET_TYPE_STREAM;
-	packet->header.code = code;
-	packet->header.data_type = DX_DATA_TYPE_STREAM;
-	packet->data.type = htonl(enctype);
-	packet->data.len = htonl(datalen);
+  packet->header.len = htonl(len);
+  packet->header.type = DX_PACKET_TYPE_STREAM;
+  packet->header.code = code;
+  packet->header.data_type = DX_DATA_TYPE_STREAM;
+  packet->data.type = htonl(enctype);
+  packet->data.len = htonl(datalen);
 
-	if(datalen)
-		memcpy(&(packet->data.data), data, datalen);
+  if(datalen)
+    memcpy(&(packet->data.data), data, datalen);
 
-	dx_write(fd, packet, len);
+  dx_write(fd, packet, len);
 
-	FREE(packet);
+  FREE(packet);
 
-	return 0;
+  return 0;
 }

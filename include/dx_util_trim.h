@@ -1,6 +1,6 @@
 // Copyright (c) 2015 - 2015 All Right Reserved, http://hatiolab.com
 //
-// This source is subject to the ImageNext Permissive License.
+// This source is subject to the Hatio, Lab. Permissive License.
 // Please see the License.txt file for more information.
 // All other rights reserved.
 //
@@ -24,10 +24,10 @@
  * Definitions
  */
 
-#define STRLIB_MODE_ALL			0
-#define STRLIB_MODE_LEFT		1
-#define STRLIB_MODE_RIGHT		2
-#define STRLIB_MODE_BOTH		3
+#define STRLIB_MODE_ALL     0
+#define STRLIB_MODE_LEFT    1
+#define STRLIB_MODE_RIGHT   2
+#define STRLIB_MODE_BOTH    3
 
 char* strcpytrim(char*dest, char* src, int mode, char* delim);
 

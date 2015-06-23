@@ -1,6 +1,6 @@
 // Copyright (c) 2015 - 2015 All Right Reserved, http://hatiolab.com
 //
-// This source is subject to the ImageNext Permissive License.
+// This source is subject to the Hatio, Lab. Permissive License.
 // Please see the License.txt file for more information.
 // All other rights reserved.
 //
@@ -16,11 +16,11 @@
 #include <stdint.h>
 
 typedef struct dx_buffer {
-	int capacity;
-	int position;
-	int limit;
-	int mark;
-	uint8_t data[0];
+  int capacity;
+  int position;
+  int limit;
+  int mark;
+  uint8_t data[0];
 } dx_buffer_t;
 
 #define DX_BUFFER_SIZE(sz) (sizeof(dx_buffer_t)+sz)

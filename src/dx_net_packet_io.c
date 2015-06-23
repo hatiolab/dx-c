@@ -1,6 +1,6 @@
 // Copyright (c) 2015 - 2015 All Right Reserved, http://hatiolab.com
 //
-// This source is subject to the ImageNext Permissive License.
+// This source is subject to the Hatio, Lab. Permissive License.
 // Please see the License.txt file for more information.
 // All other rights reserved.
 //
@@ -10,11 +10,11 @@
 // PARTICULAR PURPOSE.
 //
 
-#include <stddef.h>		// For NULL
-#include <unistd.h>		// For ssize_t
-#include <fcntl.h>		// For read, write
-#include <string.h>	// For memset
-#include <sys/epoll.h>	// For EPOLLIN, EPOLLOUT
+#include <stddef.h>   // For NULL
+#include <unistd.h>   // For ssize_t
+#include <fcntl.h>    // For read, write
+#include <string.h> // For memset
+#include <sys/epoll.h>  // For EPOLLIN, EPOLLOUT
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
@@ -23,227 +23,227 @@
 
 #include "dx_event_mplexer.h"
 
-#include "dx_net_packet.h"	// For DX_PACKET_HEADER_SIZE
+#include "dx_net_packet.h"  // For DX_PACKET_HEADER_SIZE
 #include "dx_net_packet_io.h"
 
-#include "dx_net_dgram.h"	// For DX_DGRAM_MAX_PACKET_SIZE
+#include "dx_net_dgram.h" // For DX_DGRAM_MAX_PACKET_SIZE
 
 //int dx_write(int fd, const void* buf, ssize_t sz) {
-//	int twrite = 0;
-//	int nwrite = 0;
-//	int flags;
+//  int twrite = 0;
+//  int nwrite = 0;
+//  int flags;
 //
-//	/* Set socket to blocking mode */
-//	flags = fcntl(fd, F_GETFL);
-//	fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+//  /* Set socket to blocking mode */
+//  flags = fcntl(fd, F_GETFL);
+//  fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
 //
-//	while(sz - twrite > 0) {
-//		nwrite = write(fd, buf + twrite, sz - twrite);
-//		if(nwrite <= 0) {
-//			perror("write() error");
-//			break;
-//		}
-//		twrite += nwrite;
-//	}
+//  while(sz - twrite > 0) {
+//    nwrite = write(fd, buf + twrite, sz - twrite);
+//    if(nwrite <= 0) {
+//      perror("write() error");
+//      break;
+//    }
+//    twrite += nwrite;
+//  }
 //
-//	if(sz != twrite) {
-//		printf("dx_write() mismatch [%d - %d]\n", twrite, (int)sz);
-//	}
+//  if(sz != twrite) {
+//    printf("dx_write() mismatch [%d - %d]\n", twrite, (int)sz);
+//  }
 //
-//	/* Set socket to non-blocking again */
-//	flags = fcntl(fd, F_GETFL);
-//	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+//  /* Set socket to non-blocking again */
+//  flags = fcntl(fd, F_GETFL);
+//  fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 //
-//	return twrite;
+//  return twrite;
 //}
 
 int dx_write_by_poller(dx_event_context_t* pcontext) {
-	dx_list_t* plist = pcontext->plist_writing;
-	dx_buffer_t* pbuf;
-	int nwrite, twrite = 0;
-	dx_list_node_t* pnode;
+  dx_list_t* plist = pcontext->plist_writing;
+  dx_buffer_t* pbuf;
+  int nwrite, twrite = 0;
+  dx_list_node_t* pnode;
 
-	if(plist == NULL) {
-		/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
-		dx_mod_event_context(pcontext, EPOLLIN);
+  if(plist == NULL) {
+    /* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
+    dx_mod_event_context(pcontext, EPOLLIN);
 
-		return 0;
-	}
+    return 0;
+  }
 
-	pnode = plist->head;
-	if(pnode == NULL) {
-		/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
-		dx_mod_event_context(pcontext, EPOLLIN);
+  pnode = plist->head;
+  if(pnode == NULL) {
+    /* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
+    dx_mod_event_context(pcontext, EPOLLIN);
 
-		return 0;
-	}
+    return 0;
+  }
 
-	pbuf = (dx_buffer_t*)pnode->data;
-	ASSERT("Buffer should not be NULL\n", pbuf != NULL)
+  pbuf = (dx_buffer_t*)pnode->data;
+  ASSERT("Buffer should not be NULL\n", pbuf != NULL)
 
-	/* TODO 먼저 버퍼리스트의 크기가 일정 갯수(3개) 이상이면, discardable buffer들을 찾아서, 제거한다 */
+  /* TODO 먼저 버퍼리스트의 크기가 일정 갯수(3개) 이상이면, discardable buffer들을 찾아서, 제거한다 */
 
-	while(1) {
-		nwrite = write(pcontext->fd, dx_buffer_ppos(pbuf), dx_buffer_remains(pbuf));
-		if(nwrite <= 0)
-			return -1;
+  while(1) {
+    nwrite = write(pcontext->fd, dx_buffer_ppos(pbuf), dx_buffer_remains(pbuf));
+    if(nwrite <= 0)
+      return -1;
 
-		twrite += nwrite;
+    twrite += nwrite;
 
-		dx_buffer_step_forward(pbuf, nwrite);
-		if(dx_buffer_remains(pbuf) != 0)
-			return nwrite;
+    dx_buffer_step_forward(pbuf, nwrite);
+    if(dx_buffer_remains(pbuf) != 0)
+      return nwrite;
 
-		dx_list_remove(plist, pbuf);
-		/* 여기에서 버퍼를 free해줄 필요없음 - destroyer에 의해서 자동 free됨 */
+    dx_list_remove(plist, pbuf);
+    /* 여기에서 버퍼를 free해줄 필요없음 - destroyer에 의해서 자동 free됨 */
 
-		pnode = plist->head;
-		if(pnode == NULL) {
-			/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
-			dx_mod_event_context(pcontext, EPOLLIN);
+    pnode = plist->head;
+    if(pnode == NULL) {
+      /* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
+      dx_mod_event_context(pcontext, EPOLLIN);
 
-			return twrite;
-		}
+      return twrite;
+    }
 
-		pbuf = (dx_buffer_t*)pnode->data;
-		ASSERT("Buffer should not be NULL\n", pbuf != NULL)
-	}
+    pbuf = (dx_buffer_t*)pnode->data;
+    ASSERT("Buffer should not be NULL\n", pbuf != NULL)
+  }
 
-	/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
-	dx_mod_event_context(pcontext, EPOLLIN);
+  /* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
+  dx_mod_event_context(pcontext, EPOLLIN);
 
-	return nwrite;
+  return nwrite;
 }
 
 int dx_write(int fd, const void* buf, ssize_t sz) {
-	dx_event_context_t* pcontext = dx_get_event_context(fd);
-	dx_list_t* plist = pcontext->plist_writing;
-	dx_buffer_t* pbuf = dx_buffer_alloc(sz);
+  dx_event_context_t* pcontext = dx_get_event_context(fd);
+  dx_list_t* plist = pcontext->plist_writing;
+  dx_buffer_t* pbuf = dx_buffer_alloc(sz);
 
-	memcpy(pbuf->data, buf, sz);
+  memcpy(pbuf->data, buf, sz);
 
-	if(plist == NULL) {
-		pcontext->plist_writing = plist = (dx_list_t*)MALLOC(sizeof(dx_list_t));
-		dx_list_init(plist, NULL, (dx_destroyer_function)dx_buffer_free);
-	}
+  if(plist == NULL) {
+    pcontext->plist_writing = plist = (dx_list_t*)MALLOC(sizeof(dx_list_t));
+    dx_list_init(plist, NULL, (dx_destroyer_function)dx_buffer_free);
+  }
 
-	dx_list_add(plist, pbuf);
+  dx_list_add(plist, pbuf);
 
-	/* TODO 현재의 값을 가져와서 EPOLLOUT을 추가하는 방법으로 수정해야 함. */
-	dx_mod_event_context(pcontext, EPOLLIN | EPOLLOUT);
+  /* TODO 현재의 값을 가져와서 EPOLLOUT을 추가하는 방법으로 수정해야 함. */
+  dx_mod_event_context(pcontext, EPOLLIN | EPOLLOUT);
 
-	/* TODO 내가 만일 POLLING 쓰레드라면, 직접 write를 한다. */
-	dx_event_mplexer_wakeup();
+  /* TODO 내가 만일 POLLING 쓰레드라면, 직접 write를 한다. */
+  dx_event_mplexer_wakeup();
 
-	return 0;
+  return 0;
 }
 
 int dx_write_packet(int fd, const dx_packet_t* packet) {
-	return dx_write(fd, packet, ntohl(packet->header.len));
+  return dx_write(fd, packet, ntohl(packet->header.len));
 }
 
 /*
  *  파일에서 읽는 경우에 사용함.
  */
 int dx_read_with_block_mode(int fd, void* buf, ssize_t sz) {
-	int tread = 0; /* 전체 읽은 바이트 수 */
-	int nread = 0; /* read()시 읽은 바이트 수 */
-	int flags;
+  int tread = 0; /* 전체 읽은 바이트 수 */
+  int nread = 0; /* read()시 읽은 바이트 수 */
+  int flags;
 
-	/* Set socket to blocking mode */
-	flags = fcntl(fd, F_GETFL);
-	fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+  /* Set socket to blocking mode */
+  flags = fcntl(fd, F_GETFL);
+  fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
 
-	while(sz - tread > 0) {
-		nread = read(fd, buf + tread, sz - tread);
-		if(nread <= 0) {
-			perror("read() error");
-			break;
-		}
-		tread += nread;
-	}
+  while(sz - tread > 0) {
+    nread = read(fd, buf + tread, sz - tread);
+    if(nread <= 0) {
+      perror("read() error");
+      break;
+    }
+    tread += nread;
+  }
 
-	if(sz != tread) {
-		printf("dx_read() mismatch [%d - %d]\n", nread, (int)sz);
-	}
+  if(sz != tread) {
+    printf("dx_read() mismatch [%d - %d]\n", nread, (int)sz);
+  }
 
-	/* Set socket flags to origin */
-	fcntl(fd, F_SETFL, flags);
+  /* Set socket flags to origin */
+  fcntl(fd, F_SETFL, flags);
 
-	return tread;
+  return tread;
 }
 
 int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 
-	dx_buffer_t* pbuf_reading = pcontext->pbuf_reading;
-	int fd = pcontext->fd;
-	int nread;
+  dx_buffer_t* pbuf_reading = pcontext->pbuf_reading;
+  int fd = pcontext->fd;
+  int nread;
 
-	/* 각 세션별 패킷용 바이트버퍼를 찾아와서, 상태를 확인한다. */
-	if(pbuf_reading == NULL || dx_buffer_getpos(pbuf_reading) == 0) {
-		uint32_t read_len;
-		uint32_t packet_len;
+  /* 각 세션별 패킷용 바이트버퍼를 찾아와서, 상태를 확인한다. */
+  if(pbuf_reading == NULL || dx_buffer_getpos(pbuf_reading) == 0) {
+    uint32_t read_len;
+    uint32_t packet_len;
 
-		/*
-		 * 먼저 패킷 길이를 읽는다.
-		 */
-		nread = read(fd, &read_len, sizeof(read_len));
-		if(nread <= 0) /* 오류 상황임 */
-			return nread;
-		ASSERT("Packet length should be read at a time.\n", nread == sizeof(read_len))
+    /*
+     * 먼저 패킷 길이를 읽는다.
+     */
+    nread = read(fd, &read_len, sizeof(read_len));
+    if(nread <= 0) /* 오류 상황임 */
+      return nread;
+    ASSERT("Packet length should be read at a time.\n", nread == sizeof(read_len))
 
-		packet_len = ntohl(read_len);
+    packet_len = ntohl(read_len);
 
-		/*
-		 * 읽기 전용 버퍼를 재활용하거나, 폐기 후 새로 할당한다.
-		 */
-		if(pbuf_reading == NULL) {
+    /*
+     * 읽기 전용 버퍼를 재활용하거나, 폐기 후 새로 할당한다.
+     */
+    if(pbuf_reading == NULL) {
 
-			pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(packet_len);
-		} else if(pbuf_reading->capacity < packet_len) {
+      pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(packet_len);
+    } else if(pbuf_reading->capacity < packet_len) {
 
-			dx_buffer_free(pbuf_reading);
-			pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(packet_len);
-		} else {
+      dx_buffer_free(pbuf_reading);
+      pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(packet_len);
+    } else {
 
-			dx_buffer_clear(pbuf_reading);
-			dx_buffer_setlimit(pbuf_reading, packet_len);
-		}
+      dx_buffer_clear(pbuf_reading);
+      dx_buffer_setlimit(pbuf_reading, packet_len);
+    }
 
-		dx_buffer_put(pbuf_reading, &read_len, sizeof(read_len));
-	}
+    dx_buffer_put(pbuf_reading, &read_len, sizeof(read_len));
+  }
 
-	nread = dx_buffer_read_from(pbuf_reading, fd);
+  nread = dx_buffer_read_from(pbuf_reading, fd);
 
-	if(dx_buffer_remains(pbuf_reading) == 0) {
-		*ppacket = (dx_packet_t*)pbuf_reading->data;
-		dx_buffer_clear(pbuf_reading);
-	} else {
-		*ppacket = NULL;
-	}
+  if(dx_buffer_remains(pbuf_reading) == 0) {
+    *ppacket = (dx_packet_t*)pbuf_reading->data;
+    dx_buffer_clear(pbuf_reading);
+  } else {
+    *ppacket = NULL;
+  }
 
-	return nread;
+  return nread;
 }
 
 int dx_receive_dgram(dx_event_context_t* pcontext, dx_packet_t** ppacket, struct sockaddr_in* peer_addr) {
 
-	dx_buffer_t* pbuf_reading = pcontext->pbuf_reading;
-	int fd = pcontext->fd;
-	int nread;
-	socklen_t slen = sizeof(struct sockaddr_in);
+  dx_buffer_t* pbuf_reading = pcontext->pbuf_reading;
+  int fd = pcontext->fd;
+  int nread;
+  socklen_t slen = sizeof(struct sockaddr_in);
 
-	/* 각 세션별 패킷용 바이트버퍼를 찾아와서, 상태를 확인한다. */
-	if(pbuf_reading == NULL) {
-		pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(DX_DGRAM_MAX_PACKET_SIZE);
-	}
+  /* 각 세션별 패킷용 바이트버퍼를 찾아와서, 상태를 확인한다. */
+  if(pbuf_reading == NULL) {
+    pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(DX_DGRAM_MAX_PACKET_SIZE);
+  }
 
-	nread = recvfrom(fd, pbuf_reading->data, DX_DGRAM_MAX_PACKET_SIZE, 0, (struct sockaddr*)peer_addr, &slen);
-	if(nread <= 0) /* 오류 상황임 */
-		return nread;
+  nread = recvfrom(fd, pbuf_reading->data, DX_DGRAM_MAX_PACKET_SIZE, 0, (struct sockaddr*)peer_addr, &slen);
+  if(nread <= 0) /* 오류 상황임 */
+    return nread;
 
-	*ppacket = (dx_packet_t*)pbuf_reading->data;
+  *ppacket = (dx_packet_t*)pbuf_reading->data;
 
-	return nread;
+  return nread;
 }
 
 /*
@@ -253,16 +253,16 @@ int dx_receive_dgram(dx_event_context_t* pcontext, dx_packet_t** ppacket, struct
  */
 int dx_send_to(int fd, dx_packet_t* packet, struct sockaddr_in* to) {
 
-	uint32_t len = ntohl(packet->header.len);
+  uint32_t len = ntohl(packet->header.len);
 
-	/* Send to broadcast */
+  /* Send to broadcast */
 
-	len = sendto(fd, packet, len, 0, (struct sockaddr*)to, sizeof(struct sockaddr_in));
-	if(len == -1) {
-		perror("Send packet to datagram error. - sendto()");
-	}
+  len = sendto(fd, packet, len, 0, (struct sockaddr*)to, sizeof(struct sockaddr_in));
+  if(len == -1) {
+    perror("Send packet to datagram error. - sendto()");
+  }
 
-	return len;
+  return len;
 }
 
 /*
@@ -271,15 +271,15 @@ int dx_send_to(int fd, dx_packet_t* packet, struct sockaddr_in* to) {
  * Datagram Socket으로 패킷을 Broadcast 한다.
  */
 int dx_send_broadcast(int fd, dx_packet_t* packet, int port) {
-	struct sockaddr_in	broadcast_addr;
+  struct sockaddr_in  broadcast_addr;
 
-	/* Send to broadcast */
+  /* Send to broadcast */
 
-	broadcast_addr.sin_family = AF_INET;
-	broadcast_addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
-	broadcast_addr.sin_port = htons(port);
-	memset(&(broadcast_addr.sin_zero), '\0', 8);
+  broadcast_addr.sin_family = AF_INET;
+  broadcast_addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+  broadcast_addr.sin_port = htons(port);
+  memset(&(broadcast_addr.sin_zero), '\0', 8);
 
-	return dx_send_to(fd, packet, &broadcast_addr);
+  return dx_send_to(fd, packet, &broadcast_addr);
 }
 

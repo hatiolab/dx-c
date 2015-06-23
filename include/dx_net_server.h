@@ -1,6 +1,6 @@
 // Copyright (c) 2015 - 2015 All Right Reserved, http://hatiolab.com
 //
-// This source is subject to the ImageNext Permissive License.
+// This source is subject to the Hatio, Lab. Permissive License.
 // Please see the License.txt file for more information.
 // All other rights reserved.
 //
@@ -13,7 +13,7 @@
 #ifndef __DX_NET_SERVER_H
 #define __DX_NET_SERVER_H
 
-#include <netinet/in.h>		// For uint16_t
+#include <netinet/in.h>   // For uint16_t
 
 #include "dx_net.h"
 #include "dx_net_packet.h"

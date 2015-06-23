@@ -1,6 +1,6 @@
 // Copyright (c) 2015 - 2015 All Right Reserved, http://hatiolab.com
 //
-// This source is subject to the ImageNext Permissive License.
+// This source is subject to the Hatio, Lab. Permissive License.
 // Please see the License.txt file for more information.
 // All other rights reserved.
 //
@@ -24,13 +24,13 @@
  */
 
 /* Discovery Code */
-#define DX_DISCOVERY_BASE				0x00
-#define DX_DISCOVERY_REQ				(DX_DISCOVERY_BASE + 0)	/* Discovery 요청 */
-#define DX_DISCOVERY_RESP				(DX_DISCOVERY_BASE + 1)	/* Discovery 응답 */
+#define DX_DISCOVERY_BASE       0x00
+#define DX_DISCOVERY_REQ        (DX_DISCOVERY_BASE + 0) /* Discovery 요청 */
+#define DX_DISCOVERY_RESP       (DX_DISCOVERY_BASE + 1) /* Discovery 응답 */
 
 /* Settings */
 
-#define DX_SET_BASE             		0x00
+#define DX_SET_BASE                 0x00
 
 /* Volatile Status - 상태 */
 
@@ -63,8 +63,8 @@
 #define DX_FILE_DELETE                  (DX_FILE_BASE + 4)
 
 /* Stream */
-#define DX_STREAM_BASE					0x00
-#define DX_STREAM						(DX_STREAM_BASE + 0)
+#define DX_STREAM_BASE          0x00
+#define DX_STREAM           (DX_STREAM_BASE + 0)
 
 /* API */
 
