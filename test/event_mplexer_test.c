@@ -11,6 +11,7 @@
 void event_mplexer_test() {
 	dx_event_mplexer_create();
 
+	dx_event_mplexer_destroy();
 
 	CHKMEM();
 }

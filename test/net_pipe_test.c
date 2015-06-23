@@ -23,7 +23,9 @@ void net_pipe_test() {
 
 	dx_event_pipe_start(dx_net_pipe_handler, &peer);
 
-	dx_event_mplexer_poll(-1);
+	dx_event_mplexer_poll(1000);
+
+	dx_event_mplexer_destroy();
 
 	CHKMEM();
 }

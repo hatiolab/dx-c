@@ -41,7 +41,7 @@ int dx_server_get_service_port(int fd) {
 
 int dx_accept_client(int fd) {
 	struct sockaddr_in	clientaddr;
-	socklen_t addrlen;
+	socklen_t addrlen = sizeof(struct sockaddr_in);
 	int client_fd;
 	int rcvbufsize = DX_SOCKET_BUF_SIZE;
 	int sndbufsize = DX_SOCKET_BUF_SIZE;

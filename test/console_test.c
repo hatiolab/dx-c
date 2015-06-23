@@ -38,7 +38,9 @@ void console_test() {
 
 	dx_console_start(dx_console_handler);
 
-	dx_event_mplexer_poll(-1);
+	dx_event_mplexer_poll(1000);
+
+	dx_event_mplexer_destroy();
 
 	CHKMEM();
 }

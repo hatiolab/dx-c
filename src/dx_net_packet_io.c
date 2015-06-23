@@ -124,7 +124,7 @@ int dx_write(int fd, const void* buf, ssize_t sz) {
 
 	if(plist == NULL) {
 		pcontext->plist_writing = plist = (dx_list_t*)MALLOC(sizeof(dx_list_t));
-		dx_list_init(plist, NULL, dx_buffer_free);
+		dx_list_init(plist, NULL, (dx_destroyer_function)dx_buffer_free);
 	}
 
 	dx_list_add(plist, pbuf);
@@ -225,19 +225,19 @@ int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 	return nread;
 }
 
-int dx_receive_dgram(dx_event_context_t* pcontext, dx_packet_t** ppacket, struct sockaddr* peer_addr) {
+int dx_receive_dgram(dx_event_context_t* pcontext, dx_packet_t** ppacket, struct sockaddr_in* peer_addr) {
 
 	dx_buffer_t* pbuf_reading = pcontext->pbuf_reading;
 	int fd = pcontext->fd;
 	int nread;
-	socklen_t slen;
+	socklen_t slen = sizeof(struct sockaddr_in);
 
 	/* 각 세션별 패킷용 바이트버퍼를 찾아와서, 상태를 확인한다. */
 	if(pbuf_reading == NULL) {
 		pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(DX_DGRAM_MAX_PACKET_SIZE);
 	}
 
-	nread = recvfrom(fd, pbuf_reading->data, DX_DGRAM_MAX_PACKET_SIZE, 0, peer_addr, &slen);
+	nread = recvfrom(fd, pbuf_reading->data, DX_DGRAM_MAX_PACKET_SIZE, 0, (struct sockaddr*)peer_addr, &slen);
 	if(nread <= 0) /* 오류 상황임 */
 		return nread;
 

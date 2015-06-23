@@ -69,6 +69,7 @@ int net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet,
 	case DX_PACKET_TYPE_HB : /* Heartbeat */
 
 		printf("[DGRAM] Receive Heartbeat....\n");
+		printf("Port : %d, %d\n", peer_addr->sin_port, ntohs(peer_addr->sin_port));
 		dx_send_hearbeat_broadcast(context->fd, ntohs(peer_addr->sin_port));
 
 		break;

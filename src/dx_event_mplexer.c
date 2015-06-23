@@ -140,13 +140,8 @@ dx_event_context_t* dx_event_context_create() {
 	dx_event_context_t* pcontext;
 
 	pcontext = (dx_event_context_t*)MALLOC(sizeof(struct dx_event_context));
+	memset(pcontext, 0x0, sizeof(struct dx_event_context));
 	pcontext->fd = -1;
-	pcontext->readable_handler = NULL;
-	pcontext->writable_handler = NULL;
-	pcontext->error_handler = NULL;
-	pcontext->pbuf_reading = NULL;
-	pcontext->pdata = NULL;
-	pcontext->on_destroy = NULL;
 
 	return pcontext;
 }
@@ -170,6 +165,7 @@ int dx_event_context_destroyer(void* data) {
 	if(context->plist_writing != NULL) {
 		dx_list_clear(context->plist_writing);
 		FREE(context->plist_writing);
+		context->plist_writing = NULL;
 	}
 
 	/* 각자 사용한 pdata를 해제할 수 있는 기회를 제공한다. */
