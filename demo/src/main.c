@@ -1,6 +1,4 @@
-#include <dx_debug_malloc.h>
-#include <dx_console.h>
-#include <dx_event_mplexer.h>
+#include "demo.h"
 
 int dx_server = -1;
 int dx_client = -1;

@@ -5,12 +5,9 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.lib.debug.676788129.2119444095" moduleId="org.eclipse.cdt.core.settings" name="debug-linux-static">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/omnid-c"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dx-c"/>
 						<entry flags="RESOLVED" kind="includePath" name="/dx-c/include"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/omnid-c/debug-linux"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dx-c/debug-linux-static"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="omnid-c" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="dx-c" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -60,11 +57,8 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.lib.release.1294883163.1419632651" moduleId="org.eclipse.cdt.core.settings" name="release-linux-static">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/omnid-c"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dx-c"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/omnid-c/release-linux"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dx-c/release-linux-static"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="omnid-c" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="dx-c" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -91,7 +85,7 @@
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.244602173" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.lib.release.option.debugging.level.1284044680" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.145542428" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/dx-c/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1741962099" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -113,11 +107,8 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.cross.lib.debug.509446093.1643987019" moduleId="org.eclipse.cdt.core.settings" name="debug-arm-static">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/omnid-c"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dx-c"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/omnid-c/debug-arm"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dx-c/debug-arm-static"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="omnid-c" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="dx-c" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -141,7 +132,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.271627087" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1885587570" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.67870312" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/dx-c/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.701896104" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -168,11 +159,8 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.cross.lib.release.141133961.102210766" moduleId="org.eclipse.cdt.core.settings" name="release-arm-static">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/omnid-c"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dx-c"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/omnid-c/release-arm"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dx-c/release-arm-static"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="omnid-c" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="dx-c" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -196,7 +184,7 @@
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.option.optimization.level.1138355646" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1707410416" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.186707631" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/dx-c/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1983997050" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -223,11 +211,8 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.cross.so.debug.1687074534.717946173" moduleId="org.eclipse.cdt.core.settings" name="debug-arm-shared">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/omnid-c"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dx-c"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/omnid-c/debug-arm-shared"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dx-c/debug-arm-shared"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="omnid-c" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="dx-c" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -252,7 +237,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.2022382870" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.120079061" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1144747773" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/dx-c/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1775788482" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -287,11 +272,8 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.cross.so.release.96110919.520727571" moduleId="org.eclipse.cdt.core.settings" name="release-arm-shared">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/omnid-c"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dx-c"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/omnid-c/release-arm-shared"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dx-c/release-arm-shared"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="omnid-c" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="dx-c" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -316,7 +298,7 @@
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.option.optimization.level.521323463" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.746183620" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1311636807" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/dx-c/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2127004496" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -351,11 +333,8 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.so.debug.261003402.737194397" moduleId="org.eclipse.cdt.core.settings" name="debug-linux-shared">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/omnid-c"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dx-c"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/omnid-c/debug-linux-shared"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dx-c/debug-linux-shared"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="omnid-c" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="dx-c" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -383,7 +362,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.so.debug.option.optimization.level.505072430" name="Optimization Level" superClass="gnu.c.compiler.so.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.so.debug.option.debugging.level.692960809" name="Debug Level" superClass="gnu.c.compiler.so.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1370550622" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/dx-c/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.pic.740165290" name="Position Independent Code (-fPIC)" superClass="gnu.c.compiler.option.misc.pic" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1897718656" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -414,11 +393,8 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.so.release.1678980599.1187196321" moduleId="org.eclipse.cdt.core.settings" name="release-linux-shared">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/omnid-c"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dx-c"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/omnid-c/release-linux-shared"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dx-c/release-linux-shared"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="omnid-c" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="dx-c" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -446,7 +422,7 @@
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.so.release.option.optimization.level.1072287513" name="Optimization Level" superClass="gnu.c.compiler.so.release.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.so.release.option.debugging.level.1459310659" name="Debug Level" superClass="gnu.c.compiler.so.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.854628461" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/dx-c/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.pic.184118939" name="Position Independent Code (-fPIC)" superClass="gnu.c.compiler.option.misc.pic" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1188129387" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -651,6 +627,15 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.lib.debug.676788129.2119444095.258683551.2048871284.1732117252" name="demo_console_start_servers.c" rcbsApplicability="disable" resourcePath="demo/src/demo_console_start_servers.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.2073924572.2139334295">
+						<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.2073924572.2139334295" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.2073924572">
+							<option id="gnu.c.compiler.option.include.paths.156885193" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
+								<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/demo/include}&quot;"/>
+							</option>
+							<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1287539387" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+						</tool>
+					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="demo/src"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
