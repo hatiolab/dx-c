@@ -20,6 +20,17 @@
  */
 #define DX_CONSOLE_PROMPT "#"
 
+typedef void (*dx_console_menu_handler)(char* cmdline);
+
+typedef struct dx_console_menu dx_console_menu_t;
+
+typedef struct dx_console_menu {
+	int id;
+	const char* command;
+	const char* description;
+	dx_console_menu_handler handler;
+} dx_console_menu_t;
+
 int dx_console_start(dx_event_handler handler);
 
 void dx_print_console_prompt();

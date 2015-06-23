@@ -1,42 +1,106 @@
 #include "demo.h"
 
-demo_menu_asso_t top_menu_map[] = {
-	{"start", demo_console_start_handler, start_menu_map},
-	{"discovery", demo_console_start_handler, NULL},
-	{"server", demo_console_start_handler, NULL},
-	{"client", demo_console_start_handler, NULL},
+void demo_start_menu_handler(char* cmdline);
+void demo_start_descovery_server_handler(char* cmdline);
+void demo_start_descovery_client_handler(char* cmdline);
+void demo_start_server_handler(char* cmdline);
+void demo_start_client_handler(char* cmdline);
+
+void demo_server_send_handler(char* cmdline);
+void demo_server_hb_handler(char* cmdline);
+void demo_server_file_handler(char* cmdline);
+
+void demo_client_send_handler(char* cmdline);
+void demo_client_hb_handler(char* cmdline);
+void demo_client_event_send_handler(char* cmdline);
+void demo_client_file_handler(char* cmdline);
+
+void demo_start_menu_handler(char* cmdline){}
+void demo_start_descovery_server_handler(char* cmdline){}
+void demo_start_descovery_client_handler(char* cmdline){}
+void demo_start_server_handler(char* cmdline){}
+void demo_start_client_handler(char* cmdline){}
+
+void demo_server_send_handler(char* cmdline){}
+void demo_server_hb_handler(char* cmdline){}
+void demo_server_file_handler(char* cmdline){}
+
+void demo_client_send_handler(char* cmdline){}
+void demo_client_hb_handler(char* cmdline){}
+void demo_client_event_send_handler(char* cmdline){}
+void demo_client_file_handler(char* cmdline){}
+
+//dx_console_menu_t demo_console_menus[]  = {
+//	{"start", "", demo_start_menu_handler, {
+//		{"discovery-server", "", demo_start_descovery_server_handler},
+//		{"discovery-client", "", demo_start_descovery_client_handler},
+//		{"server", "", demo_start_server_handler},
+//		{"client", "", demo_start_client_handler},
+//		NULL,
+//	}},
+//	{"server", "",  demo_start_menu_handler, {
+//		{"send", "",  demo_server_send_handler},
+//		{"hb", "",  demo_server_hb_handler},
+//		{"file", "",  demo_server_file_handler},
+//		NULL,
+//	}},
+//	{"client", "",  demo_start_menu_handler, {
+//		{"send", "",  demo_client_send_handler},
+//		{"hb", "",  demo_client_hb_handler},
+//		{"event", "",  demo_client_event_handler},
+//		{"file", "",  demo_client_file_handler},
+//		NULL
+//	}},
+//};
+
+
+dx_console_menu_t demo_console_menus[]  = {
+	{1, "start", "", demo_start_menu_handler},
+		{10, "discovery-server", "", demo_start_descovery_server_handler},
+		{11, "discovery-client", "", demo_start_descovery_client_handler},
+		{12, "server", "", demo_start_server_handler},
+		{13, "client", "", demo_start_client_handler},
+	{2, "server", "",  demo_start_menu_handler},
+		{20, "send", "",  demo_server_send_handler},
+		{21, "hb", "",  demo_server_hb_handler},
+		{22, "file", "", demo_server_file_handler},
+	{3, "client", "",  demo_start_menu_handler},
+		{30, "send", "",  demo_client_send_handler},
+		{31, "hb", "",  demo_client_hb_handler},
+		{32, "event", "",  demo_client_event_send_handler},
+		{33, "file", "",  demo_client_file_handler},
+	{0},
 };
+//
+//dx_console_handler dx_console_find_handler(char* cmdline, demo_menu_asso_t* menu_map) {
+//	const char* whitespace = " \t\n\f";
+//	const char* command_exit = "exit";
+//	int i, sz;
+//	char* next_token;
+//	char* command = strtok_r(cmdline, whitespace, &next_token);
+//
+//	if(strncmp(command, command_exit, 4) == 0) {
+//		demo_current_menu_map = top_menu_map;
+//		return NULL;
+//	}
+//
+//	for(i = 0;i < 4;i++) {
+//		command = menu_map[i].command;
+//		sz = strlen(command) > cmdline ? cmdline : strlen(command);
+//
+//		if(strncmp(cmdline, command, sz) == 0) {
+//			if(menu_map[i].menu_map != NULL && next_token != NULL && strlen(next_token) > 0) {
+//
+//				demo_current_menu_map = menu_map[i].menu_map;
+//				return dx_console_find_handler(next_token, menu_map[i].menu_map);
+//			}
+//			return menu_map[i].handler;
+//		}
+//	}
+//	return NULL;
+//}
 
-console_handler demo_current_handler = NULL;
-demo_menu_asso_t* demo_current_menu_map = top_menu_map;
-
-console_handler dx_console_find_handler(char* cmdline, demo_menu_asso_t* menu_map) {
-	const char* whitespace = " \t\n\f";
-	const char* command_exit = "exit";
-	int i, sz;
-	char* next_token;
-	char* command = strtok_r(cmdline, whitespace, &next_token);
-
-	if(strncmp(command, command_exit, 4) == 0) {
-		demo_current_menu_map = top_menu_map;
-		return NULL;
-	}
-
-	for(i = 0;i < 4;i++) {
-		command = menu_map[i].command;
-		sz = strlen(command) > cmdline ? cmdline : strlen(command);
-
-		if(strncmp(cmdline, command, sz) == 0) {
-			if(menu_map[i].menu_map != NULL && next_token != NULL && strlen(next_token) > 0) {
-
-				demo_current_menu_map = menu_map[i].menu_map;
-				return dx_console_find_handler(next_token, menu_map[i].menu_map);
-			}
-			return menu_map[i].handler;
-		}
-	}
-	return NULL;
-}
+dx_console_menu_t* demo_current_menu = NULL;
 
 int demo_console_handler(dx_event_context_t* context) {
     char cmdline[128];
@@ -54,13 +118,16 @@ int demo_console_handler(dx_event_context_t* context) {
         return -2;
     }
 
-    demo_current_handler = dx_console_find_handler(cmdline, demo_current_menu_map);
+    demo_current_menu = dx_console_menu_find_menu_by_command(demo_console_menus, demo_current_menu, cmdline);
 
-    if(demo_current_handler != NULL) {
-    	demo_current_handler(context, cmdline);
-    } else {
-    	printf("Unknown Command!\n");
-    }
+    if(demo_current_menu != NULL)
+    	printf("FOUND :%s, %d\n", demo_current_menu->command, demo_current_menu->id);
+
+//    if(demo_current_handler != NULL) {
+//    	demo_current_handler(context, cmdline);
+//    } else {
+//    	printf("Unknown Command!\n");
+//    }
 
     if(!quit)
     	dx_print_console_prompt();
