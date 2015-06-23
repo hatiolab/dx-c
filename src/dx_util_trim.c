@@ -10,10 +10,45 @@
 // PARTICULAR PURPOSE.
 //
 
+#include <stdlib.h>
+
 #include "dx_util_trim.h"
 
 #include <fcntl.h>
 
+//char* __dx_parsed_string[10];
+//
+//inline int dx_is_whitespace(char c) {
+//	return (c == ' ' || c == '\t' || c == '\n' || c == '\f');
+//}
+//
+//char** dx_split_string(char* src) {
+//	int i = 0;
+//	int sz = strlen(src);
+//	int si = 0;
+//
+//	for(i = 0;i < 10;i++)
+//		__dx_parsed_string[i] = NULL;
+//
+//	while(dx_is_whitespace(*src + si) && si < sz)
+//		si++;
+//
+//	if(si >= sz)
+//		return __dx_parsed_string;
+//
+//	for(i = 0;i < 10;i++) {
+//
+//		while(dx_is_whitespace(*src + si) && si < sz)
+//			si++;
+//
+//		if(si >= sz)
+//			break;
+//	}
+//
+//	return __dx_parsed_string;
+//}
+//
+//
 char* strcpytrim(char*dest, char* src, int mode, char* delim) {
 	char* o = dest;	// save origin.
 	char* e = 0;

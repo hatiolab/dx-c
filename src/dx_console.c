@@ -10,10 +10,18 @@
 // PARTICULAR PURPOSE.
 //
 
+#include <stdio.h>
 #include <sys/epoll.h>		// For epoll
 #include <unistd.h>			// For STDIN_FILENO
 
-#include <dx_event_mplexer.h>
+#include "dx_console.h"
+#include "dx_event_mplexer.h"
+
+void dx_print_console_prompt() {
+	printf("%s ", DX_CONSOLE_PROMPT);
+
+	fflush(stdout);
+}
 
 int dx_console_start(dx_event_handler handler) {
 	dx_event_context_t* pcontext;
@@ -26,6 +34,10 @@ int dx_console_start(dx_event_handler handler) {
 	pcontext->error_handler = NULL;
 
 	dx_add_event_context(pcontext, EPOLLIN);
+
+	printf("DX Console Started..\n");
+
+	dx_print_console_prompt();
 
 	return 0;
 }

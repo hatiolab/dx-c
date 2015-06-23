@@ -17,7 +17,6 @@
 #include "dx_net_packet_file.h"
 
 #include "dx.h"
-#include "dx_console_usage.h"
 #include "dx_console.h"
 
 #define DISCOVERY_SERVICE_PORT	3456
@@ -100,10 +99,6 @@ int dx_console_handler(dx_event_context_t* context) {
     case    'e':
     case    'E':
         printf("Event : \n");
-        break;
-    case    'p':
-    case    'P':
-        print_usage();
         break;
     case    'Q':
     case    'q':

@@ -13,6 +13,8 @@
 #ifndef __DX_UTIL_MALLOC_H
 #define __DX_UTIL_MALLOC_H
 
+#include <stddef.h>
+
 /*
  * Definitions
  */

@@ -18,7 +18,10 @@
 /*
  * Definitions
  */
+#define DX_CONSOLE_PROMPT	"#"
 
 int dx_console_start(dx_event_handler handler);
+
+void dx_print_console_prompt();
 
 #endif /* __DX_CONSOLE_H */
