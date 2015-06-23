@@ -8,6 +8,7 @@ void debug_malloc_test();
 void util_lock_test();
 void net_pipe_test();
 void net_server_test();
+void net_dgram_loopback_test();
 void console_test();
 void util_list_test();
 void net_discovery_test();
