@@ -16,6 +16,7 @@ dx_console_menu_t demo_console_menus[]  = {
 		{12, "server", "[port]", "start server", demo_start_server_handler},
 		{13, "client", "[hostname] [port]", "start client", demo_start_client_handler},
 		{14, "discovery", "[port]", "start client through discovery request", demo_descovery_send_handler},
+		{15, "all", "[port]", "start all servers on the localhost", demo_start_all_handler},
 	{2, "server", "", "do something with server ..",  NULL},
 		{20, "send", "", "send some packet to clients",  demo_server_send_handler},
 		{21, "hb", "", "send heartbeat to clients",  demo_server_hb_handler},

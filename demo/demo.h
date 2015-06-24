@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 
 #include "dx_debug_malloc.h"
 #include "dx_debug_assert.h"
@@ -60,6 +61,7 @@ void demo_start_descovery_client_handler(char* cmdline);
 void demo_start_server_handler(char* cmdline);
 void demo_start_client_handler(char* cmdline);
 void demo_descovery_send_handler(char* cmdline);
+void demo_start_all_handler(char* cmdline);
 
 void demo_server_send_handler(char* cmdline);
 void demo_server_hb_handler(char* cmdline);
@@ -71,5 +73,8 @@ void demo_client_hb_handler(char* cmdline);
 void demo_client_event_send_handler(char* cmdline);
 void demo_client_file_handler(char* cmdline);
 void demo_client_stop_handler(char* cmdline);
+
+int demo_server_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);
+int demo_client_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);
 
 #endif /* __DEMO_H */

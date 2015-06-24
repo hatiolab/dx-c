@@ -1,13 +1,5 @@
 #include "demo.h"
 
-int demo_server_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet) {
-	return 0;
-}
-
-int demo_client_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet) {
-	return 0;
-}
-
 void demo_discovery_server_found_callback(char* hostname, int port) {
 	/* TODO try to start client */
 	printf("Server Found : %s(%d)\n", hostname, port);
@@ -110,6 +102,19 @@ void demo_descovery_send_handler(char* cmdline) {
 
 	if(cmdline != NULL && strlen(cmdline) > 0)
 		port = atoi(strtok(cmdline, " \t\n\f"));
+
+	dx_discovery_send_broadcast(demo_discovery_client, port);
+}
+
+void demo_start_all_handler(char* cmdline) {
+	int port = DEFAULT_DISCOVERY_PORT;
+
+	if(cmdline != NULL && strlen(cmdline) > 0)
+		port = atoi(strtok(cmdline, " \t\n\f"));
+
+	demo_server = dx_server_start(0, demo_server_event_handler);
+	demo_discovery_server = dx_discovery_server_start(port, demo_discovery_server_callback);
+	demo_discovery_client = dx_discovery_client_start(0, demo_discovery_server_found_callback);
 
 	dx_discovery_send_broadcast(demo_discovery_client, port);
 }
