@@ -20,6 +20,7 @@
  */
 #define DX_CONSOLE_PROMPT "#"
 
+typedef void (*dx_console_exit_callback)();
 typedef void (*dx_console_menu_handler)(char* cmdline);
 
 typedef struct dx_console_menu dx_console_menu_t;
@@ -32,7 +33,7 @@ typedef struct dx_console_menu {
 	dx_console_menu_handler handler;
 } dx_console_menu_t;
 
-int dx_console_start(dx_event_handler handler, dx_console_menu_t* menus);
+int dx_console_start(dx_console_menu_t* menus, dx_console_exit_callback exit_callback);
 
 void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* current);
 

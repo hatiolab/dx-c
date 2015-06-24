@@ -43,5 +43,6 @@ int dx_list_size(dx_list_t* plist);
 int dx_list_add(dx_list_t* plist, void* data);
 int dx_list_remove(dx_list_t* plist, void* data);
 int dx_list_clear(dx_list_t* plist);
+int dx_list_iterator(dx_list_t* plist, dx_list_iterator_callback callback);
 
 #endif /* __DX_UTIL_LIST_H */

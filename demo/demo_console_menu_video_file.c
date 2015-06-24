@@ -58,7 +58,7 @@ void demo_video_file_frame() {
 	int count = 0;
 
 	if(demo_video_file < 0) {
-		printf("Read video file first..\n");
+		fprintf(stderr, "Read video file first..\n");
 		return;
 	}
 
@@ -72,21 +72,25 @@ void demo_video_file_frame() {
 }
 
 void demo_video_file_read(char* cmdline) {
-	char* path;
+	char* path = NULL;
 
 	if(demo_video_file >= 0) {
 		close(demo_video_file);
 		demo_video_file = -1;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
+	if(cmdline != NULL && strlen(cmdline) > 0) {
 		path = strtok(cmdline, " \t\n\f");
+	} else {
+		fprintf(stderr, "Filename required.\n");
+		return;
+	}
 
 	demo_video_file = open(path, O_RDONLY);
 
 	if(demo_video_file == -1) {
 		perror("Read video file failed.");
-		printf("%s\n", path);
+		fprintf(stderr, "%s\n", path);
 		return;
 	}
 

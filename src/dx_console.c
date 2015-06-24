@@ -20,6 +20,8 @@
 
 typedef dx_console_menu_t* (*dx_console_menu_traverse_callback)(dx_console_menu_t* menus, dx_console_menu_t* menu, void* closure, void** out);
 
+int dx_console_handler(dx_event_context_t* context);
+
 dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_console_menu_t* menu);
 dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure, void** out);
 
@@ -66,17 +68,18 @@ void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* curren
 	fflush(stdout);
 }
 
-int dx_console_start(dx_event_handler handler, dx_console_menu_t* menus) {
+int dx_console_start(dx_console_menu_t* menus, dx_console_exit_callback exit_callback) {
 	dx_event_context_t* pcontext;
 
 	// STDIN_FILENO를 이벤트 컨텍스트로 등록한다.
 	pcontext = dx_event_context_create();
 	pcontext->fd = STDIN_FILENO;
-	pcontext->readable_handler = handler;
+	pcontext->readable_handler = dx_console_handler;
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
 
 	pcontext->pdata = menus;
+	pcontext->user_handler = exit_callback;
 
 	dx_add_event_context(pcontext, EPOLLIN);
 
@@ -216,3 +219,55 @@ dx_console_menu_t* dx_console_menu_find_menu_by_command(dx_console_menu_t* menus
 	return current;
 }
 
+/* console handler */
+
+dx_console_menu_t* dx_console_current_menu = NULL;
+
+int dx_console_handler(dx_event_context_t* context) {
+	const char* command_exit = "exit";
+    char cmdline[128];
+    char* remains = NULL;
+	dx_console_menu_t* menus = (dx_console_menu_t*)context->pdata;
+	dx_console_menu_t* copied;
+
+    bzero(cmdline, 128);
+
+    ssize_t nbytes = read(context->fd, cmdline, sizeof(cmdline));
+    if(0 == nbytes) {
+        printf("Console hung up\n");
+        return -1;
+    } else if(0 > nbytes) {
+        perror("Console read() error");
+        close(context->fd);
+        dx_del_event_context(context);
+        return -2;
+    }
+
+    /* demo exit */
+	if(cmdline != NULL && strncmp(cmdline, command_exit, strlen(command_exit)) == 0) {
+		if(context->user_handler != NULL)
+			((dx_console_exit_callback)context->user_handler)();
+
+		dx_event_mplexer_wakeup();
+
+		printf("\nBye..\n\n");
+
+		return 0;
+	}
+
+	/* find current menu using command line. */
+	copied = dx_console_current_menu;
+	dx_console_current_menu = dx_console_menu_find_menu_by_command(menus, dx_console_current_menu, cmdline, &remains);
+
+	if(dx_console_current_menu != NULL && dx_console_current_menu->handler != NULL) {
+		dx_console_current_menu->handler(remains);
+		dx_console_current_menu = copied; /* 핸들러를 실행한 후에는 바로 전 메뉴모드로 돌아감 */
+	} else if(dx_console_current_menu == copied && nbytes > 1) {
+		/* nbytes 크기가 1인 경우는 그냥 enter key만 누른 경우 이므로 제외한다. */
+		fprintf(stderr, "invalid command.\n");
+	}
+
+   	dx_print_console_prompt(menus, dx_console_current_menu);
+
+    return 0;
+}

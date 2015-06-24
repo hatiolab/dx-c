@@ -16,6 +16,7 @@
 #include <stdlib.h>     // For exit, ..
 #include <sys/epoll.h>    // For epoll
 #include <unistd.h>     // For close
+#include <string.h>		// For memset
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
@@ -32,7 +33,6 @@ int dx_event_context_compare(void* context1, void* context2);
 int dx_event_context_destroyer(void* data);
 
 int dx_event_mplexer_create() {
-  int control_pipe;
 
   if(__dx_mplexer)
     return 0; // Already exist.

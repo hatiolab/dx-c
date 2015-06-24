@@ -126,5 +126,5 @@ void dx_chkmem_callback(dx_malloc_head_t* p) {
 void dx_chkmem() {
   printf("[CHKMEM] %ld Allocated, %ld Freed. \n", __dx_alloc_count, __dx_free_count);
 
-  dx_list_iterator(&__dx_alloc_list, dx_chkmem_callback);
+  dx_list_iterator(&__dx_alloc_list, (dx_list_iterator_callback)dx_chkmem_callback);
 }

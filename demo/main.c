@@ -7,8 +7,6 @@ int demo_discovery_client = -1;
 
 int quit = 0;
 
-int demo_console_handler(dx_event_context_t* context);
-
 dx_console_menu_t demo_console_menus[]  = {
 	{1, "start", "", "start servers ..", NULL},
 		{10, "ds", "[port]", "start discovery-listener", demo_start_descovery_server_handler},
@@ -36,11 +34,15 @@ dx_console_menu_t demo_console_menus[]  = {
 	{0},
 };
 
+void demo_exit_handler() {
+	quit = 1;
+}
+
 int main() {
 
 	dx_event_mplexer_create();
 
-	dx_console_start(demo_console_handler, demo_console_menus);
+	dx_console_start(demo_console_menus, demo_exit_handler);
 
 	/* Big Loop */
 	while(!quit) {

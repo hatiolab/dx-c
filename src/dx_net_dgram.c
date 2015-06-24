@@ -22,6 +22,7 @@
 #include <sys/epoll.h>    // For EPOLLIN
 
 #include "dx_debug_assert.h"
+#include "dx_net_packet_io.h"
 
 int dx_dgram_readable_handler(dx_event_context_t* context);
 
