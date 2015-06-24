@@ -52,10 +52,21 @@ extern int quit;
 extern demo_menu_asso_t start_menu_map[];
 extern console_handler demo_current_handler;
 
-void demo_console_start_handler(dx_event_context_t* context, char* cmdline);
-void demo_console_start_discovery_server_handler(dx_event_context_t* context, char* cmdline);
-void demo_console_start_discovery_client_handler(dx_event_context_t* context, char* cmdline);
-void demo_console_start_server_handler(dx_event_context_t* context, char* cmdline);
-void demo_console_start_client_handler(dx_event_context_t* context, char* cmdline);
+void demo_start_menu_handler(char* cmdline);
+void demo_start_descovery_server_handler(char* cmdline);
+void demo_start_descovery_client_handler(char* cmdline);
+void demo_start_server_handler(char* cmdline);
+void demo_start_client_handler(char* cmdline);
+
+void demo_server_send_handler(char* cmdline);
+void demo_server_hb_handler(char* cmdline);
+void demo_server_file_handler(char* cmdline);
+void demo_server_stop_handler(char* cmdline);
+
+void demo_client_send_handler(char* cmdline);
+void demo_client_hb_handler(char* cmdline);
+void demo_client_event_send_handler(char* cmdline);
+void demo_client_file_handler(char* cmdline);
+void demo_client_stop_handler(char* cmdline);
 
 #endif /* __DEMO_H */

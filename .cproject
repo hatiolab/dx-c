@@ -626,7 +626,7 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.lib.debug.676788129.2119444095.258683551.2048871284.1732117252" name="demo_console_start_servers.c" rcbsApplicability="disable" resourcePath="demo/demo_console_start_servers.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.2073924572.2139334295">
+					<fileInfo id="cdt.managedbuild.config.gnu.lib.debug.676788129.2119444095.258683551.2048871284.1732117252" name="demo_console_start_servers.c" rcbsApplicability="disable" resourcePath="demo/demo_console_menu_start.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.2073924572.2139334295">
 						<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.2073924572.2139334295" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.2073924572">
 							<option id="gnu.c.compiler.option.include.paths.156885193" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 								<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>

@@ -1,19 +1,12 @@
 #include "demo.h"
 
-demo_menu_asso_t start_menu_map[] = {
-	{"discovery-server", demo_console_start_discovery_server_handler, NULL},
-	{"discovery-client", demo_console_start_discovery_client_handler, NULL},
-	{"server", demo_console_start_server_handler, NULL},
-	{"client", demo_console_start_client_handler, NULL},
-};
+void demo_start_menu_handler(char* cmdline){}
+void demo_start_descovery_server_handler(char* cmdline){}
+void demo_start_descovery_client_handler(char* cmdline){}
+void demo_start_server_handler(char* cmdline){}
+void demo_start_client_handler(char* cmdline){}
 
-void demo_console_start_handler(dx_event_context_t* context, char* cmdline) {
-	int i = 0;
-	printf("What do you want to start ? [");
-	for(i = 0;i < 4;i++)
-		printf(" %s,", start_menu_map[i].command);
-
-	printf(" ]\n");
+void demo_console_start_handler(char* cmdline) {
 }
 
 

@@ -18,13 +18,51 @@
 #include "dx_console.h"
 #include "dx_event_mplexer.h"
 
-void dx_print_console_prompt() {
-	printf("%s ", DX_CONSOLE_PROMPT);
+typedef dx_console_menu_t* (*dx_console_menu_traverse_callback)(dx_console_menu_t* menus, dx_console_menu_t* menu, void* closure);
+
+dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_console_menu_t* menu);
+dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure);
+
+void* dx_console_menu_print_callback(dx_console_menu_t* menus, dx_console_menu_t* current, void* nothing) {
+	printf("- [%s] %s\n", current->command, current->description);
+	return NULL; /* keep going */
+}
+
+void dx_console_menu_recursive_prompt(dx_console_menu_t* menus, dx_console_menu_t* child, char* prompt) {
+	const char top_menu[] = "TOP";
+
+	/* end condition */
+	if(child == NULL) {
+		sprintf(prompt, top_menu);
+
+		return;
+	}
+
+	dx_console_menu_t* parent = dx_console_menu_get_parent(menus, child);
+
+	dx_console_menu_recursive_prompt(menus, parent, prompt);
+
+	sprintf(prompt, "%s > %s", prompt, child->command);
+}
+
+void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* current) {
+	const char top_desc[] = "You are on the way to start (TOP MENU)";
+
+	char* desc = (current == NULL) ? top_desc : current->description;
+
+	char prompt[128] = {0};
+
+	dx_console_menu_recursive_prompt(menus, current, prompt);
+
+	printf("-------------------------------------------------\n\n");
+	printf("[%s] %s\n", prompt, desc);
+	dx_console_menu_traverse(menus, current, dx_console_menu_print_callback, NULL);
+	printf(" %s ", DX_CONSOLE_PROMPT);
 
 	fflush(stdout);
 }
 
-int dx_console_start(dx_event_handler handler) {
+int dx_console_start(dx_event_handler handler, dx_console_menu_t* menus) {
 	dx_event_context_t* pcontext;
 
 	// STDIN_FILENO를 이벤트 컨텍스트로 등록한다.
@@ -34,16 +72,14 @@ int dx_console_start(dx_event_handler handler) {
 	pcontext->writable_handler = NULL;
 	pcontext->error_handler = NULL;
 
+	pcontext->pdata = menus;
+
 	dx_add_event_context(pcontext, EPOLLIN);
 
-	printf("DX Console Started..\n");
-
-	dx_print_console_prompt();
+	dx_print_console_prompt(menus, NULL);
 
 	return 0;
 }
-
-typedef dx_console_menu_t* (*dx_console_menu_traverse_callback)(dx_console_menu_t* menus, dx_console_menu_t* menu, void* closure);
 
 /*
  * 자신의 한단계 하위 메뉴들을 트래버스하면서, 중단된 메뉴를 리턴한다.
@@ -59,9 +95,8 @@ dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console
 		i = -1; /* for all */
 	} else {
 		current_id = current->id;
-		i = (current - menus) / sizeof(dx_console_menu_t);
+		i = current - menus;
 	}
-
 
 	if(current != NULL && current_id == 0)
 		return NULL; /* the last */
@@ -99,14 +134,19 @@ dx_console_menu_t* dx_console_menu_find_by_id(dx_console_menu_t* menus, int id) 
 	while(menus[i].id != 0 && menus[i].id != id)
 		i++;
 
-	if(menus[i].id != 0)
+	if(menus[i].id == 0)
 		return NULL;
 
 	return &menus[i];
 }
 
 dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_console_menu_t* menu) {
-	int id = menu->id;
+	int id;
+
+	if(menu == NULL)
+		return NULL;
+
+	id = menu->id;
 
 	id = (id - (id % 10)) / 10;
 
@@ -141,7 +181,7 @@ void* dx_console_menu_search_callback(dx_console_menu_t* menus, dx_console_menu_
 dx_console_menu_t* dx_console_menu_find_menu_by_command(dx_console_menu_t* menus, dx_console_menu_t* current, char* cmdline) {
 	const char* whitespace = " \t\n\f";
 	const char* command_up = "up";
-	const char* command_exit = "exit";
+	const char* command_top = "top";
 
 	char* next_token;
 	char* command = strtok_r(cmdline, whitespace, &next_token);
@@ -151,7 +191,7 @@ dx_console_menu_t* dx_console_menu_find_menu_by_command(dx_console_menu_t* menus
 	if(command == NULL || strlen(command) == 0)
 		return current;
 
-	if(strncmp(command, command_exit, strlen(command_exit)) == 0)
+	if(strncmp(command, command_top, strlen(command_top)) == 0)
 		return NULL; /* return root */
 
 	if(strncmp(command, command_up, strlen(command_up)) == 0)

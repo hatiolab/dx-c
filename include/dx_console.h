@@ -26,13 +26,13 @@ typedef struct dx_console_menu dx_console_menu_t;
 
 typedef struct dx_console_menu {
 	int id;
-	const char* command;
-	const char* description;
+	char* command;
+	char* description;
 	dx_console_menu_handler handler;
 } dx_console_menu_t;
 
-int dx_console_start(dx_event_handler handler);
+int dx_console_start(dx_event_handler handler, dx_console_menu_t* menus);
 
-void dx_print_console_prompt();
+void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* current);
 
 #endif /* __DX_CONSOLE_H */
