@@ -29,6 +29,10 @@ dx_console_menu_t demo_console_menus[]  = {
 		{32, "event", "", "send some events to server",  demo_client_event_send_handler},
 		{33, "file", "", "send a file to server",  demo_client_file_handler},
 		{34, "stop", "", "stop client",  demo_client_stop_handler},
+	{4, "video", "", "do something about video/camera", NULL},
+		{40, "file", "", "do something about video file", NULL},
+			{400, "read", "[filename]", "read video file, print video info", demo_video_file_read},
+		{41, "camera", "", "do something about video camera", NULL},
 	{0},
 };
 

@@ -74,6 +74,8 @@ void demo_client_event_send_handler(char* cmdline);
 void demo_client_file_handler(char* cmdline);
 void demo_client_stop_handler(char* cmdline);
 
+void demo_video_file_read(char* cmdline);
+
 int demo_server_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);
 int demo_client_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);
 
