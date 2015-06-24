@@ -27,6 +27,7 @@ typedef struct dx_console_menu dx_console_menu_t;
 typedef struct dx_console_menu {
 	int id;
 	char* command;
+	char* parameters;
 	char* description;
 	dx_console_menu_handler handler;
 } dx_console_menu_t;

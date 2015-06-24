@@ -24,7 +24,7 @@ dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_conso
 dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure, void** out);
 
 void* dx_console_menu_print_callback(dx_console_menu_t* menus, dx_console_menu_t* current, void* nothing, void** nothing2) {
-	printf("- [%s] %s\n", current->command, current->description);
+	printf("- %s %s : %s\n", current->command, current->parameters, current->description);
 	return NULL; /* keep going */
 }
 
@@ -55,7 +55,7 @@ void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* curren
 	dx_console_menu_recursive_prompt(menus, current, prompt);
 
 	printf("-------------------------------------------------\n\n");
-	printf("[%s] %s\n", prompt, desc);
+	printf("[%s] %s\n\n", prompt, desc);
 	dx_console_menu_traverse(menus, current, dx_console_menu_print_callback, NULL, NULL);
 	printf("\n");
 	printf("- [up] move a step up\n");
