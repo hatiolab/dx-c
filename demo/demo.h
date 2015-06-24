@@ -62,6 +62,8 @@ void demo_start_server_handler(char* cmdline);
 void demo_start_client_handler(char* cmdline);
 void demo_descovery_send_handler(char* cmdline);
 void demo_start_all_handler(char* cmdline);
+void demo_start_all_server_handler(char* cmdline);
+void demo_start_all_client_handler(char* cmdline);
 
 void demo_server_send_handler(char* cmdline);
 void demo_server_hb_handler(char* cmdline);
