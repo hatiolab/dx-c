@@ -29,7 +29,9 @@ dx_console_menu_t demo_console_menus[]  = {
 		{34, "stop", "", "stop client",  demo_client_stop_handler},
 	{4, "video", "", "do something about video/camera ..", NULL},
 		{40, "file", "", "do something about video file ..", NULL},
-			{400, "read", "[filename]", "read video file, print video info", demo_video_file_read},
+			{400, "open", "[filename]", "open video file", demo_video_file_open},
+			{401, "info", "", "read video frames, print frame info", demo_video_file_info},
+			{402, "close", "", "close video file", demo_video_file_close},
 		{41, "camera", "", "do something about video camera ..", NULL},
 	{0},
 };

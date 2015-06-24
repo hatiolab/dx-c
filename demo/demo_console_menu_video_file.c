@@ -1,99 +1,56 @@
 #include "demo.h"
 
-#define FRAME_BOUNDARY 0x01000000
-
 int demo_video_file = -1;
-int demo_video_file_current_frame = 0;
 
-dx_buffer_t* frame_buffer = NULL;
-
-dx_buffer_t* demo_read_a_frame(int count) {
-
-	uint32_t buffer;
-	int nread;
-	int tread = 0; /* read total */
-
-	/* 첫 Boundary를 찾는다. */
-	if(count == 0) {
-
-		while((nread = read(demo_video_file, &buffer, 4)) == 4) {
-			if(FRAME_BOUNDARY == buffer) {
-				dx_buffer_clear(frame_buffer);
-				break;
-			}
-			tread += nread;
-		}
-
-		tread += nread;
-		printf("Seek Boundary for %d bytes.\n", tread);
-
-		if(nread != 4) {
-			return NULL;
-		}
-	}
-
-	/* 다음 Boundary를 찾는다. */
-	tread = 0;
-	dx_buffer_clear(frame_buffer);
-
-	while((nread = read(demo_video_file, &buffer, 4)) == 4) {
-		if(FRAME_BOUNDARY == buffer) {
-			dx_buffer_flip(frame_buffer);
-			break;
-		}
-		dx_buffer_put(frame_buffer, &buffer, 4);
-		tread += nread;
-	}
-
-	if(nread != 4) {
-		printf("Seek Boundary for %d bytes.\n", tread + nread);
-		return NULL;
-	}
-
-	return frame_buffer;
-}
-
-void demo_video_file_frame() {
-	dx_buffer_t* frame;
-	int count = 0;
-
-	if(demo_video_file < 0) {
-		fprintf(stderr, "Read video file first..\n");
-		return;
-	}
-
-	if(frame_buffer == NULL)
-		frame_buffer = dx_buffer_alloc(1024 * 1024);
-
-	while((frame = demo_read_a_frame(count)) != NULL) {
-		count++;
-		printf("Frame %d (%d)\n", count, dx_buffer_remains(frame));
-	}
-}
-
-void demo_video_file_read(char* cmdline) {
+void demo_video_file_open(char* cmdline) {
 	char* path = NULL;
-
-	if(demo_video_file >= 0) {
-		close(demo_video_file);
-		demo_video_file = -1;
-	}
 
 	if(cmdline != NULL && strlen(cmdline) > 0) {
 		path = strtok(cmdline, " \t\n\f");
 	} else {
-		fprintf(stderr, "Filename required.\n");
+		fprintf(stderr, "오픈하고자 하는 파일이름을 입력해주세요.\n");
 		return;
 	}
 
-	demo_video_file = open(path, O_RDONLY);
+	if(demo_video_file >= 0) {
+		close(demo_video_file);
+		printf("현재 열려있는 비디오 파일을 닫았습니다.\n");
+		demo_video_file = -1;
+	}
 
+	demo_video_file = dx_h264_open(path);
 	if(demo_video_file == -1) {
-		perror("Read video file failed.");
+		perror("비디오파일 열기를 실패하였습니다.");
 		fprintf(stderr, "%s\n", path);
 		return;
 	}
 
-	printf("Read video file Successfully : %s(%d)\n", path, demo_video_file);
-	demo_video_file_frame();
+	printf("새로운 비디오 파일을 열었습니다. : %s(%d)\n", path, demo_video_file);
+}
+
+void demo_video_file_close(char* cmdline) {
+	if(demo_video_file == -1) {
+		fprintf(stderr, "현재 열려있는 비디오 파일이 없습니다.\n");
+		return;
+	}
+
+	dx_h264_close(demo_video_file);
+
+	demo_video_file = -1;
+	printf("현재 열려있는 비디오 파일을 닫았습니다.\n");
+}
+
+int demo_h264_frame_info_callback(int fd, dx_buffer_t* buffer, int idx) {
+	printf("프레임 %d (%d)\n", idx, dx_buffer_remains(buffer));
+
+	return 0; /* keep going to the end frame */
+}
+
+void demo_video_file_info(char* cmdline) {
+	if(demo_video_file < 0) {
+		fprintf(stderr, "먼저 비디오 파일을 열어주세요.\n");
+		return;
+	}
+
+	dx_h264_frame_iterate(demo_video_file, demo_h264_frame_info_callback);
 }

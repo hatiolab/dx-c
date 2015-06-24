@@ -23,16 +23,16 @@
 #include "dx_net_packet_file.h"
 #include "dx_net_packet_io.h"
 
+#include "dx_file_h264.h"
+
 #include "dx.h"
 
 /*
  * Definitions
  */
-#define	TO_SERVER dx_client
-#define TO_CLIENT dx_server
 
-#define DEFAULT_DISCOVERY_PORT	2020
-#define DEFAULT_SERVER_PORT	2020
+#define DEFAULT_DISCOVERY_PORT	2015
+#define DEFAULT_SERVER_PORT	2015
 
 typedef void (*console_handler)(dx_event_context_t* context, char* cmdline);
 
@@ -74,7 +74,9 @@ void demo_client_event_send_handler(char* cmdline);
 void demo_client_file_handler(char* cmdline);
 void demo_client_stop_handler(char* cmdline);
 
-void demo_video_file_read(char* cmdline);
+void demo_video_file_open(char* cmdline);
+void demo_video_file_info(char* cmdline);
+void demo_video_file_close(char* cmdline);
 
 int demo_server_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);
 int demo_client_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);
