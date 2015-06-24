@@ -54,14 +54,14 @@ void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* curren
 
 	dx_console_menu_recursive_prompt(menus, current, prompt);
 
-	printf("-------------------------------------------------\n\n");
+	printf("\n-------------------------------------------------\n\n");
 	printf("[%s] %s\n\n", prompt, desc);
 	dx_console_menu_traverse(menus, current, dx_console_menu_print_callback, NULL, NULL);
 	printf("\n");
-	printf("- [up] move a step up\n");
-	printf("- [top] move to top\n");
-	printf("- [exit] exit\n");
-	printf(" %s ", DX_CONSOLE_PROMPT);
+	printf("- up : move a step up\n");
+	printf("- top : move to top\n");
+	printf("- exit :  exit\n\n");
+	printf("%s ", DX_CONSOLE_PROMPT);
 
 	fflush(stdout);
 }
@@ -114,7 +114,7 @@ dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console
 				i++;
 				continue;
 			}
-		} else if(menus[i].id > current_id * 100) {
+		} else if(menus[i].id >= current_id * 100) {
 			/* grand children 은 skip */
 			i++;
 			continue;
