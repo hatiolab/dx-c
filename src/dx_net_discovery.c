@@ -109,6 +109,9 @@ int dx_discovery_server_handler(dx_event_context_t* context) {
     if(context->user_handler != NULL)
       ((dx_discovery_server_callback)context->user_handler)(&server_port_to_notify);
 
+    if(server_port_to_notify < 0)
+    	break;
+
     /*
      * discovery 클라이언트 쪽으로 회신한다.
      */

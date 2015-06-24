@@ -35,6 +35,9 @@ int dx_server_get_service_port(int fd) {
   struct sockaddr_in  serveraddr;
   int len = sizeof(serveraddr);
 
+  if(fd < 0)
+	  return -1;
+
   getsockname(fd, (struct sockaddr*)&serveraddr, (socklen_t *)&len);
   return ntohs(serveraddr.sin_port);
 }

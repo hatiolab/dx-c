@@ -18,12 +18,12 @@
 #include "dx_console.h"
 #include "dx_event_mplexer.h"
 
-typedef dx_console_menu_t* (*dx_console_menu_traverse_callback)(dx_console_menu_t* menus, dx_console_menu_t* menu, void* closure);
+typedef dx_console_menu_t* (*dx_console_menu_traverse_callback)(dx_console_menu_t* menus, dx_console_menu_t* menu, void* closure, void** out);
 
 dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_console_menu_t* menu);
-dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure);
+dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure, void** out);
 
-void* dx_console_menu_print_callback(dx_console_menu_t* menus, dx_console_menu_t* current, void* nothing) {
+void* dx_console_menu_print_callback(dx_console_menu_t* menus, dx_console_menu_t* current, void* nothing, void** nothing2) {
 	printf("- [%s] %s\n", current->command, current->description);
 	return NULL; /* keep going */
 }
@@ -56,7 +56,11 @@ void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* curren
 
 	printf("-------------------------------------------------\n\n");
 	printf("[%s] %s\n", prompt, desc);
-	dx_console_menu_traverse(menus, current, dx_console_menu_print_callback, NULL);
+	dx_console_menu_traverse(menus, current, dx_console_menu_print_callback, NULL, NULL);
+	printf("\n");
+	printf("- [up] move a step up\n");
+	printf("- [top] move to top\n");
+	printf("- [exit] exit\n");
 	printf(" %s ", DX_CONSOLE_PROMPT);
 
 	fflush(stdout);
@@ -85,7 +89,7 @@ int dx_console_start(dx_event_handler handler, dx_console_menu_t* menus) {
  * 자신의 한단계 하위 메뉴들을 트래버스하면서, 중단된 메뉴를 리턴한다.
  * 모든 아이템이 다 트래버스되었다면, NULL을 리턴한다.
  */
-dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure) {
+dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure, void** out) {
 	int i;
 	int current_id;
 	dx_console_menu_t* found;
@@ -116,7 +120,7 @@ dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console
 			continue;
 		}
 
-		found = callback(menus, &menus[i], closure);
+		found = callback(menus, &menus[i], closure, out);
 		if(NULL != found)
 			return found;
 		i++;
@@ -153,51 +157,59 @@ dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_conso
 	return dx_console_menu_find_by_id(menus, id);
 }
 
-void* dx_console_menu_search_callback(dx_console_menu_t* menus, dx_console_menu_t* menu, char* cmdline) {
+void* dx_console_menu_search_callback(dx_console_menu_t* menus, dx_console_menu_t* menu, char* cmdline, char** trailer) {
 	const char* whitespace = " \t\n\f";
 
 	dx_console_menu_t* found;
-	char* trailer;
+	char cmd_clone[128];
 	char* command;
 	int sz;
 
-	command = strtok_r(cmdline, whitespace, &trailer);
-
-	if(command == NULL || strlen(command) == 0)
+	if(cmdline == NULL || strlen(cmdline) == 0)
 		return NULL;
+
+	/* cmdline 을 복사해둔다. */
+	strncpy(cmd_clone, cmdline, 128);
+
+	command = strtok_r(cmdline, whitespace, trailer);
+
+	if(command == NULL || strlen(command) == 0) {
+		/* 못찾았으므로 원본 cmdline 복구 */
+		strncpy(cmdline, cmd_clone, 128);
+		return NULL;
+	}
 
 	sz = strlen(command) > strlen(menu->command) ? strlen(menu->command) : strlen(command);
 
 	if(strncmp(command, menu->command, sz) == 0) { /* match */
-		found = dx_console_menu_traverse(menus, menu, dx_console_menu_search_callback, trailer);
+		found = dx_console_menu_traverse(menus, menu, dx_console_menu_search_callback, *trailer, trailer);
 		if(found != NULL)
 			return found;
 		return menu;
 	}
 
+	/* 못찾았으므로 원본 cmdline 복구 */
+	strncpy(cmdline, cmd_clone, 128);
 	return NULL;
 }
 
-dx_console_menu_t* dx_console_menu_find_menu_by_command(dx_console_menu_t* menus, dx_console_menu_t* current, char* cmdline) {
+dx_console_menu_t* dx_console_menu_find_menu_by_command(dx_console_menu_t* menus, dx_console_menu_t* current, char* cmdline, void** trailer) {
 	const char* whitespace = " \t\n\f";
 	const char* command_up = "up";
 	const char* command_top = "top";
 
-	char* next_token;
-	char* command = strtok_r(cmdline, whitespace, &next_token);
-
 	dx_console_menu_t* found;
 
-	if(command == NULL || strlen(command) == 0)
+	if(cmdline == NULL || strlen(cmdline) == 0)
 		return current;
 
-	if(strncmp(command, command_top, strlen(command_top)) == 0)
+	if(strncmp(cmdline, command_top, strlen(command_top)) == 0)
 		return NULL; /* return root */
 
-	if(strncmp(command, command_up, strlen(command_up)) == 0)
+	if(strncmp(cmdline, command_up, strlen(command_up)) == 0)
 		return dx_console_menu_get_parent(menus, current); /* return parent */
 
-	found = dx_console_menu_traverse(menus, current, dx_console_menu_search_callback, cmdline);
+	found = dx_console_menu_traverse(menus, current, dx_console_menu_search_callback, cmdline, trailer);
 	if(found != NULL)
 		return found;
 

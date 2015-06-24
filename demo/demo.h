@@ -44,8 +44,10 @@ typedef struct demo_menu_asso {
 /*
  * Externs
  */
-extern int dx_server;
-extern int dx_client;
+extern int demo_server;
+extern int demo_client;
+extern int demo_discovery_server;
+extern int demo_discovery_client;
 
 extern int quit;
 
@@ -57,6 +59,7 @@ void demo_start_descovery_server_handler(char* cmdline);
 void demo_start_descovery_client_handler(char* cmdline);
 void demo_start_server_handler(char* cmdline);
 void demo_start_client_handler(char* cmdline);
+void demo_descovery_send_handler(char* cmdline);
 
 void demo_server_send_handler(char* cmdline);
 void demo_server_hb_handler(char* cmdline);

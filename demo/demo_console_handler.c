@@ -5,7 +5,9 @@ dx_console_menu_t* demo_current_menu = NULL;
 int demo_console_handler(dx_event_context_t* context) {
 	const char* command_exit = "exit";
     char cmdline[128];
+    char* remains = NULL;
 	dx_console_menu_t* menus = (dx_console_menu_t*)context->pdata;
+	dx_console_menu_t* copied;
 
     bzero(cmdline, 128);
 
@@ -30,9 +32,14 @@ int demo_console_handler(dx_event_context_t* context) {
 		return 0;
 	}
 
-
 	/* find current menu using command line. */
-	demo_current_menu = dx_console_menu_find_menu_by_command(menus, demo_current_menu, cmdline);
+	copied = demo_current_menu;
+	demo_current_menu = dx_console_menu_find_menu_by_command(menus, demo_current_menu, cmdline, &remains);
+
+	if(demo_current_menu != NULL && demo_current_menu->handler != NULL) {
+		demo_current_menu->handler(remains);
+		demo_current_menu = copied; /* 루트로 돌아감 */
+	}
 
 	/* 종료되지 않았다면 현재 위치에서의 사용법을 디스플레이 함. */
     if(!quit)
