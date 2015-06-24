@@ -27,7 +27,7 @@ int demo_console_handler(dx_event_context_t* context) {
 		quit = 1;
 		dx_event_mplexer_wakeup();
 
-		printf("Bye..\n");
+		printf("\nBye..\n\n");
 
 		return 0;
 	}
