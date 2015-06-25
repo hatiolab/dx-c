@@ -9,12 +9,12 @@
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
-#include "dx_util_buffer.h"
-
 #include "dx_event_mplexer.h"
 #include "dx_event_pipe.h"
 
 int dx_net_pipe_handler(dx_event_context_t* context);
+
+int pipe_test_quit = 0;
 
 void net_pipe_test() {
 	int peer;
@@ -23,7 +23,10 @@ void net_pipe_test() {
 
 	dx_event_pipe_start(dx_net_pipe_handler, &peer);
 
-	dx_event_mplexer_poll(1000);
+	while(pipe_test_quit == 0) {
+		dx_event_mplexer_poll(1000);
+		write(peer, "HELLO", 5);
+	}
 
 	dx_event_mplexer_destroy();
 
@@ -48,6 +51,10 @@ int dx_net_pipe_handler(dx_event_context_t* context) {
     }
 
     printf("[READ FROM PIPE] %s\n", buf);
+
+    ASSERT("Input Value should be HELLO", strncmp(buf, "HELLO", 5) == 0)
+
+    pipe_test_quit = 1;
 
     return 0;
 }

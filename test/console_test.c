@@ -6,7 +6,6 @@
 #include "dx_debug_malloc.h"
 
 #include "dx_util_buffer.h"
-#include "dx_util_trim.h"
 
 #include "dx_event_mplexer.h"
 
@@ -19,118 +18,60 @@
 #include "dx.h"
 #include "dx_console.h"
 
-#define DISCOVERY_SERVICE_PORT	3456
+void test_console_menu_handler(char* cmdline) {
+	printf("CMD : %s\n", cmdline);
+}
 
-/* TODO fixme to find client file descriptors */
+dx_console_menu_t test_console_menus[]  = {
+	{1, "start", "", "start servers ..", NULL},
+		{10, "ds", "[port]", "start discovery-listener", test_console_menu_handler},
+		{11, "dc", "[port]", "start discovery-requester", test_console_menu_handler},
+		{12, "server", "[port]", "start server", test_console_menu_handler},
+		{13, "client", "[hostname] [port]", "start client", test_console_menu_handler},
+		{14, "discovery", "[port]", "start client through discovery request", test_console_menu_handler},
+		{15, "all", "[port]", "start all services on the localhost", test_console_menu_handler},
+		{16, "sall", "[port]", "start all services for server", test_console_menu_handler},
+		{17, "call", "[port]", "start all services for client", test_console_menu_handler},
+	{2, "server", "", "do something with server ..",  NULL},
+		{20, "send", "", "send some packet to clients",  test_console_menu_handler},
+		{21, "hb", "", "send heartbeat to clients",  test_console_menu_handler},
+		{22, "event", "", "send some events to clients",  test_console_menu_handler},
+		{23, "file", "", "send a file to clients", test_console_menu_handler},
+		{24, "stop", "", "stop server", test_console_menu_handler},
+	{3, "client", "", "do something with client ..",  NULL},
+		{30, "send", "", "send some packet to server",  test_console_menu_handler},
+		{31, "hb", "", "send heartbeat to server",  test_console_menu_handler},
+		{32, "event", "", "send some events to server",  test_console_menu_handler},
+		{33, "file", "", "send a file to server",  test_console_menu_handler},
+		{34, "stop", "", "stop client",  test_console_menu_handler},
+	{4, "video", "", "do something about video/camera ..", NULL},
+		{40, "file", "", "do something about video file ..", NULL},
+			{400, "open", "[filename]", "open video file", test_console_menu_handler},
+			{401, "info", "", "read video frames, print frame info", test_console_menu_handler},
+			{402, "close", "", "close video file", test_console_menu_handler},
+		{41, "camera", "", "do something about video camera ..", NULL},
+	{0},
+};
 
-#define	TO_SERVER dx_client
-#define TO_CLIENT dx_server
+int console_test_quit = 0;
 
-int dx_client;
-int dx_server;
-
-int send_stream(int fd);
-int dx_console_handler(dx_event_context_t* context);
+void test_exit_handler() {
+	printf("Exit Handler works.\n");
+	console_test_quit = 1;
+}
 
 void console_test() {
+
 	dx_event_mplexer_create();
 
-	dx_console_start(dx_console_handler);
+	dx_console_start(test_console_menus, test_exit_handler);
 
-	dx_event_mplexer_poll(1000);
+	while(console_test_quit == 0) {
+		dx_event_mplexer_poll(1000);
+	}
 
 	dx_event_mplexer_destroy();
 
 	CHKMEM();
 }
 
-int dx_console_handler(dx_event_context_t* context) {
-    char buf[128];
-
-    bzero(buf, 128);
-
-    ssize_t nbytes = read(context->fd, buf, sizeof(buf));
-    if(0 == nbytes) {
-        printf("Console hung up\n");
-        return -1;
-    } else if(0 > nbytes) {
-        perror("Console read() error");
-        close(context->fd);
-        dx_del_event_context(context);
-        return -2;
-    }
-
-    switch(buf[0]) {
-    case	'f':
-//    	dx_packet_get_filelist(TO_SERVER, trim(&buf[1]));
-    	break;
-    case	'F':
-    	dx_packet_send_filelist(TO_CLIENT, trim(&buf[1]));
-    	break;
-    case	'g':
-//    	dx_packet_get_file(TO_SERVER, trim(&buf[1]), 0, DX_FILE_PARTIAL_MAX_SIZE - 1);
-    	break;
-    case	'G':
-//    	dx_packet_send_file(TO_CLIENT, trim(&buf[1]));
-    	break;
-    case    'd':
-    case    'D':
-//        dx_drive_start(0);
-//        dx_server = dx_discovery_server_start(DISCOVERY_SERVICE_PORT);
-        break;
-    case    'h':
-    case    'H':
-//    	dx_client = dx_discovery_client_start(0);
-        break;
-    case    'v':
-    	dx_discovery_send_broadcast(dx_client, DISCOVERY_SERVICE_PORT);
-		break;
-    case    'b':
-    case    'B':
-    	dx_packet_send_heartbeat(dx_client, 0); /* Client to Server */
-        break;
-    case    'x':
-    case    'X':
-        break;
-    case    'k':
-    case    'K':
-    	close(dx_client);
-        break;
-    case    'e':
-    case    'E':
-        printf("Event : \n");
-        break;
-    case    'Q':
-    case    'q':
-    	dx_event_mplexer_wakeup();
-        break;
-    default:
-        printf("Unknown Command : %c\n", buf[0]);
-        break;
-    }
-
-    return 0;
-}
-
-int send_stream(int fd) {
-	int i = 0;
-	int j = 0;
-	int k = 0;
-	int l = 0;
-	uint8_t* data = (uint8_t*)MALLOC(800*480*2);
-
-	for(l = 0;l < 100;l++) {
-		for(i = 0;i < 480;i++) {
-			for(j = 0;j < 800;j++) {
-				data[(i * 480 + j) * 2] = (uint8_t)k;
-				data[(i * 480 + j) * 2 + 1] = (uint8_t)k++;
-			}
-		}
-
-		dx_packet_send_stream(fd, DX_STREAM, 0, data, 800*480*2);
-	}
-
-	FREE(data);
-
-	return 0;
-}

@@ -14,7 +14,6 @@
 #include "dx_event_mplexer.h"
 #include "dx_net_server.h"
 #include "dx_net_client.h"
-#include "dx_console.h"
 
 #include "dx.h"
 
@@ -43,15 +42,13 @@ int dx_client_handler_file(dx_event_context_t* context, dx_packet_t* packet);
 
 #define TEST_SERVICE_PORT 2017
 
-extern int dx_client;
-extern int dx_server;
+int dx_client;
+int dx_server;
 
 void net_server_test() {
 	int i = 0;
 
 	dx_event_mplexer_create();
-
-	dx_console_start(dx_console_handler);
 
 	dx_server = dx_server_start(TEST_SERVICE_PORT, dx_net_server_handler);
 	dx_client = dx_client_start("localhost", TEST_SERVICE_PORT, dx_net_client_handler);
