@@ -37,9 +37,9 @@ int main(void) {
 //	util_list_test();
 //	printf("..Done\n");
 
-	printf("\nTest - util_clock_test()..\n");
-	util_clock_test();
-	printf("..Done\n");
+//	printf("\nTest - util_clock_test()..\n");
+//	util_clock_test();
+//	printf("..Done\n");
 
 	printf("\nTest - util_schedule_test()..\n");
 	util_schedule_test();

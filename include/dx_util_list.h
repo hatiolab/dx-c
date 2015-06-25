@@ -13,6 +13,8 @@
 #ifndef __DX_UTIL_LIST_H
 #define __DX_UTIL_LIST_H
 
+#include <stdarg.h>
+
 /*
  * Definitions
  */
@@ -20,7 +22,7 @@
 typedef int (*dx_find_function)(void* data1, void* data2);
 typedef int (*dx_destroyer_function)(void* data1);
 
-typedef void (*dx_list_iterator_callback)(void* p);
+typedef void (*dx_list_iterator_callback)(void* node_data, va_list ap);
 
 typedef struct dx_list_node dx_list_node_t;
 
@@ -43,6 +45,7 @@ int dx_list_size(dx_list_t* plist);
 int dx_list_add(dx_list_t* plist, void* data);
 int dx_list_remove(dx_list_t* plist, void* data);
 int dx_list_clear(dx_list_t* plist);
-int dx_list_iterator(dx_list_t* plist, dx_list_iterator_callback callback);
+int dx_list_iterator(dx_list_t* plist, dx_list_iterator_callback callback, ...);
+//int dx_list_iterator(dx_list_t* plist, dx_list_iterator_callback callback, va_list ap);
 
 #endif /* __DX_UTIL_LIST_H */
