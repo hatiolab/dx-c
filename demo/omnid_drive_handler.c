@@ -27,6 +27,10 @@ int demo_server_event_handler(dx_event_context_t* context, dx_packet_t* packet) 
 	case DX_PACKET_TYPE_FILE 	: /* File */
 		od_drive_handler_file(context->fd, packet);
 		break;
+	case DX_PACKET_TYPE_STREAM 	: /* Stream */
+		printf("Why here.\n");
+//		od_drive_handler_stream(context->fd, packet);
+		break;
 	default:	/* Should not reach to here */
 		ASSERT("Drive Event Handling.. should not reach to here.", !!0);
 		break;

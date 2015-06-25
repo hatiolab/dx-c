@@ -26,9 +26,12 @@ dx_console_menu_t demo_console_menus[]  = {
 	{3, "client", "", "do something with client ..",  NULL},
 		{30, "send", "", "send some packet to server",  demo_client_send_handler},
 		{31, "hb", "", "send heartbeat to server",  demo_client_hb_handler},
-		{32, "event", "", "send some events to server",  demo_client_event_send_handler},
-		{33, "file", "", "send a file to server",  demo_client_file_handler},
-		{34, "stop", "", "stop client",  demo_client_stop_handler},
+		{32, "repeat-hb", "[duration]", "send heartbeat to server repeatedly",  demo_client_repeat_hb_handler},
+		{33, "event", "", "send some events to server",  demo_client_event_send_handler},
+		{34, "file", "", "send a file to server",  demo_client_file_handler},
+		{35, "pbstart", "", "send a playback start command to server",  demo_client_playback_start_handler},
+		{35, "pbstop", "", "send a playback stop command to server",  demo_client_playback_stop_handler},
+		{36, "stop", "", "stop client",  demo_client_stop_handler},
 	{4, "video", "", "do something about video/camera ..", NULL},
 		{40, "file", "", "do something about video file ..", NULL},
 			{400, "open", "[filename]", "open video file", demo_video_file_open},
@@ -45,14 +48,17 @@ void demo_exit_handler() {
 int main() {
 
 	dx_event_mplexer_create();
+	dx_scheduler_start();
 
 	dx_console_start(demo_console_menus, demo_exit_handler);
 
 	/* Big Loop */
 	while(!quit) {
-		dx_event_mplexer_poll(-1);
+		dx_event_mplexer_poll(dx_scheduler_next_wait());
+		dx_scheduler_do();
 	}
 
+	dx_scheduler_stop();
 	dx_event_mplexer_destroy();
 
 	CHKMEM();

@@ -54,6 +54,8 @@ int od_host_handler_get_file_list(int fd, dx_packet_t* packet);
 int od_host_handler_file_list(int fd, dx_packet_t* packet);
 int od_host_handler_get_file(int fd, dx_packet_t* packet);
 int od_host_handler_file(int fd, dx_packet_t* packet);
+int od_host_handler_stream(int fd, dx_packet_t* packet);
+
 
 /* codes */
 /* Streaming View Modes */
@@ -308,6 +310,10 @@ int od_host_handler_file(int fd, dx_packet_t* packet);
 #define OD_CMD_CHANGE_VIEW_MODE             (OD_CMD_BASE + 4)   /* 뷰모드 변경 명령 */
 #define OD_CMD_CAPTURE_STILLCUT             (OD_CMD_BASE + 5)   /* 현재 뷰모드 영상 스틸컷 캡쳐 명령 */
 #define OD_CMD_START_UPGRADE                (OD_CMD_BASE + 6)   /* 소프트웨어 업그레이드 시작 명령 */
+
+/* For Test Only */
+#define OD_CMD_START_STREAM                	(OD_CMD_BASE + 7)   /* 프레이백 스트림 시작 명령 */
+#define OD_CMD_STOP_STREAM                	(OD_CMD_BASE + 8)   /* 프레이백 스트림 종료 명령 */
 
 /* File */
 #define OD_FILE_BASE                    0x00

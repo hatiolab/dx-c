@@ -21,7 +21,10 @@ int od_host_handler_command(int fd, dx_packet_t* packet) {
         break;
     case OD_CMD_CAPTURE_EMERGENCY_STILLCUT   :   /* 긴급 사진캡쳐 명령 */
         break;
-
+    case OD_CMD_START_STREAM :   /* 프레이백 스트림 시작 명령 */
+    	break;
+    case OD_CMD_STOP_STREAM  :   /* 프레이백 스트림 종료 명령 */
+    	break;
     default :
         break;
 

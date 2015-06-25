@@ -12,6 +12,8 @@
 #include "dx_debug_malloc.h"
 #include "dx_debug_assert.h"
 
+#include "dx_util_schedule.h"
+
 #include "dx_console.h"
 
 #include "dx_event_mplexer.h"
@@ -26,6 +28,8 @@
 #include "dx_file_h264.h"
 
 #include "dx.h"
+
+#include "omnid.h"
 
 /*
  * Definitions
@@ -72,9 +76,12 @@ void demo_server_stop_handler(char* cmdline);
 
 void demo_client_send_handler(char* cmdline);
 void demo_client_hb_handler(char* cmdline);
+void demo_client_repeat_hb_handler(char* cmdline);
 void demo_client_event_send_handler(char* cmdline);
 void demo_client_file_handler(char* cmdline);
 void demo_client_stop_handler(char* cmdline);
+void demo_client_playback_start_handler(char* cmdline);
+void demo_client_playback_stop_handler(char* cmdline);
 
 void demo_video_file_open(char* cmdline);
 void demo_video_file_info(char* cmdline);

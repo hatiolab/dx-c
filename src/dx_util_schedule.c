@@ -27,11 +27,16 @@
 
 dx_list_t* __dx_schedule_list = NULL;
 
+int dx_scheduler_destroyer(void* data) {
+	FREE(data);
+	return 0;
+}
+
 void dx_scheduler_start() {
 	ASSERT("Schedule System should not be started.", __dx_schedule_list == NULL)
 
 	__dx_schedule_list = (dx_list_t*)MALLOC(sizeof(dx_list_t));
-	dx_list_init(__dx_schedule_list, NULL, NULL);
+	dx_list_init(__dx_schedule_list, NULL, dx_scheduler_destroyer);
 }
 
 void dx_scheduler_stop() {
@@ -62,6 +67,9 @@ long dx_scheduler_next_wait() {
 	next = 0;
 
 	dx_list_iterator(__dx_schedule_list, dx_scheduler_next_callback, &next, now);
+
+	if(next == 0)
+		return -1;
 
 	return (next - now) > 0 ? next - now : 0;
 }
