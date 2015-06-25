@@ -17,8 +17,6 @@
 
 #include "dx.h"
 
-int dx_console_handler(dx_event_context_t* context);
-
 int dx_net_server_handler(dx_event_context_t* context, dx_packet_t* packet);
 int dx_net_client_handler(dx_event_context_t* context, dx_packet_t* packet);
 

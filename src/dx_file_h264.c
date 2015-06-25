@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>	// For lseek, read, close
 
 #include "dx_util_buffer.h"
 
