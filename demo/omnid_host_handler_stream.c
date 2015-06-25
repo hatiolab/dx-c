@@ -12,11 +12,29 @@
 
 #include "omnid.h"
 
+int od_host_handler_stream_playback(int fd, dx_packet_t* packet);
+
+int od_host_handler_stream(int fd, dx_packet_t* packet) {
+
+    switch(packet->header.code) {
+
+	case DX_STREAM : 	/* 스트림 */
+		break;
+	case DX_STREAM_PLAYBACK : /* 플레이백 스트림 - 플레이타임 등 정보가 포함됨. */
+		od_host_handler_stream_playback(fd, packet);
+		break;
+    }
+
+	return 0;
+}
+
+/* For Playback Streaming */
+
 time_t demo_stream_first_received_time = 0;
 time_t demo_stream_last_received_time = 0;
 int demo_stream_frames_received = 0;
 
-int od_host_handler_stream(int fd, dx_packet_t* packet) {
+int od_host_handler_stream_playback(int fd, dx_packet_t* packet) {
 	dx_stream_packet_t* stream = (dx_stream_packet_t*)packet;
 	int framerate = 0;
 	time_t now = time(NULL);
@@ -28,6 +46,7 @@ int od_host_handler_stream(int fd, dx_packet_t* packet) {
 		demo_stream_frames_received++;
 	} else {
 		demo_stream_frames_received++;
+		/* 스트리밍 구간의 평균 프레임레이트를 계산함 */
 		if(demo_stream_frames_received != 0 && now != demo_stream_first_received_time)
 			framerate = (demo_stream_frames_received) / (now - demo_stream_first_received_time);
 		demo_stream_last_received_time = now;

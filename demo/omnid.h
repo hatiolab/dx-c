@@ -312,8 +312,8 @@ int od_host_handler_stream(int fd, dx_packet_t* packet);
 #define OD_CMD_START_UPGRADE                (OD_CMD_BASE + 6)   /* 소프트웨어 업그레이드 시작 명령 */
 
 /* For Test Only */
-#define OD_CMD_START_STREAM                	(OD_CMD_BASE + 7)   /* 프레이백 스트림 시작 명령 */
-#define OD_CMD_STOP_STREAM                	(OD_CMD_BASE + 8)   /* 프레이백 스트림 종료 명령 */
+#define OD_CMD_START_PLAYBACK             	(OD_CMD_BASE + 7)   /* 프레이백 스트림 시작 명령 */
+#define OD_CMD_STOP_PLAYBACK              	(OD_CMD_BASE + 8)   /* 프레이백 스트림 종료 명령 */
 
 /* File */
 #define OD_FILE_BASE                    0x00
@@ -326,5 +326,6 @@ int od_host_handler_stream(int fd, dx_packet_t* packet);
 /* Stream */
 #define OD_STREAM_BASE					0x00
 #define OD_STREAM						(OD_STREAM_BASE + 0)
+#define OD_STREAM_PLAYBACK				(OD_STREAM_BASE + 1)
 
 #endif /* __OMNID_H */

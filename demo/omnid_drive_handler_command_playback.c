@@ -15,7 +15,6 @@
 extern dx_buffer_t* dx_frame_buffer;
 
 int demo_playback_video_file = -1;
-int demo_playback_on = 0;
 dx_schedule_t* demo_playback_stream_schedule = NULL;
 
 int demo_playback_frame_idx = 0;
@@ -31,7 +30,6 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		dx_packet_send_stream((int)sender_fd, DX_STREAM, 0 /* enctype */, dx_buffer_ppos(frame), dx_buffer_remains(frame));
 	} else {
 		demo_playback_frame_idx = 0;
-		demo_playback_on = 0;
 		dx_schedule_cancel(demo_playback_stream_schedule);
 	}
 
@@ -39,8 +37,11 @@ void demo_playback_schedule_callback(void* sender_fd) {
 }
 
 void od_on_playback_start(int fd) {
-	if(demo_playback_stream_schedule != NULL)
+	/* 만약 현재 동작중인 스케쥴러가 있으면, 동작하지 않음 */
+	if(demo_playback_stream_schedule != NULL && demo_playback_stream_schedule->next_schedule != 0) {
+		fprintf(stderr, "이미 동작중인 스트리밍 스케쥴러가 있습니다.");
 		return;
+	}
 
 	if(demo_playback_video_file >= 0) {
 		close(demo_playback_video_file);
@@ -54,12 +55,20 @@ void od_on_playback_start(int fd) {
 		return;
 	}
 
-	demo_playback_on = 1;
-
+	/* 새로운 스트리밍 스케쥴러를 등록하고, 바로 시작합니다. */
 	demo_playback_stream_schedule = dx_schedule_register(0, 1000/30 /* 30 frames */, 1, demo_playback_schedule_callback, (void*)fd);
 	dx_event_mplexer_wakeup();
 }
 
 void od_on_playback_stop(int fd) {
-	demo_playback_on = 0;
+	if(demo_playback_stream_schedule != NULL && demo_playback_stream_schedule->next_schedule != 0) {
+		/* 스케쥴러를 취소합니다. */
+		dx_schedule_cancel(demo_playback_stream_schedule);
+		demo_playback_stream_schedule = NULL;
+	}
+
+	if(demo_playback_video_file >= 0) {
+		close(demo_playback_video_file);
+		demo_playback_video_file = -1;
+	}
 }

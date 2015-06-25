@@ -24,11 +24,11 @@ int od_drive_handler_command(int fd, dx_packet_t* packet) {
     case OD_CMD_CAPTURE_EMERGENCY_STILLCUT   :   /* 긴급 사진캡쳐 명령 */
         break;
 
-    case OD_CMD_START_STREAM :   /* 플레이백 스트림 시작 명령 */
+    case OD_CMD_START_PLAYBACK :   /* 플레이백 스트림 시작 명령 */
     	od_on_playback_start(fd);
     	break;
 
-    case OD_CMD_STOP_STREAM  :   /* 플레이백 스트림 종료 명령 */
+    case OD_CMD_STOP_PLAYBACK  :   /* 플레이백 스트림 종료 명령 */
     	od_on_playback_stop(fd);
     	break;
 

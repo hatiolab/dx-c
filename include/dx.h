@@ -63,8 +63,9 @@
 #define DX_FILE_DELETE                  (DX_FILE_BASE + 4)
 
 /* Stream */
-#define DX_STREAM_BASE          0x00
-#define DX_STREAM           (DX_STREAM_BASE + 0)
+#define DX_STREAM_BASE          		0x00
+#define DX_STREAM           			(DX_STREAM_BASE + 0)
+#define DX_STREAM_PLAYBACK				(OD_STREAM_BASE + 1)
 
 /* API */
 
