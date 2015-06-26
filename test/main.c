@@ -18,8 +18,13 @@ void net_discovery_test();
 
 void event_control_test();
 void console_test();
+void file_avi_test();
 
 int main(void) {
+
+	printf("\nTest - dx_avi_test()..\n");
+	file_avi_test();
+	printf("..Done\n");
 
 //	printf("\nTest - debug_malloc_test()..\n");
 //	debug_malloc_test();
@@ -41,9 +46,9 @@ int main(void) {
 //	util_clock_test();
 //	printf("..Done\n");
 
-	printf("\nTest - util_schedule_test()..\n");
-	util_schedule_test();
-	printf("..Done\n");
+//	printf("\nTest - util_schedule_test()..\n");
+//	util_schedule_test();
+//	printf("..Done\n");
 
 //	printf("\nTest - net_pipe_test()..\n");
 //	net_pipe_test();

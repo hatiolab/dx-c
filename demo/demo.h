@@ -14,6 +14,8 @@
 
 #include "dx_util_schedule.h"
 
+#include "dx_file_avi.h"
+
 #include "dx_console.h"
 
 #include "dx_event_mplexer.h"
