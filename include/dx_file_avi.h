@@ -27,7 +27,7 @@ typedef struct {
 } AVI_LIST;
 
 typedef struct {
-	uint32_t	ckid;
+	uint32_t	ckid; /* chunk id */
 	uint32_t	flags;
 	uint32_t	offset;
 	uint32_t	length;
@@ -41,5 +41,9 @@ int dx_avi_open(char* path);
 int dx_avi_is_valid_chunk(AVI_CHUNK* chunk);
 int dx_avi_find_index_chunk(int fd, AVI_CHUNK* chunk);
 int dx_avi_chunk_idx1_handler(int fd, AVI_CHUNK* chunk);
+
+void dx_avi_chunk_print(AVI_CHUNK* chunk);
+void dx_avi_list_print(AVI_LIST* list);
+void dx_avi_index_print(dx_avi_index_entry_t* index);
 
 #endif /* __DX_FILE_AVI_H */

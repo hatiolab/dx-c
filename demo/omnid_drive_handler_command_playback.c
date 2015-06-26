@@ -19,14 +19,14 @@ dx_schedule_t* demo_playback_stream_schedule = NULL;
 
 int demo_playback_frame_idx = 0;
 off_t demo_playback_video_index_offset = -1;
-AVI_CHUNK demo_playback_video_index_list;
+AVI_CHUNK demo_playback_video_index_chunk;
+int8_t* demo_playback_buffer = NULL;
 
 void demo_playback_schedule_callback(void* sender_fd) {
 	dx_buffer_t* frame;
 	off_t seek_pos;
-	uint8_t* buffer;
 
-	while(demo_playback_video_index_list.size > (sizeof(dx_avi_index_entry_t) * demo_playback_frame_idx)) {
+	while(demo_playback_video_index_chunk.size > (sizeof(dx_avi_index_entry_t) * demo_playback_frame_idx)) {
 		/* 여기서 00dc를 찾는다. */
 		dx_avi_index_entry_t entry;
 
@@ -34,20 +34,24 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		seek_pos = lseek(demo_playback_video_file, seek_pos, SEEK_SET);
 
 		read(demo_playback_video_file, &entry, sizeof(entry));
-		if(strncmp("00dc", entry.ckid, 4) != 0) {
+		if(strncmp("00dc", (char*)&entry.ckid, 4) != 0) {
 			demo_playback_frame_idx++;
 			continue;
 		}
 
+		printf("%05d - ", demo_playback_frame_idx);
+		dx_avi_index_print(&entry);
+
 		/*
 		 * TODO 여기서 프레임버퍼로
 		 */
-		lseek(demo_playback_video_file, entry.offset, SEEK_SET);
-		buffer = MALLOC(entry.length);
-		read(demo_playback_video_file, buffer, entry.length);
+		if(demo_playback_buffer == NULL)
+			demo_playback_buffer = MALLOC(3 * 1024 * 1024);
 
-		dx_packet_send_stream((int)sender_fd, DX_STREAM, 0 /* enctype */, buffer, entry.length);
-		FREE(buffer);
+		lseek(demo_playback_video_file, entry.offset, SEEK_SET);
+		read(demo_playback_video_file, demo_playback_buffer, entry.length);
+
+		dx_packet_send_stream((int)sender_fd, DX_STREAM_PLAYBACK, 0 /* enctype */, demo_playback_buffer, entry.length);
 
 		demo_playback_frame_idx++;
 		return;
@@ -55,6 +59,11 @@ void demo_playback_schedule_callback(void* sender_fd) {
 
 	demo_playback_frame_idx = 0;
 	dx_schedule_cancel(demo_playback_stream_schedule);
+
+	if(demo_playback_buffer != NULL) {
+		FREE(demo_playback_buffer);
+		demo_playback_buffer = NULL;
+	}
 }
 
 void od_on_playback_start(int fd) {
@@ -76,9 +85,10 @@ void od_on_playback_start(int fd) {
 //		return;
 //	}
 
-	demo_playback_video_file = dx_avi_open("/home/in/1.avi");
+	demo_playback_video_file = dx_avi_open("/home/heartyoh/1.avi");
 
-	demo_playback_video_index_offset = dx_avi_find_index_chunk(demo_playback_video_file, &demo_playback_video_index_list);
+	demo_playback_video_index_offset = dx_avi_find_index_chunk(demo_playback_video_file, &demo_playback_video_index_chunk);
+	demo_playback_video_index_offset += sizeof(AVI_CHUNK);
 
 	/* 새로운 스트리밍 스케쥴러를 등록하고, 바로 시작합니다. */
 	demo_playback_stream_schedule = dx_schedule_register(0, 1000/30 /* 30 frames */, 1, demo_playback_schedule_callback, (void*)fd);

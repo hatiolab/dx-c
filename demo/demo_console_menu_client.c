@@ -52,7 +52,7 @@ void demo_client_playback_start_handler(char* cmdline) {
 		fprintf(stderr, "Demo Client is not started..\n");
 		return;
 	}
-	dx_packet_send_command_u32(demo_client, OD_CMD_START_STREAM, 0);
+	dx_packet_send_command_u32(demo_client, OD_CMD_START_PLAYBACK, 0);
 }
 
 void demo_client_playback_stop_handler(char* cmdline) {
@@ -60,7 +60,7 @@ void demo_client_playback_stop_handler(char* cmdline) {
 		fprintf(stderr, "Demo Client is not started..\n");
 		return;
 	}
-	dx_packet_send_command_u32(demo_client, OD_CMD_STOP_STREAM, 0);
+	dx_packet_send_command_u32(demo_client, OD_CMD_STOP_PLAYBACK, 0);
 }
 
 void demo_client_stop_handler(char* cmdline) {
