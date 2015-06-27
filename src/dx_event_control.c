@@ -32,18 +32,18 @@ int dx_event_control_start(int* peer) {
 int dx_event_control_handler(dx_event_context_t* pcontext) {
 	uint8_t ch;
 
-    ssize_t nbytes = read(pcontext->fd, &ch, 1);
-    if(0 == nbytes) {
-        printf("Event control hung up\n");
-        return -1;
-    } else if(0 > nbytes) {
-        perror("Event control  read() error");
-        close(pcontext->fd);
-        dx_del_event_context(pcontext);
-        return -2;
-    }
+	ssize_t nbytes = read(pcontext->fd, &ch, 1);
+	if (0 == nbytes) {
+		printf("Event control hung up\n");
+		return -1;
+	} else if (0 > nbytes) {
+		perror("Event control  read() error");
+		close(pcontext->fd);
+		dx_del_event_context(pcontext);
+		return -2;
+	}
 
-    /* Do nothing. just wake up event multiplexer */
+	/* Do nothing. just wake up event multiplexer */
 
-    return 0;
+	return 0;
 }

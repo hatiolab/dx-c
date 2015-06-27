@@ -46,7 +46,7 @@ dx_avi_chunk_map_t dx_avi_chunk_handler_map[] = {
 	{ "strf", dx_avi_chunk_handler },
 	{ "strn", dx_avi_chunk_handler },
 	{ "idx1", dx_avi_chunk_idx1_handler },
-	{ NULL },
+	{ "    ", NULL },
 };
 
 void dx_avi_chunk_print(AVI_CHUNK* chunk) {
@@ -54,7 +54,7 @@ void dx_avi_chunk_print(AVI_CHUNK* chunk) {
 	memset(cc, 0x0, 5);
 	memcpy(cc, chunk->cc, 4);
 
-	printf("CHUNK %4s (%ld bytes)\n", cc, chunk->size);
+	printf("CHUNK %4s (%d bytes)\n", cc, chunk->size);
 }
 
 void dx_avi_list_print(AVI_LIST* list) {
@@ -65,7 +65,7 @@ void dx_avi_list_print(AVI_LIST* list) {
 	memcpy(cc, list->cc, 4);
 	memcpy(type, list->type, 4);
 
-	LOG("%4s %4s (%ld bytes)", type, cc, list->size);
+	LOG("%4s %4s (%d bytes)", type, cc, list->size);
 }
 
 void dx_avi_index_print(dx_avi_index_entry_t* index) {
@@ -73,7 +73,7 @@ void dx_avi_index_print(dx_avi_index_entry_t* index) {
 	memset(ckid, 0x0, 5);
 	memcpy(ckid, (char*)&index->ckid, 4);
 
-	LOG("INDEX %4s (%ld bytes from %ld)", ckid, index->length, index->offset);
+	LOG("INDEX %4s (%d bytes from %d)", ckid, index->length, index->offset);
 }
 
 int dx_avi_info(char* path) {
@@ -126,7 +126,6 @@ int file_avi_read_chunk(int fd) {
 
 int dx_avi_find_index_chunk(int fd, AVI_CHUNK* chunk) {
 	off_t offset;
-	int i = 0;
 	int nread;
 	AVI_LIST top;
 	AVI_CHUNK tmp;
@@ -154,7 +153,6 @@ int dx_avi_find_index_chunk(int fd, AVI_CHUNK* chunk) {
 
 int dx_avi_find_movie_list(int fd, AVI_LIST* list) {
 	off_t offset;
-	int i = 0;
 	int nread;
 	AVI_LIST top;
 	AVI_LIST tmp;

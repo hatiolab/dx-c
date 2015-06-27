@@ -15,6 +15,8 @@
 #include <unistd.h>     // For STDIN_FILENO
 #include <string.h>		// For strtok_r
 
+#include "dx_util_log.h"
+
 #include "dx_console.h"
 #include "dx_event_mplexer.h"
 
@@ -26,7 +28,7 @@ dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_conso
 dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure, void** out);
 
 void* dx_console_menu_print_callback(dx_console_menu_t* menus, dx_console_menu_t* current, void* nothing, void** nothing2) {
-	printf("- %s %s : %s\n", current->command, current->parameters, current->description);
+	CONSOLE("- %s %s : %s\n", current->command, current->parameters, current->description);
 	return NULL; /* keep going */
 }
 
@@ -56,14 +58,14 @@ void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* curren
 
 	dx_console_menu_recursive_prompt(menus, current, prompt);
 
-	printf("\n-------------------------------------------------\n\n");
-	printf("[%s] %s\n\n", prompt, desc);
+	CONSOLE("\n-------------------------------------------------\n\n");
+	CONSOLE("[%s] %s\n\n", prompt, desc);
 	dx_console_menu_traverse(menus, current, dx_console_menu_print_callback, NULL, NULL);
-	printf("\n");
-	printf("- up : move a step up\n");
-	printf("- top : move to top\n");
-	printf("- exit :  exit\n\n");
-	printf("%s ", DX_CONSOLE_PROMPT);
+	CONSOLE("\n");
+	CONSOLE("- up : move a step up\n");
+	CONSOLE("- top : move to top\n");
+	CONSOLE("- exit :  exit\n\n");
+	CONSOLE("%s ", DX_CONSOLE_PROMPT);
 
 	fflush(stdout);
 }
@@ -234,7 +236,7 @@ int dx_console_handler(dx_event_context_t* context) {
 
     ssize_t nbytes = read(context->fd, cmdline, sizeof(cmdline));
     if(0 == nbytes) {
-        printf("Console hung up\n");
+        CONSOLE("Console hung up\n");
         return -1;
     } else if(0 > nbytes) {
         perror("Console read() error");
@@ -250,7 +252,7 @@ int dx_console_handler(dx_event_context_t* context) {
 
 		dx_event_mplexer_wakeup();
 
-		printf("\nBye..\n\n");
+		CONSOLE("\nBye..\n\n");
 
 		return 0;
 	}
@@ -264,7 +266,7 @@ int dx_console_handler(dx_event_context_t* context) {
 		dx_console_current_menu = copied; /* 핸들러를 실행한 후에는 바로 전 메뉴모드로 돌아감 */
 	} else if(dx_console_current_menu == copied && nbytes > 1) {
 		/* nbytes 크기가 1인 경우는 그냥 enter key만 누른 경우 이므로 제외한다. */
-		fprintf(stderr, "invalid command.\n");
+		ERROR("invalid command.");
 	}
 
    	dx_print_console_prompt(menus, dx_console_current_menu);

@@ -12,8 +12,6 @@
 
 #include "omnid.h"
 
-extern dx_buffer_t* dx_frame_buffer;
-
 int demo_playback_video_file = -1;
 dx_schedule_t* demo_playback_stream_schedule = NULL;
 
@@ -70,7 +68,7 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		demo_playback_buffer = NULL;
 	}
 
-	LOG("Playback Stream End.");
+	CONSOLE("Playback Stream End.");
 }
 
 void od_on_playback_start(int fd, dx_packet_t* packet) {
@@ -79,13 +77,13 @@ void od_on_playback_start(int fd, dx_packet_t* packet) {
 
 	/* 만약 현재 동작중인 스케쥴러가 있으면, 동작하지 않음 */
 	if(demo_playback_stream_schedule != NULL && demo_playback_stream_schedule->next_schedule != 0) {
-		fprintf(stderr, "이미 동작중인 스트리밍 스케쥴러가 있습니다.");
+		ERROR("이미 동작중인 스트리밍 스케쥴러가 있습니다.");
 		return;
 	}
 
 	if(demo_playback_video_file >= 0) {
 		close(demo_playback_video_file);
-		printf("현재 열려있는 비디오 파일을 닫았습니다.\n");
+		CONSOLE("현재 열려있는 비디오 파일을 닫았습니다.\n");
 		demo_playback_video_file = -1;
 	}
 

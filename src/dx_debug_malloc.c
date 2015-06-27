@@ -10,28 +10,28 @@
 // PARTICULAR PURPOSE.
 //
 
+#include <stddef.h>
 #include <stdint.h> // For uint8_t
 #include <stdlib.h> // For malloc, free, size_t
 #include <string.h> // For memset
 
-#include "dx_debug_assert.h"
-
+#include "dx_util_log.h"
 #include "dx_util_list.h"
 
 #define DX_MALLOC_WATERMARK "DXMAWTMR"
 #define DX_MALLOC_WATERMARK_SIZE 8
 
 typedef struct dx_malloc_head {
-  char watermark[DX_MALLOC_WATERMARK_SIZE];
-  char filename[48];
-  int line;
-  int size;
+	char watermark[DX_MALLOC_WATERMARK_SIZE];
+	char filename[48];
+	int line;
+	int size;
 } dx_malloc_head_t;
 
 typedef struct dx_malloc {
-  dx_malloc_head_t head;
-  uint8_t allocated[0];
-} __attribute__((__packed__)) dx_malloc_t;
+	dx_malloc_head_t head;
+	uint8_t allocated[0];
+}__attribute__((__packed__)) dx_malloc_t;
 
 #define DX_MALLOC_HEAD_SIZE (sizeof(dx_malloc_head_t))
 
@@ -54,7 +54,7 @@ dx_list_t __dx_alloc_list;
 int __dx_alloc_except_flag = 0;
 
 void dx_malloc_set_except_flag(int flag) {
-  __dx_alloc_except_flag = flag;
+	__dx_alloc_except_flag = flag;
 }
 
 /*
@@ -63,31 +63,31 @@ void dx_malloc_set_except_flag(int flag) {
  * 2. 메모리가 할당된 소스의 위치를 기록
  */
 void* dx_malloc(size_t sz, char* fname, int line) {
-  void* p;
-  dx_malloc_head_t* head;
+	void* p;
+	dx_malloc_head_t* head;
 
-  if(__dx_alloc_except_flag)
-    return malloc(sz);
+	if (__dx_alloc_except_flag)
+		return malloc(sz);
 
-  p = malloc(sz + DX_MALLOC_HEAD_SIZE);
-  head = (dx_malloc_head_t*)p;
+	p = malloc(sz + DX_MALLOC_HEAD_SIZE);
+	head = (dx_malloc_head_t*) p;
 
-  if(__dx_alloc_count == 0)
-    dx_list_init(&__dx_alloc_list, NULL, NULL);
+	if (__dx_alloc_count == 0)
+		dx_list_init(&__dx_alloc_list, NULL, NULL);
 
-  memset(head, 0, DX_MALLOC_HEAD_SIZE);
-  strncpy(head->watermark, DX_MALLOC_WATERMARK, DX_MALLOC_WATERMARK_SIZE);
-  strncpy(head->filename, fname, sizeof(head->filename));
-  head->line = line;
-  head->size = sz;
+	memset(head, 0, DX_MALLOC_HEAD_SIZE);
+	strncpy(head->watermark, DX_MALLOC_WATERMARK, DX_MALLOC_WATERMARK_SIZE);
+	strncpy(head->filename, fname, sizeof(head->filename));
+	head->line = line;
+	head->size = sz;
 
-  __dx_alloc_count++;
+	__dx_alloc_count++;
 
-  dx_malloc_set_except_flag(1);
-  dx_list_add(&__dx_alloc_list, p);
-  dx_malloc_set_except_flag(0);
+	dx_malloc_set_except_flag(1);
+	dx_list_add(&__dx_alloc_list, p);
+	dx_malloc_set_except_flag(0);
 
-  return (void*)&(((dx_malloc_t*)head)->allocated[0]);
+	return (void*) &(((dx_malloc_t*) head)->allocated[0]);
 }
 
 /*
@@ -97,34 +97,35 @@ void* dx_malloc(size_t sz, char* fname, int line) {
  *
  */
 void dx_free(void* p, char* filename, int line) {
-  if(__dx_alloc_except_flag) {
-    free(p);
-    return;
-  }
+	if (__dx_alloc_except_flag) {
+		free(p);
+		return;
+	}
 
-  dx_malloc_head_t* head = (dx_malloc_head_t*)(p - DX_MALLOC_HEAD_SIZE);
-  if(0 != memcmp(head->watermark, DX_MALLOC_WATERMARK, DX_MALLOC_WATERMARK_SIZE)) {
-    printf("[ASSERT FREE] allocated at %20s:%d(sized %d), freed at %s:%d", head->filename, head->line, head->size, filename, line);
-    exit(0);
-  }
+	dx_malloc_head_t* head = (dx_malloc_head_t*) (p - DX_MALLOC_HEAD_SIZE);
+	if (0 != memcmp(head->watermark, DX_MALLOC_WATERMARK,
+	DX_MALLOC_WATERMARK_SIZE)) {
+		CONSOLE("[ASSERT FREE] allocated at %20s:%d(sized %d), freed at %s:%d", head->filename, head->line, head->size, filename, line);
+		exit(0);
+	}
 
-  memset(head->watermark, 0x0, DX_MALLOC_WATERMARK_SIZE);
+	memset(head->watermark, 0x0, DX_MALLOC_WATERMARK_SIZE);
 
-  __dx_free_count++;
+	__dx_free_count++;
 
-  dx_malloc_set_except_flag(1);
-  dx_list_remove(&__dx_alloc_list, head);
-  dx_malloc_set_except_flag(0);
+	dx_malloc_set_except_flag(1);
+	dx_list_remove(&__dx_alloc_list, head);
+	dx_malloc_set_except_flag(0);
 
-  free(head);
+	free(head);
 }
 
 void dx_chkmem_callback(dx_malloc_head_t* p) {
-  printf("[MEM] allocated on %48s:%d(size %d)\n", p->filename, p->line, p->size);
+	CONSOLE("[MEM] allocated on %48s:%d(size %d)\n", p->filename, p->line, p->size);
 }
 
 void dx_chkmem() {
-  printf("[CHKMEM] %ld Allocated, %ld Freed. \n", __dx_alloc_count, __dx_free_count);
+	CONSOLE("[CHKMEM] %ld Allocated, %ld Freed. \n", __dx_alloc_count, __dx_free_count);
 
-  dx_list_iterator(&__dx_alloc_list, (dx_list_iterator_callback)dx_chkmem_callback);
+	dx_list_iterator(&__dx_alloc_list, (dx_list_iterator_callback) dx_chkmem_callback);
 }
