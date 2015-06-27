@@ -125,8 +125,13 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 
 int dx_write(int fd, const void* buf, ssize_t sz, int discardable) {
 	dx_event_context_t* pcontext = dx_get_event_context(fd);
-	dx_list_t* plist = pcontext->plist_writing;
+	dx_list_t* plist = NULL;
 	dx_buffer_t* pbuf = NULL;
+
+	if(pcontext == NULL)
+		return -1;
+
+	plist = pcontext->plist_writing;
 
 	if(discardable && dx_list_size(plist) > 3) {
 		return 0;

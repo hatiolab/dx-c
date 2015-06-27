@@ -25,16 +25,16 @@
 
 #include "dx_file_avi.h"
 
-typedef int (*dx_avi_scheme_handler)(int fd, AVI_CHUNK* chunk);
+typedef int (*dx_avi_scheme_handler)(int fd, dx_avi_chunk_t* chunk);
 typedef struct dx_avi_chunk_map {
 	char	type[4];
 	dx_avi_scheme_handler handler;
 } dx_avi_chunk_map_t;
 
-int dx_avi_riff_handler(int fd, AVI_CHUNK* chunk);
-int dx_avi_list_handler(int fd, AVI_CHUNK* chunk);
-int dx_avi_chunk_handler(int fd, AVI_CHUNK* chunk);
-int dx_avi_chunk_idx1_handler(int fd, AVI_CHUNK* chunk);
+int dx_avi_riff_handler(int fd, dx_avi_chunk_t* chunk);
+int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk);
+int dx_avi_chunk_handler(int fd, dx_avi_chunk_t* chunk);
+int dx_avi_chunk_idx1_handler(int fd, dx_avi_chunk_t* chunk);
 
 dx_avi_chunk_map_t dx_avi_chunk_handler_map[] = {
 	{ "RIFF", dx_avi_riff_handler },
@@ -49,7 +49,7 @@ dx_avi_chunk_map_t dx_avi_chunk_handler_map[] = {
 	{ "    ", NULL },
 };
 
-void dx_avi_chunk_print(AVI_CHUNK* chunk) {
+void dx_avi_chunk_print(dx_avi_chunk_t* chunk) {
 	char cc[5];
 	memset(cc, 0x0, 5);
 	memcpy(cc, chunk->cc, 4);
@@ -57,7 +57,7 @@ void dx_avi_chunk_print(AVI_CHUNK* chunk) {
 	printf("CHUNK %4s (%d bytes)\n", cc, chunk->size);
 }
 
-void dx_avi_list_print(AVI_LIST* list) {
+void dx_avi_list_print(dx_avi_list_t* list) {
 	char cc[5], type[5];
 	memset(cc, 0x0, 5);
 	memset(type, 0x0, 5);
@@ -78,18 +78,18 @@ void dx_avi_index_print(dx_avi_index_entry_t* index) {
 
 int dx_avi_info(char* path) {
 	int fd = open(path, O_RDONLY);
-	AVI_LIST list;
+	dx_avi_list_t list;
 
-	read(fd, &list, sizeof(AVI_LIST));
+	read(fd, &list, sizeof(dx_avi_list_t));
 
 	return 0;
 }
 
 int dx_avi_open(char* path) {
 	int fd = open(path, O_RDONLY);
-	AVI_LIST list;
+	dx_avi_list_t list;
 
-	read(fd, &list, sizeof(AVI_LIST));
+	read(fd, &list, sizeof(dx_avi_list_t));
 
 	ASSERT("AVI List Type should be RIFF\n", strncmp(list.type, "RIFF", 4) == 0)
 	ASSERT("AVI File Type should be AVI \n", strncmp(list.cc, "AVI ", 4) == 0)
@@ -98,7 +98,7 @@ int dx_avi_open(char* path) {
 	return fd;
 }
 
-int dx_avi_is_valid_chunk(AVI_CHUNK* chunk) {
+int dx_avi_is_valid_chunk(dx_avi_chunk_t* chunk) {
 	int i = 0;
 
 	while(dx_avi_chunk_handler_map[i].handler != NULL) {
@@ -110,10 +110,10 @@ int dx_avi_is_valid_chunk(AVI_CHUNK* chunk) {
 }
 
 int file_avi_read_chunk(int fd) {
-	AVI_CHUNK chunk;
+	dx_avi_chunk_t chunk;
 	int i = 0;
 
-	read(fd, &chunk, sizeof(AVI_CHUNK));
+	read(fd, &chunk, sizeof(dx_avi_chunk_t));
 
 	while(dx_avi_chunk_handler_map[i].handler != NULL) {
 		if(strncmp(chunk.cc, dx_avi_chunk_handler_map[i].type, 4) == 0) {
@@ -124,18 +124,18 @@ int file_avi_read_chunk(int fd) {
 	return -1;
 }
 
-int dx_avi_find_index_chunk(int fd, AVI_CHUNK* chunk) {
+int dx_avi_find_index_chunk(int fd, dx_avi_chunk_t* chunk) {
 	off_t offset;
 	int nread;
-	AVI_LIST top;
-	AVI_CHUNK tmp;
+	dx_avi_list_t top;
+	dx_avi_chunk_t tmp;
 
 	lseek(fd, 0, SEEK_SET);
-	read(fd, &top, sizeof(AVI_LIST));
-	offset = lseek(fd, sizeof(AVI_LIST), SEEK_SET);
+	read(fd, &top, sizeof(dx_avi_list_t));
+	offset = lseek(fd, sizeof(dx_avi_list_t), SEEK_SET);
 
 	while(offset < DX_AVI_LIST_SIZE(top.size)) {
-		nread = read(fd, &tmp, sizeof(AVI_CHUNK));
+		nread = read(fd, &tmp, sizeof(dx_avi_chunk_t));
 
 		if(strncmp(tmp.cc, "idx1", 4) == 0) {
 			*chunk = tmp;
@@ -151,18 +151,18 @@ int dx_avi_find_index_chunk(int fd, AVI_CHUNK* chunk) {
 	return -1;
 }
 
-int dx_avi_find_movie_list(int fd, AVI_LIST* list) {
+int dx_avi_find_movie_list(int fd, dx_avi_list_t* list) {
 	off_t offset;
 	int nread;
-	AVI_LIST top;
-	AVI_LIST tmp;
+	dx_avi_list_t top;
+	dx_avi_list_t tmp;
 
 	lseek(fd, 0, SEEK_SET);
-	read(fd, &top, sizeof(AVI_LIST));
-	offset = lseek(fd, sizeof(AVI_LIST), SEEK_SET);
+	read(fd, &top, sizeof(dx_avi_list_t));
+	offset = lseek(fd, sizeof(dx_avi_list_t), SEEK_SET);
 
 	while(offset < DX_AVI_LIST_SIZE(top.size)) {
-		nread = read(fd, &tmp, sizeof(AVI_LIST));
+		nread = read(fd, &tmp, sizeof(dx_avi_list_t));
 
 		if(strncmp(tmp.cc, "movi", 4) == 0) {
 			*list = tmp;
@@ -178,8 +178,8 @@ int dx_avi_find_movie_list(int fd, AVI_LIST* list) {
 	return -1;
 }
 
-int dx_avi_riff_handler(int fd, AVI_CHUNK* chunk) {
-	AVI_LIST list;
+int dx_avi_riff_handler(int fd, dx_avi_chunk_t* chunk) {
+	dx_avi_list_t list;
 
 	memcpy(list.type, chunk->cc, 4);
 	list.size = chunk->size;
@@ -190,8 +190,8 @@ int dx_avi_riff_handler(int fd, AVI_CHUNK* chunk) {
 	return DX_AVI_LIST_SIZE(chunk->size);
 }
 
-int dx_avi_list_handler(int fd, AVI_CHUNK* chunk) {
-	AVI_LIST list;
+int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk) {
+	dx_avi_list_t list;
 	int nread;
 	off_t pos;
 	off_t eof_pos;
@@ -217,13 +217,13 @@ int dx_avi_list_handler(int fd, AVI_CHUNK* chunk) {
 	return DX_AVI_LIST_SIZE(chunk->size);
 }
 
-int dx_avi_chunk_handler(int fd, AVI_CHUNK* chunk) {
+int dx_avi_chunk_handler(int fd, dx_avi_chunk_t* chunk) {
 	dx_avi_list_print(chunk);
 
 	return DX_AVI_CHUNK_SIZE(chunk->size);
 }
 
-int dx_avi_chunk_idx1_handler(int fd, AVI_CHUNK* chunk) {
+int dx_avi_chunk_idx1_handler(int fd, dx_avi_chunk_t* chunk) {
 	dx_avi_index_entry_t entry;
 	int i = 0;
 	off_t curpos;

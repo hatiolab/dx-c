@@ -35,6 +35,7 @@ void dx_packet_reset_flag(dx_packet_t* packet, int8_t mask) {
 int dx_packet_send_header(int fd, int type, int code) {
   dx_packet_t* packet;
   uint32_t  len;
+  int ret;
 
   len = DX_PACKET_HEADER_SIZE;
 
@@ -44,16 +45,17 @@ int dx_packet_send_header(int fd, int type, int code) {
   packet->header.code = code;
   packet->header.data_type = DX_DATA_TYPE_NONE;
 
-  dx_write(fd, packet, len, 0);
+  ret = dx_write(fd, packet, len, 0);
 
   FREE(packet);
 
-  return 0;
+  return ret;
 }
 
 int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t data) {
   dx_primitive_packet_t* packet;
   uint32_t  len;
+  int ret;
 
   len = DX_PRIMITIVE_PACKET_SIZE;
 
@@ -64,11 +66,11 @@ int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t dat
   packet->header.data_type = DX_DATA_TYPE_PRIMITIVE;
   packet->data = data;
 
-  dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE, 0);
+  ret = dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE, 0);
 
   FREE(packet);
 
-  return 0;
+  return ret;
 }
 
 int dx_packet_send_primitive_u8(int fd, int type, int code, uint8_t value) {
@@ -199,6 +201,7 @@ DECLARE_DX_PACKET_SEND_PRIMITIVE_F32(command, DX_PACKET_TYPE_COMMAND)
 int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datalen) {
   dx_u8_array_packet_t* packet;
   uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
+  int ret;
 
   packet = (dx_u8_array_packet_t*)MALLOC(len);
 
@@ -211,11 +214,11 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
   if(datalen)
     memcpy(&(packet->array.data), data, datalen);
 
-  dx_write(fd, packet, len, 0);
+  ret =dx_write(fd, packet, len, 0);
 
   FREE(packet);
 
-  return 0;
+  return ret;
 }
 
 int dx_packet_send_string(int fd, int type, int code, char* data) {
@@ -223,6 +226,7 @@ int dx_packet_send_string(int fd, int type, int code, char* data) {
   dx_u8_array_packet_t* packet;
   int datalen = strlen(data);
   uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
+  int ret;
 
   packet = (dx_u8_array_packet_t*)MALLOC(len);
 
@@ -235,16 +239,17 @@ int dx_packet_send_string(int fd, int type, int code, char* data) {
   if(datalen)
     memcpy(&(packet->array.data), data, datalen);
 
-  dx_write(fd, packet, len, 0);
+  ret = dx_write(fd, packet, len, 0);
 
   FREE(packet);
 
-  return 0;
+  return ret;
 }
 
 int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int datalen) {
   dx_stream_packet_t* packet;
   uint32_t len = DX_STREAM_PACKET_SIZE(datalen);
+  int ret;
 
   packet = (dx_stream_packet_t*)MALLOC(len);
 
@@ -259,9 +264,9 @@ int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int data
   if(datalen)
     memcpy(&(packet->data.data), data, datalen);
 
-  dx_write(fd, packet, len, 1 /* discardable */);
+  ret = dx_write(fd, packet, len, 1 /* discardable */);
 
   FREE(packet);
 
-  return 0;
+  return ret;
 }

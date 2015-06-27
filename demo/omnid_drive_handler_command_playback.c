@@ -18,10 +18,10 @@ dx_schedule_t* demo_playback_stream_schedule = NULL;
 int demo_playback_frame_idx = 0;
 
 off_t demo_playback_video_movie_offset = -1;
-AVI_LIST demo_playback_video_movie_list;
+dx_avi_list_t demo_playback_video_movie_list;
 
 off_t demo_playback_video_index_offset = -1;
-AVI_CHUNK demo_playback_video_index_chunk;
+dx_avi_chunk_t demo_playback_video_index_chunk;
 
 int8_t* demo_playback_buffer = NULL;
 
@@ -37,7 +37,7 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		seek_pos = lseek(demo_playback_video_file, seek_pos, SEEK_SET);
 
 		read(demo_playback_video_file, &entry, sizeof(entry));
-		if(strncmp("00dc", (char*)&entry.ckid, 4) != 0) {
+		if(strncmp("01dc", (char*)&entry.ckid, 4) != 0) {
 			demo_playback_frame_idx++;
 			continue;
 		}
@@ -54,7 +54,10 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		lseek(demo_playback_video_file, demo_playback_video_movie_offset + entry.offset, SEEK_SET);
 		read(demo_playback_video_file, demo_playback_buffer, entry.length);
 
-		dx_packet_send_stream((int)sender_fd, DX_STREAM_PLAYBACK, 0 /* enctype */, demo_playback_buffer, entry.length);
+		if(-1 == dx_packet_send_stream((int)sender_fd, DX_STREAM_PLAYBACK, 0 /* enctype */, demo_playback_buffer, entry.length)) {
+			/* Network Error */
+			break;
+		}
 
 		demo_playback_frame_idx++;
 		return;
@@ -93,10 +96,10 @@ void od_on_playback_start(int fd, dx_packet_t* packet) {
 	demo_playback_video_file = dx_avi_open(path);
 
 	demo_playback_video_movie_offset = dx_avi_find_movie_list(demo_playback_video_file, &demo_playback_video_movie_list);
-	demo_playback_video_movie_offset += sizeof(AVI_LIST);
+	demo_playback_video_movie_offset += sizeof(dx_avi_list_t);
 
 	demo_playback_video_index_offset = dx_avi_find_index_chunk(demo_playback_video_file, &demo_playback_video_index_chunk);
-	demo_playback_video_index_offset += sizeof(AVI_CHUNK);
+	demo_playback_video_index_offset += sizeof(dx_avi_chunk_t);
 
 	/* 새로운 스트리밍 스케쥴러를 등록하고, 바로 시작합니다. */
 	demo_playback_stream_schedule = dx_schedule_register(0, 1000/30 /* 30 frames */, 1, demo_playback_schedule_callback, (void*)fd);

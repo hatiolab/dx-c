@@ -17,14 +17,14 @@ typedef struct {
 	char		cc[4];
 	uint32_t	size;
 	int8_t		data[0];
-} AVI_CHUNK;
+} dx_avi_chunk_t;
 
 typedef struct {
 	char		type[4];
 	uint32_t	size;
 	char		cc[4];
 	int8_t		data[0];
-} AVI_LIST;
+} dx_avi_list_t;
 
 typedef struct {
 	uint32_t	ckid; /* chunk id */
@@ -33,17 +33,17 @@ typedef struct {
 	uint32_t	length;
 } dx_avi_index_entry_t;
 
-#define DX_AVI_CHUNK_SIZE(sz) (sizeof(AVI_CHUNK) + sz)
-#define DX_AVI_LIST_SIZE(sz) (sizeof(AVI_LIST) + sz - 4)
+#define DX_AVI_CHUNK_SIZE(sz) (sizeof(dx_avi_chunk_t) + sz)
+#define DX_AVI_LIST_SIZE(sz) (sizeof(dx_avi_list_t) + sz - 4)
 
 int dx_avi_info(char* path);
 int dx_avi_open(char* path);
-int dx_avi_is_valid_chunk(AVI_CHUNK* chunk);
-int dx_avi_find_index_chunk(int fd, AVI_CHUNK* chunk);
-int dx_avi_chunk_idx1_handler(int fd, AVI_CHUNK* chunk);
+int dx_avi_is_valid_chunk(dx_avi_chunk_t* chunk);
+int dx_avi_find_index_chunk(int fd, dx_avi_chunk_t* chunk);
+int dx_avi_chunk_idx1_handler(int fd, dx_avi_chunk_t* chunk);
 
-void dx_avi_chunk_print(AVI_CHUNK* chunk);
-void dx_avi_list_print(AVI_LIST* list);
+void dx_avi_chunk_print(dx_avi_chunk_t* chunk);
+void dx_avi_list_print(dx_avi_list_t* list);
 void dx_avi_index_print(dx_avi_index_entry_t* index);
 
 #endif /* __DX_FILE_AVI_H */
