@@ -152,6 +152,33 @@ int dx_avi_find_index_chunk(int fd, AVI_CHUNK* chunk) {
 	return -1;
 }
 
+int dx_avi_find_movie_list(int fd, AVI_LIST* list) {
+	off_t offset;
+	int i = 0;
+	int nread;
+	AVI_LIST top;
+	AVI_LIST tmp;
+
+	lseek(fd, 0, SEEK_SET);
+	read(fd, &top, sizeof(AVI_LIST));
+	offset = lseek(fd, sizeof(AVI_LIST), SEEK_SET);
+
+	while(offset < DX_AVI_LIST_SIZE(top.size)) {
+		nread = read(fd, &tmp, sizeof(AVI_LIST));
+
+		if(strncmp(tmp.cc, "movi", 4) == 0) {
+			*list = tmp;
+			return offset;
+		}
+		if(dx_avi_is_valid_chunk(&tmp) < -1)
+			return -1;
+
+		offset += DX_AVI_CHUNK_SIZE(tmp.size);
+		offset = lseek(fd, offset, SEEK_SET);
+	}
+
+	return -1;
+}
 
 int dx_avi_riff_handler(int fd, AVI_CHUNK* chunk) {
 	AVI_LIST list;

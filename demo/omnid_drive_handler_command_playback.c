@@ -18,8 +18,13 @@ int demo_playback_video_file = -1;
 dx_schedule_t* demo_playback_stream_schedule = NULL;
 
 int demo_playback_frame_idx = 0;
+
+off_t demo_playback_video_movie_offset = -1;
+AVI_LIST demo_playback_video_movie_list;
+
 off_t demo_playback_video_index_offset = -1;
 AVI_CHUNK demo_playback_video_index_chunk;
+
 int8_t* demo_playback_buffer = NULL;
 
 void demo_playback_schedule_callback(void* sender_fd) {
@@ -48,7 +53,7 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		if(demo_playback_buffer == NULL)
 			demo_playback_buffer = MALLOC(3 * 1024 * 1024);
 
-		lseek(demo_playback_video_file, entry.offset, SEEK_SET);
+		lseek(demo_playback_video_file, demo_playback_video_movie_offset + entry.offset, SEEK_SET);
 		read(demo_playback_video_file, demo_playback_buffer, entry.length);
 
 		dx_packet_send_stream((int)sender_fd, DX_STREAM_PLAYBACK, 0 /* enctype */, demo_playback_buffer, entry.length);
@@ -88,6 +93,9 @@ void od_on_playback_start(int fd, dx_packet_t* packet) {
 	memcpy(path, strpacket->array.data, ntohl(strpacket->array.len));
 
 	demo_playback_video_file = dx_avi_open(path);
+
+	demo_playback_video_movie_offset = dx_avi_find_movie_list(demo_playback_video_file, &demo_playback_video_movie_list);
+	demo_playback_video_movie_offset += sizeof(AVI_LIST);
 
 	demo_playback_video_index_offset = dx_avi_find_index_chunk(demo_playback_video_file, &demo_playback_video_index_chunk);
 	demo_playback_video_index_offset += sizeof(AVI_CHUNK);
