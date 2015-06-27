@@ -24,6 +24,14 @@
 
 #include "dx_net_packet_io.h"
 
+void dx_packet_set_flag(dx_packet_t* packet, int8_t mask) {
+	packet->header.flags |= mask;
+}
+
+void dx_packet_reset_flag(dx_packet_t* packet, int8_t mask) {
+	packet->header.flags &= ~mask;
+}
+
 int dx_packet_send_header(int fd, int type, int code) {
   dx_packet_t* packet;
   uint32_t  len;
@@ -36,7 +44,7 @@ int dx_packet_send_header(int fd, int type, int code) {
   packet->header.code = code;
   packet->header.data_type = DX_DATA_TYPE_NONE;
 
-  dx_write(fd, packet, len);
+  dx_write(fd, packet, len, 0);
 
   FREE(packet);
 
@@ -56,7 +64,7 @@ int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t dat
   packet->header.data_type = DX_DATA_TYPE_PRIMITIVE;
   packet->data = data;
 
-  dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE);
+  dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE, 0);
 
   FREE(packet);
 
@@ -203,7 +211,7 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
   if(datalen)
     memcpy(&(packet->array.data), data, datalen);
 
-  dx_write(fd, packet, len);
+  dx_write(fd, packet, len, 0);
 
   FREE(packet);
 
@@ -227,7 +235,7 @@ int dx_packet_send_string(int fd, int type, int code, char* data) {
   if(datalen)
     memcpy(&(packet->array.data), data, datalen);
 
-  dx_write(fd, packet, len);
+  dx_write(fd, packet, len, 0);
 
   FREE(packet);
 
@@ -246,11 +254,12 @@ int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int data
   packet->header.data_type = DX_DATA_TYPE_STREAM;
   packet->data.type = htonl(enctype);
   packet->data.len = htonl(datalen);
+  packet->header.flags = DX_PACKET_FLAG_DISCARDABLE;
 
   if(datalen)
     memcpy(&(packet->data.data), data, datalen);
 
-  dx_write(fd, packet, len);
+  dx_write(fd, packet, len, 1 /* discardable */);
 
   FREE(packet);
 

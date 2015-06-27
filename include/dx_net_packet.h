@@ -21,6 +21,8 @@
  * Definitions
  */
 
+#define DX_PACKET_FLAG_DISCARDABLE 0x01
+
 /* Packet Types For UDP(Datagram) */
 
 #define DX_PACKET_TYPE_DISCOVERY		0		/* Discovery */
@@ -127,7 +129,7 @@ typedef struct dx_packet_header {
     uint8_t    type;		/* Packet Type */
     uint8_t    code;		/* Code in Packet Type */
     uint8_t    data_type;	/* Type of Following Data Part */
-    uint8_t    reserved;
+    uint8_t    flags;		/* Several control flags for the packet */
 } __attribute__((__packed__)) dx_packet_header_t;
 
 #define DX_PACKET_HEADER_SIZE	8
@@ -212,6 +214,9 @@ typedef struct dx_stream_packet {
 #define DX_STREAM_PACKET_SIZE(n) (16+(n))
 
 /* Functions */
+
+void dx_packet_set_flag(dx_packet_t* packet, int8_t mask);
+void dx_packet_reset_flag(dx_packet_t* packet, int8_t mask);
 
 int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t data);
 

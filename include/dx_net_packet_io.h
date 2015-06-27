@@ -22,7 +22,7 @@
 
 /* APIs */
 
-int dx_write(int fd, const void* buf, ssize_t sz);
+int dx_write(int fd, const void* buf, ssize_t sz, int discardable);
 
 int dx_read_with_block_mode(int fd, void* buf, ssize_t sz);
 int dx_write_by_poller(dx_event_context_t* pcontext);
