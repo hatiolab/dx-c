@@ -120,7 +120,10 @@ void dx_scheduler_do() {
 	dx_list_iterator(__dx_schedule_list, dx_scheduler_cancel_callback, &cancel_list);
 
 	/* 스케쥴이 끝난 태스크들을 제거한다. - concurrency 문제 때문에, 이렇게 수행한다. */
-	dx_list_iterator(&cancel_list, dx_scheduler_cancel_callback, &cancel_list);
+	dx_list_iterator(&cancel_list, dx_scheduler_delete_callback, &cancel_list);
+
+	/* 취소된 스케쥴 리스트를 모두 삭제한다. */
+	dx_list_clear(&cancel_list);
 }
 
 dx_schedule_t* dx_schedule_register(long initial_interval, long interval,
