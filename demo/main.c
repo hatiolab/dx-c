@@ -29,7 +29,7 @@ dx_console_menu_t demo_console_menus[]  = {
 		{32, "repeat-hb", "[duration]", "send heartbeat to server repeatedly",  demo_client_repeat_hb_handler},
 		{33, "event", "", "send some events to server",  demo_client_event_send_handler},
 		{34, "file", "", "send a file to server",  demo_client_file_handler},
-		{35, "pbstart", "", "send a playback start command to server",  demo_client_playback_start_handler},
+		{35, "pbstart", "[filepath]", "send a playback start command to server",  demo_client_playback_start_handler},
 		{35, "pbstop", "", "send a playback stop command to server",  demo_client_playback_stop_handler},
 		{36, "stop", "", "stop client",  demo_client_stop_handler},
 	{4, "video", "", "do something about video/camera ..", NULL},

@@ -13,6 +13,7 @@
 #include "dx_debug_assert.h"
 
 #include "dx_util_schedule.h"
+#include "dx_util_log.h"
 
 #include "dx_file_avi.h"
 

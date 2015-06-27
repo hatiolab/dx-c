@@ -211,7 +211,7 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
 }
 
 int dx_packet_send_string(int fd, int type, int code, char* data) {
-  return dx_packet_send_array_u8(fd, type, code, (uint8_t*)data, strlen(data));
+
   dx_u8_array_packet_t* packet;
   int datalen = strlen(data);
   uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);

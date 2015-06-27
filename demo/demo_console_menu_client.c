@@ -33,6 +33,7 @@ void demo_client_repeat_hb_handler(char* cmdline) {
 
 	if(cmdline != NULL && strlen(cmdline) > 0)
 		duration = atoi(strtok(cmdline, " \t\n\f"));
+
 	if(duration < 1000)
 		duration = 5000;
 
@@ -48,11 +49,17 @@ void demo_client_event_send_handler(char* cmdline){}
 void demo_client_file_handler(char* cmdline){}
 
 void demo_client_playback_start_handler(char* cmdline) {
+	char* path = NULL;
+
 	if(demo_client < 0){
 		fprintf(stderr, "Demo Client is not started..\n");
 		return;
 	}
-	dx_packet_send_command_u32(demo_client, OD_CMD_START_PLAYBACK, 0);
+
+	if(cmdline != NULL && strlen(cmdline) > 0)
+		path = strtok(cmdline, " \t\n\f");
+
+	dx_packet_send_string(demo_client, DX_PACKET_TYPE_COMMAND, OD_CMD_START_PLAYBACK, path);
 }
 
 void demo_client_playback_stop_handler(char* cmdline) {

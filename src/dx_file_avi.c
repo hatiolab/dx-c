@@ -21,6 +21,8 @@
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
+#include "dx_util_log.h"
+
 #include "dx_file_avi.h"
 
 typedef int (*dx_avi_scheme_handler)(int fd, AVI_CHUNK* chunk);
@@ -63,7 +65,7 @@ void dx_avi_list_print(AVI_LIST* list) {
 	memcpy(cc, list->cc, 4);
 	memcpy(type, list->type, 4);
 
-	printf("%4s %4s (%ld bytes)\n", type, cc, list->size);
+	LOG("%4s %4s (%ld bytes)", type, cc, list->size);
 }
 
 void dx_avi_index_print(dx_avi_index_entry_t* index) {
@@ -71,7 +73,7 @@ void dx_avi_index_print(dx_avi_index_entry_t* index) {
 	memset(ckid, 0x0, 5);
 	memcpy(ckid, (char*)&index->ckid, 4);
 
-	printf("INDEX %4s (%ld bytes from %ld)\n", ckid, index->length, index->offset);
+	LOG("INDEX %4s (%ld bytes from %ld)", ckid, index->length, index->offset);
 }
 
 int dx_avi_info(char* path) {

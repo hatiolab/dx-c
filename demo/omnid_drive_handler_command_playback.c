@@ -39,7 +39,7 @@ void demo_playback_schedule_callback(void* sender_fd) {
 			continue;
 		}
 
-		printf("%05d - ", demo_playback_frame_idx);
+		LOG("%05d - ", demo_playback_frame_idx);
 		dx_avi_index_print(&entry);
 
 		/*
@@ -64,9 +64,14 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		FREE(demo_playback_buffer);
 		demo_playback_buffer = NULL;
 	}
+
+	LOG("Playback Stream End.");
 }
 
-void od_on_playback_start(int fd) {
+void od_on_playback_start(int fd, dx_packet_t* packet) {
+	dx_u8_array_packet_t* strpacket = (dx_u8_array_packet_t*)packet;
+	char path[256] = { NULL };
+
 	/* 만약 현재 동작중인 스케쥴러가 있으면, 동작하지 않음 */
 	if(demo_playback_stream_schedule != NULL && demo_playback_stream_schedule->next_schedule != 0) {
 		fprintf(stderr, "이미 동작중인 스트리밍 스케쥴러가 있습니다.");
@@ -79,13 +84,10 @@ void od_on_playback_start(int fd) {
 		demo_playback_video_file = -1;
 	}
 
-//	demo_playback_video_file = dx_h264_open("/home/in/1.avi");
-//	if(demo_playback_video_file == -1) {
-//		perror("비디오파일 열기를 실패하였습니다.");
-//		return;
-//	}
+	bzero(path, 256);
+	memcpy(path, strpacket->array.data, ntohl(strpacket->array.len));
 
-	demo_playback_video_file = dx_avi_open("/home/heartyoh/1.avi");
+	demo_playback_video_file = dx_avi_open(path);
 
 	demo_playback_video_index_offset = dx_avi_find_index_chunk(demo_playback_video_file, &demo_playback_video_index_chunk);
 	demo_playback_video_index_offset += sizeof(AVI_CHUNK);

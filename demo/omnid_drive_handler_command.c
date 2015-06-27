@@ -11,7 +11,7 @@
 //
 #include "omnid.h"
 
-void od_on_playback_start(int fd);
+void od_on_playback_start(int fd, dx_packet_t* packet);
 void od_on_playback_stop(int fd);
 
 int od_drive_handler_command(int fd, dx_packet_t* packet) {
@@ -25,7 +25,7 @@ int od_drive_handler_command(int fd, dx_packet_t* packet) {
         break;
 
     case OD_CMD_START_PLAYBACK :   /* 플레이백 스트림 시작 명령 */
-    	od_on_playback_start(fd);
+    	od_on_playback_start(fd, packet);
     	break;
 
     case OD_CMD_STOP_PLAYBACK  :   /* 플레이백 스트림 종료 명령 */
