@@ -52,6 +52,6 @@ int od_host_handler_stream_playback(int fd, dx_packet_t* packet) {
 		demo_stream_last_received_time = now;
 	}
 
-	printf("Stream Received : %d, framerate %d, size (%d).\n", demo_stream_frames_received, framerate, htonl(stream->data.len));
+	LOG("Stream Received : %d, framerate %d, size (%d).", demo_stream_frames_received, framerate, htonl(stream->data.len));
 }
 
