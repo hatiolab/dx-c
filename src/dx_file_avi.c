@@ -116,18 +116,18 @@ int dx_avi_info(char* path) {
 	return 0;
 }
 
-int dx_avi_open(char* path) {
-	int fd = open(path, O_RDONLY);
-	dx_avi_list_t list;
-
-	read(fd, &list, sizeof(dx_avi_list_t));
-
-	ASSERT("AVI List Type should be RIFF\n", strncmp(list.type, "RIFF", 4) == 0)
-	ASSERT("AVI File Type should be AVI \n", strncmp(list.cc, "AVI ", 4) == 0)
-	CONSOLE("Size of RIFF : %d\n\n", list.size);
-
-	return fd;
-}
+//int dx_avi_open(char* path) {
+//	int fd = open(path, O_RDONLY);
+//	dx_avi_list_t list;
+//
+//	read(fd, &list, sizeof(dx_avi_list_t));
+//
+//	ASSERT("AVI List Type should be RIFF\n", strncmp(list.type, "RIFF", 4) == 0)
+//	ASSERT("AVI File Type should be AVI \n", strncmp(list.cc, "AVI ", 4) == 0)
+//	CONSOLE("Size of RIFF : %d\n\n", list.size);
+//
+//	return fd;
+//}
 
 int file_avi_read_chunk(int fd, dx_avi_chunk_map_t* map, void* clojure) {
 	dx_avi_chunk_t chunk;
@@ -295,24 +295,27 @@ int dx_avi_chunk_idx1_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t*
 	dx_avi_index_entry_t entry;
 	dx_movie_context_t** pcontext = (dx_movie_context_t**)clojure;
 	int i = 0;
-	int framecount = 0;
+	int frame_count = 0;
+	int total_fragment = 0;
 	char base_chunk_name[4];
 
 	(*pcontext)->index_offset = lseek(fd, 0, SEEK_CUR); /* chunk(idx1)->data의 오프셋임 */
 
 	memcpy(base_chunk_name, (*pcontext)->track_info[0].id, 4);
 
-	while(sizeof(dx_avi_index_entry_t) * i < chunk->size) {
+	total_fragment = chunk->size / sizeof(dx_avi_index_entry_t);
+
+	for(i = 0;i < total_fragment;i++) {
 		read(fd, &entry, sizeof(dx_avi_index_entry_t));
 		LOG("Index [%d] %.4s %d %d %d", i, entry.ckid, entry.flags, entry.offset, entry.length);
-		i++;
 
 		if(strncmp(base_chunk_name, entry.ckid, 2) == 0)
-			framecount++;
+			frame_count++;
 	}
 
-	(*pcontext)->total_frame = framecount;
-	(*pcontext)->playtime = framecount / (1000000 / (*pcontext)->framerate);
+	(*pcontext)->total_fragment = total_fragment;
+	(*pcontext)->total_frame = frame_count;
+	(*pcontext)->playtime = frame_count / (1000000 / (*pcontext)->framerate);
 
 	dx_avi_chunk_print(chunk);
 

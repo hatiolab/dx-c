@@ -30,6 +30,7 @@ struct dx_movie_track_info {
 struct dx_movie_context {
 	int		fd;
 	int		total_frame;
+	int		total_fragment;
 	int		framerate;
 	int		playtime; /* seconds */
 	off_t	header_offset;

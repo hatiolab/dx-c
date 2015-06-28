@@ -28,6 +28,8 @@ void file_avi_test(char* path, dx_movie_context_t* movie) {
 
 	context = dx_avi_parse_scheme(fd);
 
+	ASSERT("AVI파일 Parsing에 실패했다.", context != NULL);
+
 	CONSOLE("\nFrame Rate : %d\n", context->framerate);
 	CONSOLE("Total Frames : %d\n", context->total_frame);
 	CONSOLE("Play Time : %d\n", context->playtime);
@@ -43,8 +45,6 @@ void file_avi_test(char* path, dx_movie_context_t* movie) {
 		dx_movie_track_info_t* info = context->track_info + i;
 		CONSOLE("  Track %.4s : type - %.4s, Handler - %.4s, Rate : %d\n", info->id, info->type, info->handler, info->framerate);
 	}
-
-	ASSERT("AVI파일 Parsing에 실패했다.", context != NULL);
 
 	index = dx_avi_find_index_by_frame_no(context, context->total_frame);
 

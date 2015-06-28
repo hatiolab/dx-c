@@ -43,7 +43,7 @@ int od_host_handler_stream_playback(int fd, dx_packet_t* packet) {
 		/* reset all */
 		demo_stream_first_received_time = now;
 		demo_stream_last_received_time = now;
-		demo_stream_frames_received++;
+		demo_stream_frames_received = 1;
 	} else {
 		demo_stream_frames_received++;
 		/* 스트리밍 구간의 평균 프레임레이트를 계산함 */
