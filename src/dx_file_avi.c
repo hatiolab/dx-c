@@ -23,57 +23,88 @@
 
 #include "dx_util_log.h"
 
+#include "dx_file_movie.h"
 #include "dx_file_avi.h"
 
-typedef int (*dx_avi_scheme_handler)(int fd, dx_avi_chunk_t* chunk);
-typedef struct dx_avi_chunk_map {
+typedef struct dx_avi_chunk_map dx_avi_chunk_map_t;
+typedef int (*dx_avi_scheme_handler)(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure);
+
+struct dx_avi_chunk_map {
 	char	type[4];
 	dx_avi_scheme_handler handler;
-} dx_avi_chunk_map_t;
+};
 
-int dx_avi_riff_handler(int fd, dx_avi_chunk_t* chunk);
-int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk);
-int dx_avi_chunk_handler(int fd, dx_avi_chunk_t* chunk);
-int dx_avi_chunk_idx1_handler(int fd, dx_avi_chunk_t* chunk);
+int dx_avi_traverse_chunk_tree(int fd, dx_avi_chunk_map_t* map, void* clojure) {
+	dx_avi_chunk_t chunk;
+	int i = 0;
 
-dx_avi_chunk_map_t dx_avi_chunk_handler_map[] = {
-	{ "RIFF", dx_avi_riff_handler },
+	read(fd, &chunk, sizeof(dx_avi_chunk_t));
+
+	while(map[i].handler != NULL) {
+		if(strncmp(chunk.cc, map[i].type, 4) == 0) {
+			return map[i].handler(fd, &chunk, map, clojure);
+		}
+		i++;
+	}
+	return -1;
+}
+
+/*
+ * AVI movie internal list/chunk structure traverse handlers..
+ */
+int dx_avi_riff_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure);
+int dx_avi_chunk_avih_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure);
+int dx_avi_chunk_strh_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure);
+int dx_avi_chunk_strn_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure);
+int dx_avi_chunk_idx1_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure);
+
+int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure);
+int dx_avi_chunk_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure);
+
+dx_avi_chunk_map_t dx_avi_scheme_parser_map[] = {
+	{ "RIFF", dx_avi_list_handler },
 	{ "LIST", dx_avi_list_handler },
 	{ "JUNK", dx_avi_chunk_handler },
-	{ "avih", dx_avi_chunk_handler },
+	{ "avih", dx_avi_chunk_avih_handler },
 	{ "indx", dx_avi_chunk_handler },
-	{ "strh", dx_avi_chunk_handler },
+	{ "strh", dx_avi_chunk_strh_handler },
 	{ "strf", dx_avi_chunk_handler },
+//	{ "strn", dx_avi_chunk_strn_handler }, /* 샘플파일에서 이 청크를 찾을 수 없었음. */
 	{ "strn", dx_avi_chunk_handler },
 	{ "idx1", dx_avi_chunk_idx1_handler },
+//	{ "00dc", dx_avi_chunk_handler },
+//	{ "01dc", dx_avi_chunk_handler },
+//	{ "02wb", dx_avi_chunk_handler },
+//	{ "03st", dx_avi_chunk_handler },
+//	{ "04st", dx_avi_chunk_handler },
 	{ "    ", NULL },
 };
 
-void dx_avi_chunk_print(dx_avi_chunk_t* chunk) {
-	char cc[5];
-	memset(cc, 0x0, 5);
-	memcpy(cc, chunk->cc, 4);
+dx_movie_context_t* dx_avi_parse_scheme(int fd) {
+	dx_movie_context_t* context;
 
-	printf("CHUNK %4s (%d bytes)\n", cc, chunk->size);
+	/* 동영상 파일의 맨 처음으로 이동 */
+	lseek(fd, 0, SEEK_SET);
+
+	/* AVI파일의 CHUNK트리를 traverse하면서 context에 값을 채운다 */
+	if(-1 == dx_avi_traverse_chunk_tree(fd, dx_avi_scheme_parser_map, &context)) {
+		ERROR("Parsing AVI movie file failed.");
+		return NULL;
+	}
+
+	return context;
+}
+
+void dx_avi_chunk_print(dx_avi_chunk_t* chunk) {
+	CONSOLE("CHUNK %-6.4s (%d bytes)\n", chunk->cc, chunk->size);
 }
 
 void dx_avi_list_print(dx_avi_list_t* list) {
-	char cc[5], type[5];
-	memset(cc, 0x0, 5);
-	memset(type, 0x0, 5);
-
-	memcpy(cc, list->cc, 4);
-	memcpy(type, list->type, 4);
-
-	LOG("%4s %4s (%d bytes)", type, cc, list->size);
+	CONSOLE("%-6.4s %-6.4s(%d bytes)\n", list->type, list->cc, list->size);
 }
 
 void dx_avi_index_print(dx_avi_index_entry_t* index) {
-	char ckid[5];
-	memset(ckid, 0x0, 5);
-	memcpy(ckid, (char*)&index->ckid, 4);
-
-	LOG("INDEX %4s (%d bytes from %d)", ckid, index->length, index->offset);
+	CONSOLE("INDEX %-6.4s (%d bytes from %d)\n", index->ckid, index->length, index->offset);
 }
 
 int dx_avi_info(char* path) {
@@ -93,92 +124,58 @@ int dx_avi_open(char* path) {
 
 	ASSERT("AVI List Type should be RIFF\n", strncmp(list.type, "RIFF", 4) == 0)
 	ASSERT("AVI File Type should be AVI \n", strncmp(list.cc, "AVI ", 4) == 0)
-	printf("Size of RIFF : %d\n\n", list.size);
+	CONSOLE("Size of RIFF : %d\n\n", list.size);
 
 	return fd;
 }
 
-int dx_avi_is_valid_chunk(dx_avi_chunk_t* chunk) {
-	int i = 0;
-
-	while(dx_avi_chunk_handler_map[i].handler != NULL) {
-		if(strncmp(chunk->cc, dx_avi_chunk_handler_map[i].type, 4) == 0)
-			return i;
-		i++;
-	}
-	return -1;
-}
-
-int file_avi_read_chunk(int fd) {
+int file_avi_read_chunk(int fd, dx_avi_chunk_map_t* map, void* clojure) {
 	dx_avi_chunk_t chunk;
 	int i = 0;
 
 	read(fd, &chunk, sizeof(dx_avi_chunk_t));
 
-	while(dx_avi_chunk_handler_map[i].handler != NULL) {
-		if(strncmp(chunk.cc, dx_avi_chunk_handler_map[i].type, 4) == 0) {
-			return dx_avi_chunk_handler_map[i].handler(fd, &chunk);
+	while(map[i].handler != NULL) {
+		if(strncmp(chunk.cc, map[i].type, 4) == 0) {
+			return map[i].handler(fd, &chunk, map, clojure);
 		}
 		i++;
 	}
 	return -1;
 }
 
-int dx_avi_find_index_chunk(int fd, dx_avi_chunk_t* chunk) {
-	off_t offset;
-	int nread;
-	dx_avi_list_t top;
-	dx_avi_chunk_t tmp;
+/*
+ * 프레임번호로 프레임을 찾는 방법은 두가지가 있다.
+ * 1. 인덱스(idx1)청크에서 찾는 방법.
+ * 2. 무비 리스트(movi)에서 직접 찾는 방법.
+ *
+ * 여기에서는 인덱스 청크에서 찾는 방법을 제공한다.
+ * 찾는 방법 -
+ * 찾고자 하는 프레임 번호를 n이라고 하면,
+ * 0번째 인덱스 청크부터 순차적으로 뒤져가면서, 트랙이름이 "00"으로 시작하는 n번째의 청크의 인덱스를 반환한다.
+ */
 
-	lseek(fd, 0, SEEK_SET);
-	read(fd, &top, sizeof(dx_avi_list_t));
-	offset = lseek(fd, sizeof(dx_avi_list_t), SEEK_SET);
+int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe) {
+	int i = 0;
+	int found_frame = 0;
+	char track_name[4];
 
-	while(offset < DX_AVI_LIST_SIZE(top.size)) {
-		nread = read(fd, &tmp, sizeof(dx_avi_chunk_t));
-
-		if(strncmp(tmp.cc, "idx1", 4) == 0) {
-			*chunk = tmp;
-			return offset;
-		}
-		if(dx_avi_is_valid_chunk(&tmp) < -1)
-			return -1;
-
-		offset += DX_AVI_CHUNK_SIZE(tmp.size);
-		offset = lseek(fd, offset, SEEK_SET);
+	for(i = 0;found_frame < context->total_frame;i++) {
+		lseek(context->fd, context->index_offset + (i * sizeof(dx_avi_index_entry_t)), SEEK_SET);
+		read(context->fd, track_name, 4);
+		if(memcmp(track_name, "00", 2) == 0 && nframe == ++found_frame)
+			return i;
 	}
 
 	return -1;
 }
 
-int dx_avi_find_movie_list(int fd, dx_avi_list_t* list) {
-	off_t offset;
-	int nread;
-	dx_avi_list_t top;
-	dx_avi_list_t tmp;
+/*
+ * AVI File List/Chunk Traverse handlers
+ *
+ */
 
-	lseek(fd, 0, SEEK_SET);
-	read(fd, &top, sizeof(dx_avi_list_t));
-	offset = lseek(fd, sizeof(dx_avi_list_t), SEEK_SET);
-
-	while(offset < DX_AVI_LIST_SIZE(top.size)) {
-		nread = read(fd, &tmp, sizeof(dx_avi_list_t));
-
-		if(strncmp(tmp.cc, "movi", 4) == 0) {
-			*list = tmp;
-			return offset;
-		}
-		if(dx_avi_is_valid_chunk(&tmp) < -1)
-			return -1;
-
-		offset += DX_AVI_CHUNK_SIZE(tmp.size);
-		offset = lseek(fd, offset, SEEK_SET);
-	}
-
-	return -1;
-}
-
-int dx_avi_riff_handler(int fd, dx_avi_chunk_t* chunk) {
+int dx_avi_riff_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure) {
 	dx_avi_list_t list;
 
 	memcpy(list.type, chunk->cc, 4);
@@ -190,7 +187,139 @@ int dx_avi_riff_handler(int fd, dx_avi_chunk_t* chunk) {
 	return DX_AVI_LIST_SIZE(chunk->size);
 }
 
-int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk) {
+int dx_avi_chunk_avih_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure) {
+	dx_avi_main_header_t header;
+	dx_movie_context_t* context = clojure;
+	off_t offset;
+
+	offset = lseek(fd, 0, SEEK_CUR);
+
+	read(fd, &header, sizeof(header));
+
+	context = (dx_movie_context_t*)MALLOC(DX_MOVIE_CONTEXT_SIZE(header.streams));
+	memset(context, 0x0, DX_MOVIE_CONTEXT_SIZE(header.streams));
+
+	context->fd = fd;
+	context->framerate = header.framerate;
+	context->track_count = header.streams;
+	context->width = header.width;
+	context->height = header.height;
+
+	*((dx_movie_context_t**)clojure) = context;
+	context->header_offset = offset; /* chunk->data의 오프셋임 */
+
+	return DX_AVI_CHUNK_SIZE(chunk->size);
+}
+
+int dx_avi_chunk_strh_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure) {
+	dx_avi_track_header_t header;
+
+	dx_movie_context_t** pcontext = (dx_movie_context_t**)clojure;
+	dx_movie_track_info_t* track_info;
+	int i = 0;
+
+	read(fd, &header, sizeof(header));
+
+	for(i = 0;i < (*pcontext)->track_count;i++) {
+		track_info = (*pcontext)->track_info;
+
+		if(track_info[i].id[0] != 0)
+			continue;
+
+		/* Set Track Information.. */
+
+//		if(strncmp(header.type, "vids", 4) == 0)
+//			sprintf(track_info[i].id, "%02ddc", i);
+//		else if(strncmp(header.type, "auds", 4) == 0)
+//			sprintf(track_info[i].id, "%02dwb", i);
+//		else if(strncmp(header.type, "txts", 4) == 0)
+//			sprintf(track_info[i].id, "%02dst", i);
+
+		sprintf(track_info[i].id, "%02d", i);
+		memcpy(track_info[i].type, header.type, 4);
+		memcpy(track_info[i].handler, header.handler, 4);
+		track_info[i].framerate = (header.scale != 0) ? header.rate / header.scale : header.rate;
+
+
+		break;
+	}
+
+	CONSOLE("\nType : %.4s\n", header.type);
+	CONSOLE("Handler : %.4s\n", header.handler);
+	CONSOLE("Flags : %#x\n", header.flags);
+	CONSOLE("Language : %d\n", header.language);
+	CONSOLE("Initial Frames : %d\n", header.initial_frames);
+	CONSOLE("Scale : %d\n", header.scale);
+	CONSOLE("Rate : %d\n", header.rate);
+	CONSOLE("Start : %d\n", header.start);
+	CONSOLE("Length : %d\n", header.length);
+	CONSOLE("Suggested Buffer Size : %d\n", header.suggested_buffer_size);
+	CONSOLE("Quality : %d\n", header.quality);
+	CONSOLE("Sample Size : %d\n", header.sample_size);
+	CONSOLE("Frame LEFT : %d\n", header.frame_x);
+	CONSOLE("Frame TOP : %d\n", header.frame_y);
+	CONSOLE("Frame RIGHT : %d\n", header.frame_w);
+	CONSOLE("Frame BOTTOM : %d\n\n", header.frame_h);
+
+	return DX_AVI_CHUNK_SIZE(chunk->size);
+}
+
+int dx_avi_chunk_strn_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure) {
+
+	char track_name[4];
+
+	dx_movie_context_t** pcontext = (dx_movie_context_t**)clojure;
+	dx_movie_track_info_t* track_info;
+	int i = 0;
+
+	read(fd, &track_name, sizeof(track_name));
+
+	for(i = 0;i < (*pcontext)->track_count;i++) {
+		track_info = (*pcontext)->track_info;
+		if(track_info[i].id[2] != 0)
+			continue;
+
+		/* Set Track Information.. */
+
+		memcpy(track_info[i].id, track_name, 4);
+
+		break;
+	}
+
+	CONSOLE("\nType : %.4s\n", track_name);
+
+	return DX_AVI_CHUNK_SIZE(chunk->size);
+}
+
+int dx_avi_chunk_idx1_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure) {
+	dx_avi_index_entry_t entry;
+	dx_movie_context_t** pcontext = (dx_movie_context_t**)clojure;
+	int i = 0;
+	int framecount = 0;
+	char base_chunk_name[4];
+
+	(*pcontext)->index_offset = lseek(fd, 0, SEEK_CUR); /* chunk(idx1)->data의 오프셋임 */
+
+	memcpy(base_chunk_name, (*pcontext)->track_info[0].id, 4);
+
+	while(sizeof(dx_avi_index_entry_t) * i < chunk->size) {
+		read(fd, &entry, sizeof(dx_avi_index_entry_t));
+		LOG("Index [%d] %.4s %d %d %d", i, entry.ckid, entry.flags, entry.offset, entry.length);
+		i++;
+
+		if(strncmp(base_chunk_name, entry.ckid, 2) == 0)
+			framecount++;
+	}
+
+	(*pcontext)->total_frame = framecount;
+	(*pcontext)->playtime = framecount / (1000000 / (*pcontext)->framerate);
+
+	dx_avi_chunk_print(chunk);
+
+	return DX_AVI_CHUNK_SIZE(chunk->size);
+}
+
+int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure) {
 	dx_avi_list_t list;
 	int nread;
 	off_t pos;
@@ -206,8 +335,14 @@ int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk) {
 	pos = lseek(fd, 0, SEEK_CUR);
 	eof_pos = pos + list.size;
 
+	if(memcmp(list.cc, "movi", 4) == 0) {
+		dx_movie_context_t** pcontext = (dx_movie_context_t**)clojure;
+		(*pcontext)->frame_offset = pos; /* list(movi)->data의 오프셋임 */
+	}
+
+	/* traverse child chunks */
 	while(pos < eof_pos) {
-		nread = file_avi_read_chunk(fd);
+		nread = file_avi_read_chunk(fd, map, clojure);
 		if(nread < 0)
 			break;
 		pos += nread;
@@ -217,29 +352,63 @@ int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk) {
 	return DX_AVI_LIST_SIZE(chunk->size);
 }
 
-int dx_avi_chunk_handler(int fd, dx_avi_chunk_t* chunk) {
-	dx_avi_list_print(chunk);
-
-	return DX_AVI_CHUNK_SIZE(chunk->size);
-}
-
-int dx_avi_chunk_idx1_handler(int fd, dx_avi_chunk_t* chunk) {
-	dx_avi_index_entry_t entry;
-	int i = 0;
-	off_t curpos;
-	char chunkid[5];
-
-	curpos = lseek(fd, 0, SEEK_CUR);
-
-	while(sizeof(dx_avi_index_entry_t) * i < chunk->size && i < 100) {
-		read(fd, &entry, sizeof(dx_avi_index_entry_t));
-		memset(chunkid, 0x0, 5);
-		memcpy(chunkid, &entry.ckid, 4);
-		printf("Index [%d] %s %d %d %d\n", i, chunkid, entry.flags, entry.offset, entry.length);
-		i++;
-	}
-
+int dx_avi_chunk_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, void* clojure) {
 	dx_avi_chunk_print(chunk);
 
 	return DX_AVI_CHUNK_SIZE(chunk->size);
 }
+
+//int dx_avi_find_index_chunk(int fd, dx_avi_chunk_t* chunk, void* clojure) {
+//	off_t offset;
+//	int nread;
+//	dx_avi_list_t top;
+//	dx_avi_chunk_t tmp;
+//
+//	lseek(fd, 0, SEEK_SET);
+//	read(fd, &top, sizeof(dx_avi_list_t));
+//	offset = lseek(fd, sizeof(dx_avi_list_t), SEEK_SET);
+//
+//	while(offset < DX_AVI_LIST_SIZE(top.size)) {
+//		nread = read(fd, &tmp, sizeof(dx_avi_chunk_t));
+//
+//		if(strncmp(tmp.cc, "idx1", 4) == 0) {
+//			*chunk = tmp;
+//			return offset;
+//		}
+//		if(dx_avi_is_valid_chunk(&tmp) < -1)
+//			return -1;
+//
+//		offset += DX_AVI_CHUNK_SIZE(tmp.size);
+//		offset = lseek(fd, offset, SEEK_SET);
+//	}
+//
+//	return -1;
+//}
+//
+//int dx_avi_find_movie_list(int fd, dx_avi_list_t* list, void* clojure) {
+//	off_t offset;
+//	int nread;
+//	dx_avi_list_t top;
+//	dx_avi_list_t tmp;
+//
+//	lseek(fd, 0, SEEK_SET);
+//	read(fd, &top, sizeof(dx_avi_list_t));
+//	offset = lseek(fd, sizeof(dx_avi_list_t), SEEK_SET);
+//
+//	while(offset < DX_AVI_LIST_SIZE(top.size)) {
+//		nread = read(fd, &tmp, sizeof(dx_avi_list_t));
+//
+//		if(strncmp(tmp.cc, "movi", 4) == 0) {
+//			*list = tmp;
+//			return offset;
+//		}
+//		if(dx_avi_is_valid_chunk(&tmp) < -1)
+//			return -1;
+//
+//		offset += DX_AVI_CHUNK_SIZE(tmp.size);
+//		offset = lseek(fd, offset, SEEK_SET);
+//	}
+//
+//	return -1;
+//}
+

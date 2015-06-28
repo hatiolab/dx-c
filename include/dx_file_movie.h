@@ -20,35 +20,42 @@ typedef struct dx_movie_fragment dx_movie_fragment_t;
 
 typedef void (*dx_movie_find_fragment)(dx_movie_context_t* context, int frame_no, dx_movie_fragment_t* fragment);
 
-typedef struct dx_movie_track_info {
-	char id[4];
-	int encode_type;
+struct dx_movie_track_info {
+	char	id[4];
+	char	type[4];
+	char	handler[4];
+	int		framerate;
 };
 
 struct dx_movie_context {
-	int fd;
-	int total_frame;
-	int framerate;
-	int playtime; /* seconds */
-	off_t header_offset;
-	off_t frame_offset;
-	off_t index_offset;
-	int track_count;
+	int		fd;
+	int		total_frame;
+	int		framerate;
+	int		playtime; /* seconds */
+	off_t	header_offset;
+	off_t	frame_offset;
+	off_t	index_offset;
+	int		track_count;
+
+	int		width;
+	int		height;
 
 	dx_movie_find_fragment tracker;
 
 	dx_movie_track_info_t track_info[0];
 };
 
+#define DX_MOVIE_CONTEXT_SIZE(sz) (sizeof(dx_movie_context_t)+((sz)*sizeof(dx_movie_track_info_t)))
+
 struct dx_movie_fragment_track {
-	char track_id[4];
-	off_t offset;
-	int length;
+	char	track_id[4];
+	off_t	offset;
+	int		length;
 };
 
 struct dx_movie_fragment {
-	off_t offset;
-	int length;
+	off_t	offset;
+	int		length;
 	dx_movie_fragment_track_t track[0];
 };
 

@@ -9,89 +9,53 @@
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
-enum AVI_FILE_TYPE {
-	AVI_FILE_TYPE_AVI_1_0,
-	AVI_FILE_TYPE_OPEN_DML,
-	AVI_FILE_TYPE_HYBRID_FILES,
-};
+#include "dx_util_log.h"
+
+#include "dx_file_movie.h"
+#include "dx_file_avi.h"
 
 #define AVI_LIST_TYPE_RIFF "RIFF"
 #define AVI_LIST_TYPE_LIST "LIST"
 
-#define AVI_CONTENT_TYPE_AVI	"AVI "
-#define AVI_CONTENT_TYPE_HDR1	"hdrl"
-#define AVI_CONTENT_TYPE_INFO	"INFO"
-#define AVI_CONTENT_TYPE_MOVI	"MOVI"
+void file_avi_test(char* path, dx_movie_context_t* movie) {
 
-#define AVI_CHUNK_TYPE_MOVI		"avih"	/* AVI header */
+	int fd, i;
+	dx_movie_context_t* context;
+	int index;
 
-typedef struct {
-	char		cc[4];
-	uint32_t	size;
-	int8_t		data[0];
-} dx_avi_chunk_t;
+//	fd = open("/home/in/1.avi", O_RDONLY);
+	fd = open("assets/drop.avi", O_RDONLY);
 
-typedef struct {
-	char		type[4];
-	uint32_t	size;
-	char		cc[4];
-	int8_t		data[0];
-} dx_avi_list_t;
+	context = dx_avi_parse_scheme(fd);
 
-#define DX_AVI_CHUNK_SIZE(sz) (sizeof(dx_avi_chunk_t) + sz)
-#define DX_AVI_LIST_SIZE(sz) (sizeof(dx_avi_list_t) + sz - 4)
+	CONSOLE("\nFrame Rate : %d\n", context->framerate);
+	CONSOLE("Total Frames : %d\n", context->total_frame);
+	CONSOLE("Play Time : %d\n", context->playtime);
+	CONSOLE("Track Count : %d\n", context->track_count);
 
-void file_avi_read_header(int fd);
-void file_avi_read_info(int fd);
-void file_avi_read_idx(int fd);
+	CONSOLE("Frame Offset : %ld\n", context->frame_offset);
+	CONSOLE("Index Offset : %ld\n", context->index_offset);
 
-int dx_avi_riff_handler(int fd, dx_avi_chunk_t* chunk);
-int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk);
-int dx_avi_chunk_handler(int fd, dx_avi_chunk_t* chunk);
+	CONSOLE("Width : %d\n", context->width);
+	CONSOLE("Height : %d\n", context->height);
 
-void file_avi_test() {
-	int fd = open("/home/in/1.avi", O_RDONLY);
-
-	dx_avi_list_t list;
-	off_t pos;
-	off_t eof_pos;
-	int nread;
-
-	pos = read(fd, &list, sizeof(dx_avi_list_t));
-	eof_pos = DX_AVI_LIST_SIZE(list.size);
-
-	ASSERT("AVI List Type should be RIFF\n", strncmp(list.type, AVI_LIST_TYPE_RIFF, strlen(AVI_LIST_TYPE_RIFF)) == 0)
-	ASSERT("AVI File Type should be AVI \n", strncmp(list.cc, AVI_CONTENT_TYPE_AVI, strlen(AVI_CONTENT_TYPE_AVI)) == 0)
-	printf("Size of RIFF : %d\n\n", list.size);
-
-	while(pos < eof_pos) {
-		nread = file_avi_read_chunk(fd);
-		if(nread < 0)
-			break;
-		pos += nread;
-		lseek(fd, pos, SEEK_SET);
+	for (i = 0; i < context->track_count; i++) {
+		dx_movie_track_info_t* info = context->track_info + i;
+		CONSOLE("  Track %.4s : type - %.4s, Handler - %.4s, Rate : %d\n", info->id, info->type, info->handler, info->framerate);
 	}
 
-	printf("\nCurrent File Postion : %d\n", pos);
+	ASSERT("AVI파일 Parsing에 실패했다.", context != NULL);
+
+	index = dx_avi_find_index_by_frame_no(context, context->total_frame);
+
+	ASSERT("마지막 프레임의 인덱스는 찾을 수 있어야 한다.", index != -1)
+	CONSOLE("Found Index %d\n", index);
+
+	index = dx_avi_find_index_by_frame_no(context, context->total_frame + 1);
+
+	ASSERT("마지막 프레임보다 큰 인덱스는 찾을 수 없어야 한다.", index == -1)
+
+	FREE(context);
 
 	CHKMEM();
-}
-
-void demo_print_chunk(dx_avi_chunk_t* chunk) {
-	char cc[5];
-	memset(cc, 0x0, 5);
-	memcpy(cc, chunk->cc, 4);
-
-	printf("CHUNK %4s (%ld bytes)\n", cc, chunk->size);
-}
-
-void demo_print_list(dx_avi_list_t* list) {
-	char cc[5], type[5];
-	memset(cc, 0x0, 5);
-	memset(type, 0x0, 5);
-
-	memcpy(cc, list->cc, 4);
-	memcpy(type, list->type, 4);
-
-	printf("%4s %4s (%ld bytes)\n", type, cc, list->size);
 }
