@@ -40,52 +40,25 @@ void dx_movie_context_destroy(dx_movie_context_t* context) {
 
 	close(context->fd);
 
-	if(context->current_index != NULL) {
-		FREE(context->current_index);
-		context->current_index = NULL;
+	if(context->current_frame != NULL) {
+		FREE(context->current_frame);
+		context->current_frame = NULL;
 	}
 	FREE(context);
 }
 
-dx_movie_frame_index_t* dx_movie_get_index_for_frame_no(dx_movie_context_t* context, int offset, int whence) {
-	uint16_t frame_no = offset;
-	int i = 0;
+/*
+ * 현재 인덱스를 옮김.
+ * 현재 프레임 넘버를 반환함.
+ */
+int dx_movie_seek_frame(dx_movie_context_t* context, int offset, int whence) {
+	return dx_avi_seek_frame(context, offset, whence);
+}
 
-	if(context->current_index == NULL) {
-		/* 여기서 초기화 작업을 한다. */
-	}
-
-//	context->current_index->frame_no = dx_avi_seek_by_frame_offset(context, offset, whence, context->current_index);
-
-	/*
-	 * 아래부분은 dx_avi_seek_by_frame_offset으로 이동.
-	 */
-//	switch(whence) {
-//	case SEEK_SET:
-//		/*
-//		 * int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe);
-//		 * 를 사용해서 인덱스 NO를 찾는다.
-//		 * 위 함수도 whence를 사용하도록 수정한다.
-//		 */
-//		frame_no = offset;
-//		break;
-//	case SEEK_CUR:
-//		frame_no = context->current_index->frame_no + offset;
-//		break;
-//	case SEEK_END:
-//		frame_no = context->total_frame + offset;
-//		break;
-//	}
-
-//	for(i = 0;i < context->current_index;i++) {
-//		dx_movie_frame_track_index_t index = context->current_index->track[i];
-//
-//		index.length = 10;
-//		index.offset = 100;
-//		index.track_id
-//	}
-
-
-
-	return context->current_index;
+/*
+ * 현재 인덱스에서 프레임을 가져오고, 인덱스를 하나 증가시킴.
+ * 현재 프레임 인덱스 정보를 담은 주소를 반환함.
+ */
+dx_movie_frame_index_t* dx_movie_get_frame(dx_movie_context_t* context) {
+	return dx_avi_get_frame(context);
 }

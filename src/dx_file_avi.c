@@ -142,53 +142,102 @@ int file_avi_read_chunk(int fd, dx_avi_chunk_map_t* map, void* clojure) {
  * 0번째 인덱스 청크부터 순차적으로 뒤져가면서, 트랙이름이 "00"으로 시작하는 n번째의 청크의 인덱스를 반환한다.
  */
 
-int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe) {
+//int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe) {
+//	int i = 0;
+//	int found_frame = 0;
+//	char track_name[4];
+//
+//	for(i = 0;found_frame < context->total_frame;i++) {
+//		lseek(context->fd, context->index_offset + (i * sizeof(dx_avi_index_entry_t)), SEEK_SET);
+//		read(context->fd, track_name, 4);
+//		if(memcmp(track_name, "00", 2) == 0 && nframe == ++found_frame)
+//			return i;
+//	}
+//
+//	return -1;
+//}
+
+/*
+ * 현재 인덱스를 옮김.
+ */
+int dx_avi_seek_frame(dx_movie_context_t* context, int offset, int whence) {
+	int frame_no;
 	int i = 0;
 	int found_frame = 0;
 	char track_name[4];
 
+	ASSERT("Movie Context 초기화가 되어있지 않습니다.", context->current_frame != NULL)
+
+	switch(whence) {
+	case SEEK_SET:
+		/*
+		 * int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe);
+		 * 를 사용해서 인덱스 NO를 찾는다.
+		 * 위 함수도 whence를 사용하도록 수정한다.
+		 */
+		frame_no = offset;
+		break;
+	case SEEK_CUR:
+		frame_no = context->current_frame->frame_no + offset;
+		break;
+	case SEEK_END:
+		frame_no = context->total_frame + offset;
+		break;
+	}
+
 	for(i = 0;found_frame < context->total_frame;i++) {
 		lseek(context->fd, context->index_offset + (i * sizeof(dx_avi_index_entry_t)), SEEK_SET);
 		read(context->fd, track_name, 4);
-		if(memcmp(track_name, "00", 2) == 0 && nframe == ++found_frame)
+		if(memcmp(track_name, "00", 2) == 0 && frame_no == ++found_frame) {
+			context->current_frame->frame_no = frame_no;
+			context->current_frame->fragment_no = i;
 			return i;
+		}
 	}
 
 	return -1;
 }
 
-//int dx_avi_seek_by_frame_offset(context, offset, whence, context->current_index) {
-
 /*
- * 아래부분은 dx_avi_seek_by_frame_offset으로 이동.
+ * 현재 인덱스에서 프레임을 가져오고, 인덱스를 하나 증가시킴.
  */
-//	switch(whence) {
-//	case SEEK_SET:
-//		/*
-//		 * int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe);
-//		 * 를 사용해서 인덱스 NO를 찾는다.
-//		 * 위 함수도 whence를 사용하도록 수정한다.
-//		 */
-//		frame_no = offset;
-//		break;
-//	case SEEK_CUR:
-//		frame_no = context->current_index->frame_no + offset;
-//		break;
-//	case SEEK_END:
-//		frame_no = context->total_frame + offset;
-//		break;
-//	}
+dx_movie_frame_index_t* dx_avi_get_frame(dx_movie_context_t* context) {
 
-//	for(i = 0;i < context->current_index;i++) {
-//		dx_movie_frame_track_index_t index = context->current_index->track[i];
-//
-//		index.length = 10;
-//		index.offset = 100;
-//		index.track_id
-//	}
+	int i = 0;
+	int current_fragment_no = context->current_frame->fragment_no;
+	int current_frame_no = context->current_frame->frame_no;
+	dx_avi_index_entry_t entry;
 
-//	return 4;
-//}
+	/*
+	 * 현재 프레임의 fragment_no부터 다음 프레임까지 읽어서, 현재 프레임의 인덱스 리스트에 값을 채운다.
+	 * 현재 프레임의 frame_no와 fragment_no를 증가시킨다.
+	 */
+
+	memset(context->current_frame->track, 0x0, sizeof(dx_movie_frame_track_index_t)*context->track_count);
+
+	for(i = 0;i < context->track_count && current_fragment_no + i < context->total_fragment;i++) {
+
+		dx_movie_frame_track_index_t* index = context->current_frame->track + i;
+		read(context->fd, &entry, sizeof(entry));
+
+		if(i != 0 && memcmp(entry.ckid, "00", 2) == 0)
+			break;
+
+		memcpy(index->track_id, entry.ckid, 4);
+		index->length = entry.length;
+		index->offset = entry.offset;
+	}
+
+	if(context->current_frame->frame_no < context->total_frame)
+		context->current_frame->frame_no++;
+
+	if(context->current_frame->fragment_no < context->total_fragment)
+		context->current_frame->fragment_no += i;
+	else
+		context->current_frame->fragment_no = context->total_fragment;
+
+	return context->current_frame;
+}
 
 /*
  * AVI File List/Chunk Traverse handlers
@@ -228,6 +277,11 @@ int dx_avi_chunk_avih_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t*
 	*((dx_movie_context_t**)clojure) = context;
 	context->header_offset = offset; /* chunk->data의 오프셋임 */
 
+	dx_movie_frame_index_t* current_frame;
+
+	context->current_frame = (dx_movie_frame_index_t*)MALLOC(DX_MOVIE_FRAME_INDEX_SIZE(context->track_count));
+	memset(context->current_frame, 0x0, DX_MOVIE_FRAME_INDEX_SIZE(context->track_count));
+
 	return DX_AVI_CHUNK_SIZE(chunk->size);
 }
 
@@ -236,12 +290,15 @@ int dx_avi_chunk_strh_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t*
 
 	dx_movie_context_t** pcontext = (dx_movie_context_t**)clojure;
 	dx_movie_track_info_t* track_info;
+	dx_movie_frame_track_index_t* track_index;
+
 	int i = 0;
 
 	read(fd, &header, sizeof(header));
 
 	for(i = 0;i < (*pcontext)->track_count;i++) {
 		track_info = (*pcontext)->track_info;
+		track_index = (*pcontext)->current_frame->track + i;
 
 		if(track_info[i].id[0] != 0)
 			continue;
