@@ -19,16 +19,13 @@
 
 void file_avi_test(char* path, dx_movie_context_t* movie) {
 
-	int fd, i;
 	dx_movie_context_t* context;
-	int index;
+	int i, index;
 
-//	fd = open("/home/in/1.avi", O_RDONLY);
-	fd = open("assets/drop.avi", O_RDONLY);
+	context = dx_movie_context_crate("assets/drop.avi");
+//	context = dx_movie_context_crate("/home/in/1.avi");
 
-	context = dx_avi_parse_scheme(fd);
-
-	ASSERT("AVI파일 Parsing에 실패했다.", context != NULL);
+	ASSERT("AVI파일 Parsing에 실패했습니다.", context != NULL);
 
 	CONSOLE("\nFrame Rate : %d\n", context->framerate);
 	CONSOLE("Total Frames : %d\n", context->total_frame);
@@ -55,7 +52,7 @@ void file_avi_test(char* path, dx_movie_context_t* movie) {
 
 	ASSERT("마지막 프레임보다 큰 인덱스는 찾을 수 없어야 한다.", index == -1)
 
-	FREE(context);
+	dx_movie_context_destroy(context);
 
 	CHKMEM();
 }

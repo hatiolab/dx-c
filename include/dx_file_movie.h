@@ -18,7 +18,20 @@ typedef struct dx_movie_track_info dx_movie_track_info_t;
 typedef struct dx_movie_fragment_track dx_movie_fragment_track_t;
 typedef struct dx_movie_fragment dx_movie_fragment_t;
 
-typedef void (*dx_movie_find_fragment)(dx_movie_context_t* context, int frame_no, dx_movie_fragment_t* fragment);
+typedef struct dx_movie_frame_track_index {
+	char	track_id[4];
+	off_t	offset;
+	int		length;
+} dx_movie_frame_track_index_t;
+
+typedef struct dx_movie_frame_index {
+	uint16_t	frame_no;
+	dx_movie_frame_track_index_t track[0];
+} dx_movie_frame_index_t;
+
+#define DX_MOVIE_FRAME_INDEX_SIZE(sz) (sizeof(dx_movie_frame_index_t)+((sz)*sizeof(dx_movie_frame_track_index_t)))
+
+typedef dx_movie_frame_index_t* (*dx_movie_find_frame)(dx_movie_context_t* context, int frame_no);
 
 struct dx_movie_track_info {
 	char	id[4];
@@ -41,25 +54,19 @@ struct dx_movie_context {
 	int		width;
 	int		height;
 
-	dx_movie_find_fragment tracker;
+	dx_movie_frame_index_t* current_index;
+
+	dx_movie_find_frame tracker;
 
 	dx_movie_track_info_t track_info[0];
 };
 
 #define DX_MOVIE_CONTEXT_SIZE(sz) (sizeof(dx_movie_context_t)+((sz)*sizeof(dx_movie_track_info_t)))
 
-struct dx_movie_fragment_track {
-	char	track_id[4];
-	off_t	offset;
-	int		length;
-};
+dx_movie_context_t* dx_movie_context_crate(char* path);
+void dx_movie_context_destroy(dx_movie_context_t* context);
 
-struct dx_movie_fragment {
-	off_t	offset;
-	int		length;
-	dx_movie_fragment_track_t track[0];
-};
+dx_movie_frame_index_t* dx_movie_get_index_for_frame_no(dx_movie_context_t* context, int offset, int whence);
 
-void dx_movie_open(char* path, dx_movie_context_t* movie);
 
 #endif /* __DX_FILE_MOVIE_H */

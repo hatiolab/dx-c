@@ -59,10 +59,9 @@ int dx_packet_send_filelist(int fd, char* path) {
 
     packet_len = DX_FILEINFO_ARRAY_PACKET_SIZE(count);
     packet = (dx_fileinfo_array_packet_t*)MALLOC(packet_len);
-    packet->header.len = htonl(packet_len);
-    packet->header.type = DX_PACKET_TYPE_FILE;
-    packet->header.code = DX_FILE_LIST;
-    packet->header.data_type = DX_DATA_TYPE_FILEINFO_ARRAY;
+
+    dx_packet_set_header((dx_packet_t*)packet, packet_len, DX_PACKET_TYPE_FILE, DX_FILE_LIST, DX_DATA_TYPE_FILEINFO_ARRAY);
+
     packet->array.len = htonl(count);
     strncpy((char*)packet->array.path, path, DX_PATH_MAX_SIZE);
 
@@ -98,10 +97,8 @@ int dx_packet_get_file(int fd, char* path, uint32_t begin, uint32_t end) {
 
   packet = (dx_file_query_packet_t*)MALLOC(len);
 
-  packet->header.len = htonl(len);
-  packet->header.type = DX_PACKET_TYPE_FILE;
-  packet->header.code = DX_FILE_GET;
-  packet->header.data_type = DX_DATA_TYPE_FILE_PARTIAL_QUERY;
+  dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_FILE, DX_FILE_GET, DX_DATA_TYPE_FILE_PARTIAL_QUERY);
+
   packet->file.offset_begin = htonl(begin);
   packet->file.offset_end = htonl(end);
 
@@ -163,10 +160,8 @@ int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {
 
     packet = (dx_file_packet_t*)MALLOC(packet_len);
 
-    packet->header.len = htonl(packet_len);
-    packet->header.type = DX_PACKET_TYPE_FILE;
-    packet->header.code = DX_FILE;
-    packet->header.data_type = DX_DATA_TYPE_FILE_PARTIAL;
+    dx_packet_set_header((dx_packet_t*)packet, packet_len, DX_PACKET_TYPE_FILE, DX_FILE, DX_DATA_TYPE_FILE_PARTIAL);
+
     packet->file.total_len = htonl(total_len);
     packet->file.partial_len = htonl(partial_len);
     packet->file.offset_begin = htonl(begin);

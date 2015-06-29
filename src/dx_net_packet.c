@@ -24,6 +24,13 @@
 
 #include "dx_net_packet_io.h"
 
+void dx_packet_set_header(dx_packet_t* packet, uint32_t len, uint8_t type, uint8_t code, uint8_t data_type) {
+	packet->header.len = htonl(len);
+	packet->header.type = type;
+	packet->header.code = code;
+	packet->header.data_type = data_type;
+}
+
 void dx_packet_set_flag(dx_packet_t* packet, int8_t mask) {
 	packet->header.flags |= mask;
 }
@@ -40,10 +47,8 @@ int dx_packet_send_header(int fd, int type, int code) {
   len = DX_PACKET_HEADER_SIZE;
 
   packet = (dx_packet_t*)MALLOC(len);
-  packet->header.len = htonl(len);
-  packet->header.type = type;
-  packet->header.code = code;
-  packet->header.data_type = DX_DATA_TYPE_NONE;
+
+  dx_packet_set_header((dx_packet_t*)packet, len, type, code, DX_DATA_TYPE_NONE);
 
   ret = dx_write(fd, packet, len, 0);
 
@@ -60,10 +65,9 @@ int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t dat
   len = DX_PRIMITIVE_PACKET_SIZE;
 
   packet = (dx_primitive_packet_t*)MALLOC(len);
-  packet->header.len = htonl(len);
-  packet->header.type = type;
-  packet->header.code = code;
-  packet->header.data_type = DX_DATA_TYPE_PRIMITIVE;
+
+  dx_packet_set_header((dx_packet_t*)packet, len, type, code, DX_DATA_TYPE_PRIMITIVE);
+
   packet->data = data;
 
   ret = dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE, 0);
@@ -205,10 +209,8 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
 
   packet = (dx_u8_array_packet_t*)MALLOC(len);
 
-  packet->header.len = htonl(len);
-  packet->header.type = type;
-  packet->header.code = code;
-  packet->header.data_type = DX_DATA_TYPE_U8_ARRAY;
+  dx_packet_set_header((dx_packet_t*)packet, len, type, code, DX_DATA_TYPE_U8_ARRAY);
+
   packet->array.len = htonl(datalen);
 
   if(datalen)
@@ -223,17 +225,15 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
 
 int dx_packet_send_string(int fd, int type, int code, char* data) {
 
-  dx_u8_array_packet_t* packet;
+  dx_string_packet_t* packet;
   int datalen = strlen(data);
-  uint32_t len = DX_U8_ARRAY_PACKET_SIZE(datalen);
+  uint32_t len = DX_STRING_PACKET_SIZE(datalen);
   int ret;
 
-  packet = (dx_u8_array_packet_t*)MALLOC(len);
+  packet = (dx_string_packet_t*)MALLOC(len);
 
-  packet->header.len = htonl(len);
-  packet->header.type = type;
-  packet->header.code = code;
-  packet->header.data_type = DX_DATA_TYPE_STRING;
+  dx_packet_set_header((dx_packet_t*)packet, len, type, code, DX_DATA_TYPE_STRING);
+
   packet->array.len = htonl(datalen);
 
   if(datalen)
@@ -253,10 +253,8 @@ int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int data
 
   packet = (dx_stream_packet_t*)MALLOC(len);
 
-  packet->header.len = htonl(len);
-  packet->header.type = DX_PACKET_TYPE_STREAM;
-  packet->header.code = code;
-  packet->header.data_type = DX_DATA_TYPE_STREAM;
+  dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_STREAM, code, DX_DATA_TYPE_STREAM);
+
   packet->data.type = htonl(enctype);
   packet->data.len = htonl(datalen);
   packet->header.flags = DX_PACKET_FLAG_DISCARDABLE;

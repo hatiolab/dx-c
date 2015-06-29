@@ -65,7 +65,17 @@
 /* Stream */
 #define DX_STREAM_BASE          		0x00
 #define DX_STREAM           			(DX_STREAM_BASE + 0)
-#define DX_STREAM_PLAYBACK				(OD_STREAM_BASE + 1)
+#define DX_STREAM_PLAYBACK				(DX_STREAM_BASE + 1)
+
+/* Movie Playback */
+#define DX_MOVIE_BASE					0x00
+#define DX_MOVIE_GET_INFO				(DX_MOVIE_BASE + 0)
+#define DX_MOVIE_INFO					(DX_MOVIE_BASE + 1)
+#define DX_MOVIE_COMMAND_START			(DX_MOVIE_BASE + 2)
+#define DX_MOVIE_COMMAND_STOP			(DX_MOVIE_BASE + 3)
+#define DX_MOVIE_COMMAND_RESUME			(DX_MOVIE_BASE + 4)
+#define DX_MOVIE_COMMAND_PAUSE			(DX_MOVIE_BASE + 5)
+#define DX_MOVIE_FRAME					(DX_MOVIE_BASE + 6)
 
 /* API */
 

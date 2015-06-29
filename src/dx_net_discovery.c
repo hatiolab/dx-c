@@ -190,10 +190,9 @@ int dx_discovery_send_broadcast(int fd, int port) {
   len = DX_PRIMITIVE_PACKET_SIZE;
 
   packet = (dx_primitive_packet_t*)__discovery_buffer;
-  packet->header.len = htonl(len);
-  packet->header.type = DX_PACKET_TYPE_DISCOVERY;
-  packet->header.code = DX_DISCOVERY_REQ;
-  packet->header.data_type = DX_DATA_TYPE_PRIMITIVE;
+
+  dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_DISCOVERY, DX_DISCOVERY_REQ, DX_DATA_TYPE_PRIMITIVE);
+
   packet->data.s32 = htonl(dx_dgram_get_service_port(fd));
 
   /* Send to broadcast */

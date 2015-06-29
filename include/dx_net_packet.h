@@ -38,6 +38,7 @@
 #define DX_PACKET_TYPE_COMMAND			6		/* Command */
 #define DX_PACKET_TYPE_FILE				7		/* File Content */
 #define DX_PACKET_TYPE_STREAM			8		/* Stream Content */
+#define DX_PACKET_TYPE_MOVIE			9		/* Movie Playback */
 
 /* Data Types */
 
@@ -59,6 +60,12 @@
 #define DX_DATA_TYPE_FILE_PARTIAL		24		/* File Partial */
 
 #define DX_DATA_TYPE_STREAM				41		/* Streaming Data */
+
+#define DX_DATA_TYPE_MOVIE_GET_INFO		51		/* Playback - Movie Get Info */
+#define DX_DATA_TYPE_MOVIE_INFO			52		/* Playback - Movie Info */
+#define DX_DATA_TYPE_MOVIE_COMMAND_I	53		/* Playback - Command : Start, Resume */
+#define DX_DATA_TYPE_MOVIE_COMMAND_II	54		/* Playback - Command : Stop, Pause */
+#define DX_DATA_TYPE_MOVIE_FRAME		55		/* Playback - Frame for Stream */
 
 /* Packet Structures */
 
@@ -88,6 +95,10 @@ typedef struct dx_s8_array_data {
 } __attribute__((__packed__)) dx_s8_array_data_t;
 
 #define DX_S8_ARRAY_SIZE(n)		(4+(n))
+
+typedef dx_s8_array_data_t dx_string_data_t;
+
+#define DX_STRING_SIZE(n)		(4+(n))
 
 typedef struct dx_u16_array_data {
     uint32_t	len;
@@ -164,6 +175,10 @@ typedef struct dx_s8_array_packet {
 
 #define DX_S8_ARRAY_PACKET_SIZE(n)	(12+(n))
 
+typedef dx_s8_array_packet_t dx_string_packet_t;
+
+#define DX_STRING_PACKET_SIZE(n)	(12+(n))
+
 typedef struct dx_u16_array_packet {
     struct dx_packet_header		header;
     struct dx_u16_array_data	array;
@@ -215,6 +230,7 @@ typedef struct dx_stream_packet {
 
 /* Functions */
 
+void dx_packet_set_header(dx_packet_t* packet, uint32_t len, uint8_t type, uint8_t code, uint8_t data_type);
 void dx_packet_set_flag(dx_packet_t* packet, int8_t mask);
 void dx_packet_reset_flag(dx_packet_t* packet, int8_t mask);
 

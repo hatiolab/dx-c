@@ -116,19 +116,6 @@ int dx_avi_info(char* path) {
 	return 0;
 }
 
-//int dx_avi_open(char* path) {
-//	int fd = open(path, O_RDONLY);
-//	dx_avi_list_t list;
-//
-//	read(fd, &list, sizeof(dx_avi_list_t));
-//
-//	ASSERT("AVI List Type should be RIFF\n", strncmp(list.type, "RIFF", 4) == 0)
-//	ASSERT("AVI File Type should be AVI \n", strncmp(list.cc, "AVI ", 4) == 0)
-//	CONSOLE("Size of RIFF : %d\n\n", list.size);
-//
-//	return fd;
-//}
-
 int file_avi_read_chunk(int fd, dx_avi_chunk_map_t* map, void* clojure) {
 	dx_avi_chunk_t chunk;
 	int i = 0;
@@ -169,6 +156,39 @@ int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe) {
 
 	return -1;
 }
+
+//int dx_avi_seek_by_frame_offset(context, offset, whence, context->current_index) {
+
+/*
+ * 아래부분은 dx_avi_seek_by_frame_offset으로 이동.
+ */
+//	switch(whence) {
+//	case SEEK_SET:
+//		/*
+//		 * int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe);
+//		 * 를 사용해서 인덱스 NO를 찾는다.
+//		 * 위 함수도 whence를 사용하도록 수정한다.
+//		 */
+//		frame_no = offset;
+//		break;
+//	case SEEK_CUR:
+//		frame_no = context->current_index->frame_no + offset;
+//		break;
+//	case SEEK_END:
+//		frame_no = context->total_frame + offset;
+//		break;
+//	}
+
+//	for(i = 0;i < context->current_index;i++) {
+//		dx_movie_frame_track_index_t index = context->current_index->track[i];
+//
+//		index.length = 10;
+//		index.offset = 100;
+//		index.track_id
+//	}
+
+//	return 4;
+//}
 
 /*
  * AVI File List/Chunk Traverse handlers

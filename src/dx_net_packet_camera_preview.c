@@ -21,6 +21,7 @@
 #include <stdint.h>   // For uint32_t, ...
 #include <sys/stat.h> // For stat
 #include <dirent.h>   // For DIR, opendir, ...
+#include <dx_net_packet_movie_playback.h>
 #include <errno.h>    // For errno
 
 #include "dx.h"
@@ -28,8 +29,11 @@
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
+#include "dx_file_movie.h"
+
+#include "dx_net_packet.h"
 #include "dx_net_packet_io.h"
-#include "dx_net_packet_stream.h"
+#include "dx_net_packet_camera_preview.h"
 
 int dx_packet_send_camera_get_info(int fd, char* camera_id) {
 	return 0;
@@ -50,24 +54,3 @@ int dx_packet_send_camera_start(int fd, char* camera_id) {
 int dx_packet_send_camera_stop(int fd, char* camera_id) {
 	return 0;
 }
-
-int dx_packet_send_movie_get_info(int fd, char* path) {
-	return 0;
-}
-
-int dx_packet_send_movie_info(int fd, char* path) {
-	return 0;
-}
-
-int dx_packet_send_movie_frame(int fd, char* path) {
-	return 0;
-}
-
-int dx_packet_send_movie_start(int fd, char* path) {
-	return 0;
-}
-
-int dx_packet_send_movie_stop(int fd, char* path) {
-	return 0;
-}
-
