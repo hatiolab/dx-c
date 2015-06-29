@@ -67,5 +67,5 @@ int dx_movie_seek_frame(dx_movie_context_t* context, int offset, int whence) {
  * 현재 프레임 인덱스 정보를 담은 주소를 반환함.
  */
 dx_movie_frame_index_t* dx_movie_get_frame(dx_movie_context_t* context) {
-	return dx_avi_get_frame(context);
+	return dx_avi_get_frame_index(context);
 }

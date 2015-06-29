@@ -26,50 +26,50 @@ int main(void) {
 	file_avi_test();
 	printf("..Done\n");
 
-//	printf("\nTest - debug_malloc_test()..\n");
-//	debug_malloc_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - util_buffer_test()..\n");
-//	util_buffer_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - util_lock_test()..\n");
-//	util_lock_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - util_list_test()..\n");
-//	util_list_test();
-//	printf("..Done\n");
+	printf("\nTest - debug_malloc_test()..\n");
+	debug_malloc_test();
+	printf("..Done\n");
 
-//	printf("\nTest - util_clock_test()..\n");
-//	util_clock_test();
-//	printf("..Done\n");
+	printf("\nTest - util_buffer_test()..\n");
+	util_buffer_test();
+	printf("..Done\n");
 
-//	printf("\nTest - util_schedule_test()..\n");
-//	util_schedule_test();
-//	printf("..Done\n");
+	printf("\nTest - util_lock_test()..\n");
+	util_lock_test();
+	printf("..Done\n");
 
-//	printf("\nTest - net_pipe_test()..\n");
-//	net_pipe_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - net_server_test()..\n");
-//	net_server_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - net_dgram_loopback_test()..\n");
-//	net_dgram_loopback_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - net_discovery_test()..\n");
-//	net_discovery_test();
-//	printf("..Done\n");
-//
-//	printf("\nTest - event_control_test()..\n");
-//	event_control_test();
-//	printf("..Done\n");
-//
+	printf("\nTest - util_list_test()..\n");
+	util_list_test();
+	printf("..Done\n");
+
+	printf("\nTest - util_clock_test()..\n");
+	util_clock_test();
+	printf("..Done\n");
+
+	printf("\nTest - util_schedule_test()..\n");
+	util_schedule_test();
+	printf("..Done\n");
+
+	printf("\nTest - net_pipe_test()..\n");
+	net_pipe_test();
+	printf("..Done\n");
+
+	printf("\nTest - net_server_test()..\n");
+	net_server_test();
+	printf("..Done\n");
+
+	printf("\nTest - net_dgram_loopback_test()..\n");
+	net_dgram_loopback_test();
+	printf("..Done\n");
+
+	printf("\nTest - net_discovery_test()..\n");
+	net_discovery_test();
+	printf("..Done\n");
+
+	printf("\nTest - event_control_test()..\n");
+	event_control_test();
+	printf("..Done\n");
+
 //	printf("\nTest - event_console_test()..\n");
 //	console_test();
 //	printf("..Done\n");

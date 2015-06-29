@@ -93,6 +93,7 @@ int dx_avi_is_valid_chunk(dx_avi_chunk_t* chunk);
 //int dx_avi_find_index_by_frame_no(dx_movie_context_t* context, int nframe);
 
 int dx_avi_seek_frame(dx_movie_context_t* context, int offset, int whence);
-dx_movie_frame_index_t* dx_avi_get_frame(dx_movie_context_t* context);
+dx_movie_frame_index_t* dx_avi_get_frame_index(dx_movie_context_t* context);
+int dx_avi_get_frame_data(dx_movie_context_t* context, int8_t* buffer);
 
 #endif /* __DX_FILE_AVI_H */

@@ -56,7 +56,7 @@ int dx_event_mplexer_create() {
 
 int dx_event_mplexer_destroy() {
   /*
-   * TODO 현재 이벤트 폴링을 진행중인 쓰레드만이 이 메쏘드를 호출하도록 제한한다.
+   * 현재 이벤트 폴링을 진행중인 쓰레드만이 이 메쏘드를 호출하도록 제한한다.
    */
   ASSERT("Only Polling Thread can destroy Mplexer", __dx_mplexer->polling_thread)
 
@@ -120,7 +120,7 @@ int dx_event_mplexer_poll(int ts) {
 
 int dx_event_mplexer_wakeup() {
   /*
-   * TODO event_mplexer를 poll_wait 상태에서 깨울 방법이 필요하다.
+   * 컨트롤 파이프에 한바이트 보내서, event_mplexer를 깨운다.
    */
   uint8_t control = 0;
   write(__dx_mplexer->control_fd, &control, 1);

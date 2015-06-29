@@ -17,6 +17,9 @@
 #include "dx_debug_malloc.h"
 #include "dx_util_buffer.h"
 
+/*
+ * TODO 버퍼를 외부에서 제공하는 방법도 제공해야 한다.
+ */
 dx_buffer_t* dx_buffer_alloc(int capacity) {
   dx_buffer_t* pbuf = (dx_buffer_t*)MALLOC(DX_BUFFER_SIZE(capacity));
   pbuf->capacity = capacity;

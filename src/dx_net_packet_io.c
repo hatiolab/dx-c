@@ -10,11 +10,11 @@
 // PARTICULAR PURPOSE.
 //
 
-#include <stddef.h>   // For NULL
-#include <unistd.h>   // For ssize_t
-#include <fcntl.h>    // For read, write
-#include <string.h> // For memset
-#include <sys/epoll.h>  // For EPOLLIN, EPOLLOUT
+#include <stddef.h>		// For NULL
+#include <unistd.h>		// For ssize_t
+#include <fcntl.h>		// For read, write
+#include <string.h>		// For memset
+#include <sys/epoll.h>	// For EPOLLIN, EPOLLOUT
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
@@ -27,35 +27,6 @@
 #include "dx_net_packet_io.h"
 
 #include "dx_net_dgram.h" // For DX_DGRAM_MAX_PACKET_SIZE
-
-//int dx_write(int fd, const void* buf, ssize_t sz) {
-//  int twrite = 0;
-//  int nwrite = 0;
-//  int flags;
-//
-//  /* Set socket to blocking mode */
-//  flags = fcntl(fd, F_GETFL);
-//  fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
-//
-//  while(sz - twrite > 0) {
-//    nwrite = write(fd, buf + twrite, sz - twrite);
-//    if(nwrite <= 0) {
-//      perror("write() error");
-//      break;
-//    }
-//    twrite += nwrite;
-//  }
-//
-//  if(sz != twrite) {
-//    printf("dx_write() mismatch [%d - %d]\n", twrite, (int)sz);
-//  }
-//
-//  /* Set socket to non-blocking again */
-//  flags = fcntl(fd, F_GETFL);
-//  fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-//
-//  return twrite;
-//}
 
 int dx_write_by_poller(dx_event_context_t* pcontext) {
 	dx_list_t* plist = pcontext->plist_writing;
@@ -152,7 +123,7 @@ int dx_write(int fd, const void* buf, ssize_t sz, int discardable) {
 	/* TODO 현재의 값을 가져와서 EPOLLOUT을 추가하는 방법으로 수정해야 함. */
 	dx_mod_event_context(pcontext, EPOLLIN | EPOLLOUT);
 
-	/* TODO 내가 만일 POLLING 쓰레드라면, 직접 write를 한다. */
+	/* TODO 현재 쓰레드가 만일 POLLING 쓰레드라면, 깨울 필요없이, 직접 write를 하도록 한다. */
 	dx_event_mplexer_wakeup();
 
 	return 0;
@@ -294,6 +265,7 @@ int dx_send_to(int fd, dx_packet_t* packet, struct sockaddr_in* to) {
  * dx_send_broadcast
  *
  * Datagram Socket으로 패킷을 Broadcast 한다.
+ * TODO 브로드캐스트 주소가 임베디드에서 동작하지 않는다. - 확인요.
  */
 int dx_send_broadcast(int fd, dx_packet_t* packet, int port) {
 	struct sockaddr_in broadcast_addr;

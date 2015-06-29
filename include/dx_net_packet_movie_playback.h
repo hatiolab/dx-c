@@ -74,6 +74,7 @@ typedef struct dx_data_movie_frame {
 	uint32_t	frameno;
 	uint8_t		flags;
 	uint8_t		index_count;
+	uint32_t	frame_length;
 
 	dx_data_movie_track_index_t track_index[0];
 	/*

@@ -72,11 +72,6 @@ dx_avi_chunk_map_t dx_avi_scheme_parser_map[] = {
 //	{ "strn", dx_avi_chunk_strn_handler }, /* 샘플파일에서 이 청크를 찾을 수 없었음. */
 	{ "strn", dx_avi_chunk_handler },
 	{ "idx1", dx_avi_chunk_idx1_handler },
-//	{ "00dc", dx_avi_chunk_handler },
-//	{ "01dc", dx_avi_chunk_handler },
-//	{ "02wb", dx_avi_chunk_handler },
-//	{ "03st", dx_avi_chunk_handler },
-//	{ "04st", dx_avi_chunk_handler },
 	{ "    ", NULL },
 };
 
@@ -199,9 +194,9 @@ int dx_avi_seek_frame(dx_movie_context_t* context, int offset, int whence) {
 }
 
 /*
- * 현재 인덱스에서 프레임을 가져오고, 인덱스를 하나 증가시킴.
+ * 현재 인덱스에서 각 트랙의 인덱스 정보를 가져옴.
  */
-dx_movie_frame_index_t* dx_avi_get_frame(dx_movie_context_t* context) {
+dx_movie_frame_index_t* dx_avi_get_frame_index(dx_movie_context_t* context) {
 
 	int i = 0;
 	int frame_length = 0;
@@ -211,7 +206,6 @@ dx_movie_frame_index_t* dx_avi_get_frame(dx_movie_context_t* context) {
 
 	/*
 	 * 현재 프레임의 fragment_no부터 다음 프레임까지 읽어서, 현재 프레임의 인덱스 리스트에 값을 채운다.
-	 * 현재 프레임의 frame_no와 fragment_no를 증가시킨다.
 	 */
 
 	memset(context->current_frame->track, 0x0, sizeof(dx_movie_frame_track_index_t)*context->track_count);
@@ -235,18 +229,39 @@ dx_movie_frame_index_t* dx_avi_get_frame(dx_movie_context_t* context) {
 		context->current_frame->track_count = i;
 		context->current_frame->frame_length = frame_length;
 	}
+
+	return context->current_frame;
+}
+
+/*
+ * 현재 인덱스에서 프레임데이타를 가져옴. (프레임데이타 : 각 트랙의 모든 프레그먼트 데이타를 포함한 벌크를 의미함)
+ */
+int dx_avi_get_frame_data(dx_movie_context_t* context, int8_t* buffer) {
+	int i = 0;
+	int offset = 0;
+	dx_movie_frame_index_t* current_frame = context->current_frame;
+
+	for(i = 0;i < current_frame->track_count;i++) {
+		dx_movie_frame_track_index_t* index = current_frame->track + i;
+
+		lseek(context->fd, context->frame_offset + index->offset, SEEK_SET);
+		read(context->fd, buffer + offset, index->length);
+
+		offset += index->length;
+	}
+
 	/*
-	 * TODO 현재 프레임번호와 프레그먼트 번호를 갖도록 개선할 것.
+	 * 현재 프레임 위치를 다음 프레임으로 이동함.
 	 */
 	if(context->current_frame->frame_no < context->total_frame)
 		context->current_frame->frame_no++;
 
 	if(context->current_frame->fragment_no < context->total_fragment)
-		context->current_frame->fragment_no += i;
+		context->current_frame->fragment_no += current_frame->track_count;
 	else
 		context->current_frame->fragment_no = context->total_fragment;
 
-	return context->current_frame;
+	return offset;
 }
 
 /*
@@ -315,6 +330,9 @@ int dx_avi_chunk_strh_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t*
 
 		/* Set Track Information.. */
 
+		/*
+		 * 타입과 트랙 아이디 부여하는 룰이 없다.
+		 */
 //		if(strncmp(header.type, "vids", 4) == 0)
 //			sprintf(track_info[i].id, "%02ddc", i);
 //		else if(strncmp(header.type, "auds", 4) == 0)
@@ -447,58 +465,3 @@ int dx_avi_chunk_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map,
 
 	return DX_AVI_CHUNK_SIZE(chunk->size);
 }
-
-//int dx_avi_find_index_chunk(int fd, dx_avi_chunk_t* chunk, void* clojure) {
-//	off_t offset;
-//	int nread;
-//	dx_avi_list_t top;
-//	dx_avi_chunk_t tmp;
-//
-//	lseek(fd, 0, SEEK_SET);
-//	read(fd, &top, sizeof(dx_avi_list_t));
-//	offset = lseek(fd, sizeof(dx_avi_list_t), SEEK_SET);
-//
-//	while(offset < DX_AVI_LIST_SIZE(top.size)) {
-//		nread = read(fd, &tmp, sizeof(dx_avi_chunk_t));
-//
-//		if(strncmp(tmp.cc, "idx1", 4) == 0) {
-//			*chunk = tmp;
-//			return offset;
-//		}
-//		if(dx_avi_is_valid_chunk(&tmp) < -1)
-//			return -1;
-//
-//		offset += DX_AVI_CHUNK_SIZE(tmp.size);
-//		offset = lseek(fd, offset, SEEK_SET);
-//	}
-//
-//	return -1;
-//}
-//
-//int dx_avi_find_movie_list(int fd, dx_avi_list_t* list, void* clojure) {
-//	off_t offset;
-//	int nread;
-//	dx_avi_list_t top;
-//	dx_avi_list_t tmp;
-//
-//	lseek(fd, 0, SEEK_SET);
-//	read(fd, &top, sizeof(dx_avi_list_t));
-//	offset = lseek(fd, sizeof(dx_avi_list_t), SEEK_SET);
-//
-//	while(offset < DX_AVI_LIST_SIZE(top.size)) {
-//		nread = read(fd, &tmp, sizeof(dx_avi_list_t));
-//
-//		if(strncmp(tmp.cc, "movi", 4) == 0) {
-//			*list = tmp;
-//			return offset;
-//		}
-//		if(dx_avi_is_valid_chunk(&tmp) < -1)
-//			return -1;
-//
-//		offset += DX_AVI_CHUNK_SIZE(tmp.size);
-//		offset = lseek(fd, offset, SEEK_SET);
-//	}
-//
-//	return -1;
-//}
-
