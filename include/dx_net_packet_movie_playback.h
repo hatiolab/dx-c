@@ -76,7 +76,10 @@ typedef struct dx_data_movie_frame {
 	uint8_t		index_count;
 
 	dx_data_movie_track_index_t track_index[0];
-	// track_index 이후에 동영상 프레임이 추가된다.
+	/*
+	 * track_index 이후에 동영상 프레임이 추가된다.(가변 데이타를 추가할 수 없는 관계로, 명시하지 않았을 뿐임.)
+	 * 따라서, 실제 크기 계산할 때는, 전체 프레임의 크기를 추가해주어야 한다. 참고 - DX_PACKET_MOVIE_FRAME_SIZE 정의.
+	 */
 } __attribute__((__packed__)) dx_data_movie_frame_t;
 
 typedef struct {
@@ -111,7 +114,7 @@ typedef dx_data_movie_get_info_t dx_data_movie_stop_t;
 int dx_packet_send_movie_get_info(int fd, char* path);
 int dx_packet_send_movie_info(int fd, char* path, dx_movie_context_t* context);
 
-int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context, int offset, int whence);
+int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context);
 
 int dx_packet_send_movie_start(int fd, char* path);
 int dx_packet_send_movie_stop(int fd, char* path);

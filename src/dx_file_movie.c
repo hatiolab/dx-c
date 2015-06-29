@@ -26,14 +26,21 @@
 #include "dx_file_movie.h"
 #include "dx_file_avi.h"
 
-dx_movie_context_t* dx_movie_context_crate(char* path) {
+#include "dx_net_packet_file.h"
+
+dx_movie_context_t* dx_movie_context_create(char* path) {
 
 	int fd = open(path, O_RDONLY);
 
 	/*
 	 * TODO 동영상 타입별로 동적으로 파서를 구분해서 호출해야 한다. 현재는 AVI타입 뿐이므로...
 	 */
-	return dx_avi_parse_scheme(fd);
+	dx_movie_context_t* context = dx_avi_parse_scheme(fd);
+
+	if(context != NULL)
+		strncpy(context->path, path, DX_PATH_MAX_SIZE);
+
+	return context;
 }
 
 void dx_movie_context_destroy(dx_movie_context_t* context) {

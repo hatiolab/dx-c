@@ -71,7 +71,6 @@ void demo_playback_schedule_callback(void* sender_fd) {
 void od_on_playback_start(int fd, dx_packet_t* packet) {
 	dx_u8_array_packet_t* strpacket = (dx_u8_array_packet_t*)packet;
 	char path[256] = { NULL };
-	int movie_fd;
 
 	/* 만약 현재 동작중인 스케쥴러가 있으면, 동작하지 않음 */
 	if(demo_playback_stream_schedule != NULL && demo_playback_stream_schedule->next_schedule != 0) {
@@ -91,9 +90,12 @@ void od_on_playback_start(int fd, dx_packet_t* packet) {
 	bzero(path, 256);
 	memcpy(path, strpacket->array.data, ntohl(strpacket->array.len));
 
-	movie_fd = open(path, O_RDONLY);
+	demo_movie_context = dx_movie_context_create(path);
 
-	demo_movie_context = dx_avi_parse_scheme(movie_fd);
+	if(demo_movie_context == NULL) {
+		ERROR("동영상 파일 오픈에 실패하였습니다.");
+		return;
+	}
 
 	CONSOLE("\nFrame Rate : %d\n", demo_movie_context->framerate);
 	CONSOLE("Total Frames : %d\n", demo_movie_context->total_frame);

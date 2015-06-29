@@ -22,10 +22,12 @@ void file_avi_test(char* path, dx_movie_context_t* movie) {
 	dx_movie_context_t* context;
 	int i, index;
 
-	context = dx_movie_context_crate("assets/drop.avi");
-//	context = dx_movie_context_crate("/home/in/1.avi");
+	context = dx_movie_context_create("assets/drop.avi");
+//	context = dx_movie_context_create("/home/in/1.avi");
 
 	ASSERT("AVI파일 Parsing에 실패했습니다.", context != NULL);
+
+	CONSOLE("\nPath : %.128s\n", context->path);
 
 	CONSOLE("\nFrame Rate : %d\n", context->framerate);
 	CONSOLE("Total Frames : %d\n", context->total_frame);

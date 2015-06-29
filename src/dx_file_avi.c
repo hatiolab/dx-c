@@ -204,6 +204,7 @@ int dx_avi_seek_frame(dx_movie_context_t* context, int offset, int whence) {
 dx_movie_frame_index_t* dx_avi_get_frame(dx_movie_context_t* context) {
 
 	int i = 0;
+	int frame_length = 0;
 	int current_fragment_no = context->current_frame->fragment_no;
 	int current_frame_no = context->current_frame->frame_no;
 	dx_avi_index_entry_t entry;
@@ -226,8 +227,17 @@ dx_movie_frame_index_t* dx_avi_get_frame(dx_movie_context_t* context) {
 		memcpy(index->track_id, entry.ckid, 4);
 		index->length = entry.length;
 		index->offset = entry.offset;
+
+		frame_length += entry.length;
 	}
 
+	if(i > 0) {
+		context->current_frame->track_count = i;
+		context->current_frame->frame_length = frame_length;
+	}
+	/*
+	 * TODO 현재 프레임번호와 프레그먼트 번호를 갖도록 개선할 것.
+	 */
 	if(context->current_frame->frame_no < context->total_frame)
 		context->current_frame->frame_no++;
 

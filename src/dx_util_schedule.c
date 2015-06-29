@@ -51,7 +51,7 @@ void dx_scheduler_next_callback(void* ps, va_list ap) {
 	dx_schedule_t* schedule = (dx_schedule_t*)ps;
 
 	LONGLONG* next = va_arg(ap, LONGLONG*);
-	LONGLONG now = va_arg(ap, LONGLONG);
+//	LONGLONG now = va_arg(ap, LONGLONG);
 
 	if(schedule->next_schedule <= 0)
 		return;
