@@ -18,7 +18,7 @@
 /*
  * Definitions
  */
-#define DX_CONSOLE_PROMPT "#"
+#define DX_CONSOLE_PROMPT "#!"
 
 typedef void (*dx_console_exit_callback)();
 typedef void (*dx_console_menu_handler)(char* cmdline);

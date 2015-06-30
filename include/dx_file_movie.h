@@ -75,5 +75,6 @@ void dx_movie_context_destroy(dx_movie_context_t* context);
 
 dx_movie_frame_index_t* dx_movie_get_index_for_frame_no(dx_movie_context_t* context, int offset, int whence);
 
+int dx_movie_frame_eof(dx_movie_context_t* context);
 
 #endif /* __DX_FILE_MOVIE_H */

@@ -69,3 +69,11 @@ int dx_movie_seek_frame(dx_movie_context_t* context, int offset, int whence) {
 dx_movie_frame_index_t* dx_movie_get_frame(dx_movie_context_t* context) {
 	return dx_avi_get_frame_index(context);
 }
+
+
+/*
+ * 현재 프레임의 인덱스가 마지막 프레임인가를 테스트함.
+ */
+int dx_movie_frame_eof(dx_movie_context_t* context) {
+	return context->total_frame > context->current_frame->frame_no ? 0 : 1;
+}

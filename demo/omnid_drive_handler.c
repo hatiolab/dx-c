@@ -31,6 +31,9 @@ int demo_server_event_handler(dx_event_context_t* context, dx_packet_t* packet) 
 		printf("Why here.\n");
 //		od_drive_handler_stream(context->fd, packet);
 		break;
+	case DX_PACKET_TYPE_MOVIE 	: /* Movie Playback */
+		printf("Why here.\n");
+		break;
 	default:	/* Should not reach to here */
 		ASSERT("Drive Event Handling.. should not reach to here.", !!0);
 		break;

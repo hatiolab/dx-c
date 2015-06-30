@@ -63,11 +63,11 @@ extern demo_menu_asso_t start_menu_map[];
 extern console_handler demo_current_handler;
 
 void demo_start_menu_handler(char* cmdline);
-void demo_start_descovery_server_handler(char* cmdline);
-void demo_start_descovery_client_handler(char* cmdline);
+void demo_start_discovery_server_handler(char* cmdline);
+void demo_start_discovery_client_handler(char* cmdline);
 void demo_start_server_handler(char* cmdline);
 void demo_start_client_handler(char* cmdline);
-void demo_descovery_send_handler(char* cmdline);
+void demo_discovery_send_handler(char* cmdline);
 void demo_start_all_handler(char* cmdline);
 void demo_start_all_server_handler(char* cmdline);
 void demo_start_all_client_handler(char* cmdline);

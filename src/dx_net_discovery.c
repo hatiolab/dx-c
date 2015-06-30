@@ -31,6 +31,8 @@
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
+#include "dx_util_log.h"
+
 #define DISCOVERY_BUFFER_LENGTH DX_PRIMITIVE_PACKET_SIZE
 
 uint8_t __discovery_buffer[DISCOVERY_BUFFER_LENGTH];
@@ -101,6 +103,8 @@ int dx_discovery_server_handler(dx_event_context_t* context) {
 
   case DX_DATA_TYPE_PRIMITIVE:
 
+    CONSOLE("(Discovery Event Handling) Recieved Packet (from %s)\n", inet_ntoa(client_addr.sin_addr));
+
     client_discovery_port = ntohl(((dx_primitive_packet_t*)packet)->data.s32);
 
     /*
@@ -129,11 +133,12 @@ int dx_discovery_server_handler(dx_event_context_t* context) {
       dx_del_event_context(context);
       return -1;
     }
+    CONSOLE("(Discovery Event Handling) Sent Reply Packet to %d port.(from %s)\n", client_discovery_port, inet_ntoa(client_addr.sin_addr));
 
     break;
 
   default:
-    printf("(Discovery Event Handling) Unknown(from %s)\n", inet_ntoa(client_addr.sin_addr));
+    CONSOLE("(Discovery Event Handling) Unknown(from %s)\n", inet_ntoa(client_addr.sin_addr));
     break;
   }
 
@@ -147,6 +152,8 @@ int dx_discovery_client_handler(dx_event_context_t* context) {
   dx_packet_t* packet = NULL;
 
   int server_port = 0;
+
+  CONSOLE("(Discovery Event Handling) Received Something(%d)\n", server_port);
 
   ret = recvfrom(context->fd, __discovery_buffer, DISCOVERY_BUFFER_LENGTH, 0, (struct sockaddr*)&server_addr, (socklen_t *)&slen);
   if(ret == -1) {
@@ -164,7 +171,7 @@ int dx_discovery_client_handler(dx_event_context_t* context) {
 
     server_port = ntohl(((dx_primitive_packet_t*)packet)->data.u32);
 
-    printf("(Discovery Event Handling) Discovery(%d)\n", server_port);
+    CONSOLE("(Discovery Event Handling) Discovery(%d)", server_port);
 
     /*
      * 서버를 찾았으므로 콜백을 호출한다.

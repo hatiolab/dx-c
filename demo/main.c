@@ -9,11 +9,11 @@ int quit = 0;
 
 dx_console_menu_t demo_console_menus[]  = {
 	{1, "start", "", "start servers ..", NULL},
-		{10, "ds", "[port]", "start discovery-listener", demo_start_descovery_server_handler},
-		{11, "dc", "[port]", "start discovery-requester", demo_start_descovery_client_handler},
+		{10, "ds", "[port]", "start discovery-listener", demo_start_discovery_server_handler},
+		{11, "dc", "[port]", "start discovery-requester", demo_start_discovery_client_handler},
 		{12, "server", "[port]", "start server", demo_start_server_handler},
 		{13, "client", "[hostname] [port]", "start client", demo_start_client_handler},
-		{14, "discovery", "[port]", "start client through discovery request", demo_descovery_send_handler},
+		{14, "discovery", "[port]", "start client through discovery request", demo_discovery_send_handler},
 		{15, "all", "[port]", "start all services on the localhost", demo_start_all_handler},
 		{16, "sall", "[port]", "start all services for server", demo_start_all_server_handler},
 		{17, "call", "[port]", "start all services for client", demo_start_all_client_handler},

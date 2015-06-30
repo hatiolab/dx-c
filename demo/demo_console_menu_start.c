@@ -2,14 +2,14 @@
 
 void demo_discovery_server_found_callback(char* hostname, int port) {
 	/* TODO try to start client */
-	printf("Server Found : %s(%d)\n", hostname, port);
+	CONSOLE("Server Found : %s(%d)\n", hostname, port);
 	if(demo_client >= 0) {
-		fprintf(stderr, "Demo Client is Already Started..");
+		ERROR("Demo Client is Already Started..");
 		return;
 	}
 
 	demo_client = dx_client_start(hostname, port, demo_client_event_handler);
-	printf("Demo Client has just Started (%d:%s:%d) Successfully.", demo_client, hostname, port);
+	CONSOLE("Demo Client has just Started (%d:%s:%d) Successfully.\n", demo_client, hostname, port);
 }
 
 void demo_discovery_server_callback(int* port) {
@@ -25,11 +25,11 @@ void demo_start_menu_handler(char* cmdline) {
 	/* need not to do anything &*/
 }
 
-void demo_start_descovery_server_handler(char* cmdline) {
+void demo_start_discovery_server_handler(char* cmdline) {
 	int port = DEFAULT_DISCOVERY_PORT;
 
 	if(demo_discovery_server >= 0) {
-		fprintf(stderr, "Discovery Server Already Started..\n");
+		ERROR("Discovery Server Already Started..");
 		return;
 	}
 
@@ -37,14 +37,14 @@ void demo_start_descovery_server_handler(char* cmdline) {
 		port = atoi(strtok(cmdline, " \t\n\f"));
 
 	demo_discovery_server = dx_discovery_server_start(port, demo_discovery_server_callback);
-	printf("Discovery Server(%d:%d) Started Successfully\n", demo_discovery_server, port);
+	CONSOLE("Discovery Server(%d:%d) Started Successfully\n", demo_discovery_server, port);
 }
 
-void demo_start_descovery_client_handler(char* cmdline) {
+void demo_start_discovery_client_handler(char* cmdline) {
 	int port = 0;
 
 	if(demo_discovery_client >= 0) {
-		fprintf(stderr, "Discovery Client Already Started..\n");
+		ERROR("Discovery Client Already Started..");
 		return;
 	}
 
@@ -52,14 +52,14 @@ void demo_start_descovery_client_handler(char* cmdline) {
 		port = atoi(strtok(cmdline, " \t\n\f"));
 
 	demo_discovery_client = dx_discovery_client_start(port, demo_discovery_server_found_callback);
-	printf("Discovery Client(%d:%d) Started Successfully\n", demo_discovery_client, port);
+	CONSOLE("Discovery Client(%d:%d) Started Successfully\n", demo_discovery_client, port);
 }
 
 void demo_start_server_handler(char* cmdline) {
 	int port = DEFAULT_SERVER_PORT;
 
 	if(demo_server >= 0) {
-		fprintf(stderr, "Demo Server Already Started..\n");
+		ERROR("Demo Server Already Started..");
 		return;
 	}
 
@@ -67,7 +67,7 @@ void demo_start_server_handler(char* cmdline) {
 		port = atoi(strtok(cmdline, " \t\n\f"));
 
 	demo_server = dx_server_start(port, demo_server_event_handler);
-	printf("Demo Server(%d:%d) Started Successfully\n", demo_server, dx_server_get_service_port(port));
+	CONSOLE("Demo Server(%d:%d) Started Successfully\n", demo_server, dx_server_get_service_port(demo_server));
 }
 
 void demo_start_client_handler(char* cmdline) {
@@ -77,7 +77,7 @@ void demo_start_client_handler(char* cmdline) {
 	int port = DEFAULT_SERVER_PORT;
 
 	if(demo_client >= 0) {
-		fprintf(stderr, "Demo Client Already Started..\n");
+		ERROR("Demo Client Already Started..");
 		return;
 	}
 
@@ -89,14 +89,14 @@ void demo_start_client_handler(char* cmdline) {
 		port = atoi(str_port);
 
 	demo_client = dx_client_start(hostname, port, demo_client_event_handler);
-	printf("Demo Client(%d:%s:%d) Started Successfully\n", demo_client, hostname, port);
+	CONSOLE("Demo Client(%d:%s:%d) Started Successfully\n", demo_client, hostname, port);
 }
 
-void demo_descovery_send_handler(char* cmdline) {
+void demo_discovery_send_handler(char* cmdline) {
 	int port = DEFAULT_DISCOVERY_PORT;
 
 	if(demo_discovery_client < 0) {
-		fprintf(stderr, "Start Discovery Client First..");
+		ERROR("Start Discovery Client First..");
 		return;
 	}
 

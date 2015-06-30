@@ -4,7 +4,7 @@ void demo_client_send_handler(char* cmdline){}
 
 void demo_client_hb_handler(char* cmdline) {
 	if(demo_client < 0){
-		fprintf(stderr, "Demo Client is not started..\n");
+		ERROR("Demo Client is not started..");
 		return;
 	}
 	dx_packet_send_heartbeat(demo_client, 0);
@@ -14,8 +14,8 @@ dx_schedule_t* demo_client_repeat_hb_scheduler = NULL;
 
 void demo_client_hb_callback(void* p) {
 	if(demo_client < 0){
-		fprintf(stderr, "Cannot Send HeartBeat Repeatedly - Demo Client is not started.\n");
-		fprintf(stderr, "Schedule will be canceled.\n");
+		ERROR("Cannot Send HeartBeat Repeatedly - Demo Client is not started.");
+		ERROR("Schedule will be canceled.");
 		dx_schedule_cancel(demo_client_repeat_hb_scheduler);
 		demo_client_repeat_hb_scheduler = NULL;
 		return;
@@ -27,7 +27,7 @@ void demo_client_repeat_hb_handler(char* cmdline) {
 	int duration = 5000; /* default heartbeat duration */
 
 	if(demo_client < 0){
-		fprintf(stderr, "Cannot Register Repeatable HeartBeat Schedule - Demo Client is not started.\n");
+		ERROR("Cannot Register Repeatable HeartBeat Schedule - Demo Client is not started.");
 		return;
 	}
 
@@ -52,7 +52,7 @@ void demo_client_playback_start_handler(char* cmdline) {
 	char* path = NULL;
 
 	if(demo_client < 0){
-		fprintf(stderr, "Demo Client is not started..\n");
+		ERROR("Demo Client is not started..");
 		return;
 	}
 
@@ -64,7 +64,7 @@ void demo_client_playback_start_handler(char* cmdline) {
 
 void demo_client_playback_stop_handler(char* cmdline) {
 	if(demo_client < 0){
-		fprintf(stderr, "Demo Client is not started..\n");
+		ERROR("Demo Client is not started..");
 		return;
 	}
 	dx_packet_send_command_u32(demo_client, OD_CMD_STOP_PLAYBACK, 0);

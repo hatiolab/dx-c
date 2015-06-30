@@ -105,7 +105,7 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 	 * 현재 프레임을 만들어낸다.
 	 */
 
-	current_frame = dx_avi_get_frame_index(context); /* 프레임 정보를 주고, 다음 프레임의 인덱스로 이동한다. */
+	current_frame = dx_avi_get_frame_index(context); /* 현재 프레임의 트랙 인덱스 정보를 채운다. */
 
 	/* 패킷의 크기를 구한다. */
 	frame_offset_base = DX_PACKET_MOVIE_FRAME_SIZE(current_frame->track_count, 0);

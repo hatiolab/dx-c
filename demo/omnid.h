@@ -328,4 +328,14 @@ int od_host_handler_stream(int fd, dx_packet_t* packet);
 #define OD_STREAM						(OD_STREAM_BASE + 0)
 #define OD_STREAM_PLAYBACK				(OD_STREAM_BASE + 1)
 
+/* Movie Playback */
+#define OD_MOVIE_BASE					0x00
+#define OD_MOVIE_GET_INFO				(OD_MOVIE_BASE + 0)
+#define OD_MOVIE_INFO					(OD_MOVIE_BASE + 1)
+#define OD_MOVIE_COMMAND_START			(OD_MOVIE_BASE + 2)
+#define OD_MOVIE_COMMAND_STOP			(OD_MOVIE_BASE + 3)
+#define OD_MOVIE_COMMAND_RESUME			(OD_MOVIE_BASE + 4)
+#define OD_MOVIE_COMMAND_PAUSE			(OD_MOVIE_BASE + 5)
+#define OD_MOVIE_FRAME					(OD_MOVIE_BASE + 6)
+
 #endif /* __OMNID_H */
