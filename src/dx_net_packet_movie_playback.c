@@ -144,7 +144,7 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 	return 0;
 }
 
-int dx_packet_send_movie_start(int fd, char* path) {
+int dx_packet_send_movie_start(int fd, char* path, uint32_t start_frame, uint32_t stop_frame, uint16_t frames_per_sec) {
 	return 0;
 }
 
@@ -152,7 +152,7 @@ int dx_packet_send_movie_stop(int fd, char* path) {
 	return 0;
 }
 
-int dx_packet_send_movie_resume(int fd, char* path) {
+int dx_packet_send_movie_resume(int fd, char* path, uint32_t start_frame, uint32_t stop_frame, uint16_t frames_per_sec) {
 	return 0;
 }
 
