@@ -97,9 +97,9 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 	int i = 0;
 
 	dx_movie_frame_index_t* current_frame;
-	int track_count = 0;
-	int offset = 0;
-	int frame_offset_base;
+	uint8_t track_count = 0;
+	uint32_t offset = 0;
+	uint32_t frame_offset_base;
 
 	/*
 	 * 현재 프레임을 만들어낸다.
@@ -115,10 +115,10 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 
 	dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_MOVIE, DX_MOVIE_INFO, DX_DATA_TYPE_MOVIE_INFO);
 
-	packet->data.frameno = current_frame->frame_no;
+	packet->data.frameno = htonl(current_frame->frame_no);
 	packet->data.index_count = track_count;
 	packet->data.flags = 0;
-	packet->data.frame_length = current_frame->frame_length;
+	packet->data.frame_length = htonl(current_frame->frame_length);
 	strncpy((char*)&(packet->data.path), context->path, DX_PATH_MAX_SIZE);
 
 	for(i = 0;i < current_frame->track_count;i++) {
@@ -126,8 +126,8 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 		dx_movie_frame_track_index_t* movie_index = current_frame->track + i;
 
 		packet_index->flags = 0; /* TODO i-frame / p-frame 같은 정보를 담아야 한다. */
-		packet_index->length = movie_index->length;
-		packet_index->offset = offset;
+		packet_index->length = htonl(movie_index->length);
+		packet_index->offset = htonl(offset);
 		memcpy(packet_index->track_id, movie_index->track_id, 4);
 
 		offset += movie_index->length;
