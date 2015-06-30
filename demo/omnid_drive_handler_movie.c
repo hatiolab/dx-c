@@ -77,6 +77,7 @@ int od_handler_movie_get_info(int fd, dx_packet_t* packet) {
 int od_handler_movie_command_start(int fd, dx_packet_t* packet) {
 
 	dx_packet_movie_command_t* p= (dx_packet_movie_command_t*)packet;
+	long interval;
 
 //	p->data.frames_per_sec;
 //	p->data.path;
@@ -119,7 +120,12 @@ int od_handler_movie_command_start(int fd, dx_packet_t* packet) {
 	dx_movie_seek_frame(demo_movie_playback_context, p->data.start_frame, SEEK_SET);
 
 	/* 새로운 스트리밍 스케쥴러를 등록하고, 바로 시작합니다. */
-	demo_movie_playback_stream_schedule = dx_schedule_register(0, 1000/(p->data.frames_per_sec) /* framerate */, 1, demo_movie_playback_schedule_callback, (void*)fd);
+	if(p->data.frames_per_sec > 0)
+		interval = 1000 / (p->data.frames_per_sec > 40 ? 40 : p->data.frames_per_sec);
+	else
+		interval = 1000 / 30;
+
+	demo_movie_playback_stream_schedule = dx_schedule_register(0, interval, 1, demo_movie_playback_schedule_callback, (void*)fd);
 	dx_event_mplexer_wakeup();
 
 	return 0;
