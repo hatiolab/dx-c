@@ -106,8 +106,12 @@ typedef struct {
 	dx_data_movie_command_t data;
 } __attribute__((__packed__)) dx_packet_movie_command_t;
 
-typedef dx_data_movie_get_info_t dx_data_movie_pause_t;
-typedef dx_data_movie_get_info_t dx_data_movie_stop_t;
+#define DX_PACKET_MOVIE_COMMAND_I_SIZE (sizeof(dx_packet_movie_command_t))
+
+typedef dx_packet_movie_get_info_t dx_packet_movie_pause_t;
+typedef dx_packet_movie_get_info_t dx_packet_movie_stop_t;
+
+#define DX_PACKET_MOVIE_COMMAND_II_SIZE (sizeof(dx_packet_movie_get_info_t))
 
 /* Functions */
 

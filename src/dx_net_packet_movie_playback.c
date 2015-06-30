@@ -145,18 +145,64 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 }
 
 int dx_packet_send_movie_start(int fd, char* path, uint32_t start_frame, uint32_t stop_frame, uint16_t frames_per_sec) {
+	dx_packet_movie_command_t* packet = (dx_packet_movie_command_t*)MALLOC(DX_PACKET_MOVIE_COMMAND_I_SIZE);
+
+	dx_packet_set_header((dx_packet_t*)packet, DX_PACKET_MOVIE_COMMAND_I_SIZE, DX_PACKET_TYPE_MOVIE, DX_MOVIE_COMMAND_START, DX_DATA_TYPE_MOVIE_COMMAND_I);
+
+	strncpy((char*)packet->data.path, path, DX_PATH_MAX_SIZE);
+	packet->data.start_frame = htonl(start_frame);
+	packet->data.stop_frame = htonl(stop_frame);
+	packet->data.frames_per_sec = htons(frames_per_sec);
+
+	dx_write(fd, packet, DX_PACKET_MOVIE_COMMAND_I_SIZE, 0);
+
+	FREE(packet);
+
 	return 0;
 }
 
 int dx_packet_send_movie_stop(int fd, char* path) {
+	dx_packet_movie_command_t* packet = (dx_packet_movie_command_t*)MALLOC(DX_PACKET_MOVIE_COMMAND_II_SIZE);
+
+	dx_packet_set_header((dx_packet_t*)packet, DX_PACKET_MOVIE_COMMAND_II_SIZE, DX_PACKET_TYPE_MOVIE, DX_MOVIE_COMMAND_STOP, DX_DATA_TYPE_MOVIE_COMMAND_II);
+
+	strncpy((char*)packet->data.path, path, DX_PATH_MAX_SIZE);
+
+	dx_write(fd, packet, DX_PACKET_MOVIE_COMMAND_II_SIZE, 0);
+
+	FREE(packet);
+
 	return 0;
 }
 
 int dx_packet_send_movie_resume(int fd, char* path, uint32_t start_frame, uint32_t stop_frame, uint16_t frames_per_sec) {
+	dx_packet_movie_command_t* packet = (dx_packet_movie_command_t*)MALLOC(DX_PACKET_MOVIE_COMMAND_I_SIZE);
+
+	dx_packet_set_header((dx_packet_t*)packet, DX_PACKET_MOVIE_COMMAND_I_SIZE, DX_PACKET_TYPE_MOVIE, DX_MOVIE_COMMAND_RESUME, DX_DATA_TYPE_MOVIE_COMMAND_I);
+
+	strncpy((char*)packet->data.path, path, DX_PATH_MAX_SIZE);
+	packet->data.start_frame = htonl(start_frame);
+	packet->data.stop_frame = htonl(stop_frame);
+	packet->data.frames_per_sec = htons(frames_per_sec);
+
+	dx_write(fd, packet, DX_PACKET_MOVIE_COMMAND_I_SIZE, 0);
+
+	FREE(packet);
+
 	return 0;
 }
 
 int dx_packet_send_movie_pause(int fd, char* path) {
+	dx_packet_movie_command_t* packet = (dx_packet_movie_command_t*)MALLOC(DX_PACKET_MOVIE_COMMAND_II_SIZE);
+
+	dx_packet_set_header((dx_packet_t*)packet, DX_PACKET_MOVIE_COMMAND_II_SIZE, DX_PACKET_TYPE_MOVIE, DX_MOVIE_COMMAND_PAUSE, DX_DATA_TYPE_MOVIE_COMMAND_II);
+
+	strncpy((char*)packet->data.path, path, DX_PATH_MAX_SIZE);
+
+	dx_write(fd, packet, DX_PACKET_MOVIE_COMMAND_II_SIZE, 0);
+
+	FREE(packet);
+
 	return 0;
 }
 
