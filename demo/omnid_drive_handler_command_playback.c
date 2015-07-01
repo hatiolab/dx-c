@@ -65,7 +65,7 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		demo_playback_buffer = NULL;
 	}
 
-	CONSOLE("Playback Stream End.");
+	CONSOLE("Playback Stream End.\n");
 }
 
 void od_on_playback_start(int fd, dx_packet_t* packet) {

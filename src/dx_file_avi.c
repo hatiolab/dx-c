@@ -87,6 +87,9 @@ dx_movie_context_t* dx_avi_parse_scheme(int fd) {
 		return NULL;
 	}
 
+	/* 현재 프레임을 맨 처음 프레임으로 설정 */
+	dx_avi_seek_frame(context, 0, SEEK_SET);
+
 	return context;
 }
 
@@ -180,17 +183,28 @@ int dx_avi_seek_frame(dx_movie_context_t* context, int offset, int whence) {
 		break;
 	}
 
-	for(i = 0;found_frame < context->total_frame;i++) {
-		lseek(context->fd, context->index_offset + (i * sizeof(dx_avi_index_entry_t)), SEEK_SET);
-		read(context->fd, track_name, 4);
-		if(memcmp(track_name, "00", 2) == 0 && frame_no == ++found_frame) {
-			context->current_frame->frame_no = frame_no;
-			context->current_frame->fragment_no = i;
-			return i;
+	if(frame_no >= context->total_frame) {
+		context->current_frame->fragment_no = context->total_fragment;
+		context->current_frame->frame_no = context->total_frame;
+
+		return context->current_frame->frame_no;
+	} else {
+
+		for(i = 0;found_frame < context->total_frame;i++) {
+			lseek(context->fd, context->index_offset + (i * sizeof(dx_avi_index_entry_t)), SEEK_SET);
+			read(context->fd, track_name, 4);
+			if(memcmp(track_name, "00", 2) == 0 && frame_no == found_frame++) {
+				context->current_frame->frame_no = frame_no;
+				context->current_frame->fragment_no = i;
+
+				CONSOLE("++++ SEEK Current Frame : %ld, Current Fragment : %ld\n", context->current_frame->frame_no, context->current_frame->fragment_no);
+
+				return i;
+			}
 		}
 	}
 
-	return -1;
+	return context->current_frame->frame_no;
 }
 
 /*
@@ -210,9 +224,12 @@ dx_movie_frame_index_t* dx_avi_get_frame_index(dx_movie_context_t* context) {
 
 	memset(context->current_frame->track, 0x0, sizeof(dx_movie_frame_track_index_t)*context->track_count);
 
+	lseek(context->fd, context->index_offset + (current_fragment_no * sizeof(dx_avi_index_entry_t)), SEEK_SET);
+
 	for(i = 0;i < context->track_count && current_fragment_no + i < context->total_fragment;i++) {
 
 		dx_movie_frame_track_index_t* index = context->current_frame->track + i;
+
 		read(context->fd, &entry, sizeof(entry));
 
 		if(i != 0 && memcmp(entry.ckid, "00", 2) == 0)

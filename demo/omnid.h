@@ -314,6 +314,8 @@ int od_host_handler_stream(int fd, dx_packet_t* packet);
 /* For Test Only */
 #define OD_CMD_START_PLAYBACK             	(OD_CMD_BASE + 7)   /* 프레이백 스트림 시작 명령 */
 #define OD_CMD_STOP_PLAYBACK              	(OD_CMD_BASE + 8)   /* 프레이백 스트림 종료 명령 */
+#define OD_CMD_START_STREAM             	(OD_CMD_BASE + 9)   /* 영상 스트림 시작 명령 */
+#define OD_CMD_STOP_STREAM              	(OD_CMD_BASE + 10)   /* 영상 스트림 종료 명령 */
 
 /* File */
 #define OD_FILE_BASE                    0x00

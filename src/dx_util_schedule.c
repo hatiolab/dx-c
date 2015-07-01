@@ -51,7 +51,6 @@ void dx_scheduler_next_callback(void* ps, va_list ap) {
 	dx_schedule_t* schedule = (dx_schedule_t*)ps;
 
 	LONGLONG* next = va_arg(ap, LONGLONG*);
-//	LONGLONG now = va_arg(ap, LONGLONG);
 
 	if(schedule->next_schedule <= 0)
 		return;
@@ -83,7 +82,7 @@ void dx_scheduler_do_callback(void* ps, va_list ap) {
 
 	if(schedule->next_schedule > 0 && schedule->next_schedule <= now) {
 		schedule->callback(schedule->clojure);
-		if(schedule->repeatable != 0)
+		if(schedule->repeatable != 0 && schedule->next_schedule > 0)
 			schedule->next_schedule += schedule->interval;
 		else
 			schedule->next_schedule = 0;

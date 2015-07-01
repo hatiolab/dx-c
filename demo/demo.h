@@ -27,6 +27,7 @@
 #include "dx_net_packet.h"
 #include "dx_net_packet_file.h"
 #include "dx_net_packet_io.h"
+#include "dx_net_packet_movie_playback.h"
 
 #include "dx_file_h264.h"
 
@@ -83,8 +84,12 @@ void demo_client_repeat_hb_handler(char* cmdline);
 void demo_client_event_send_handler(char* cmdline);
 void demo_client_file_handler(char* cmdline);
 void demo_client_stop_handler(char* cmdline);
-void demo_client_playback_start_handler(char* cmdline);
-void demo_client_playback_stop_handler(char* cmdline);
+
+void demo_movie_get_movie_info_handler(char* cmdline);
+void demo_movie_start_handler(char* cmdline);
+void demo_movie_stop_handler(char* cmdline);
+void demo_movie_playback_start_handler(char* cmdline);
+void demo_movie_playback_stop_handler(char* cmdline);
 
 void demo_video_file_open(char* cmdline);
 void demo_video_file_info(char* cmdline);

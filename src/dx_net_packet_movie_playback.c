@@ -65,7 +65,7 @@ int dx_packet_send_movie_info(int fd, char* path, dx_movie_context_t* context) {
 
 	packet = (dx_packet_movie_info_t*)MALLOC(len);
 
-	dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_MOVIE, DX_MOVIE_GET_INFO, DX_DATA_TYPE_MOVIE_GET_INFO);
+	dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_MOVIE, DX_MOVIE_INFO, DX_DATA_TYPE_MOVIE_INFO);
 
 	strncpy((char*)&(packet->data.path), path, DX_PATH_MAX_SIZE);
 	packet->data.total_frame = htonl(context->total_frame);
@@ -101,19 +101,22 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 	uint32_t offset = 0;
 	uint32_t frame_offset_base;
 
+	if(dx_movie_frame_eof(context))
+		return -1;
 	/*
 	 * 현재 프레임을 만들어낸다.
 	 */
 
 	current_frame = dx_avi_get_frame_index(context); /* 현재 프레임의 트랙 인덱스 정보를 채운다. */
+	track_count = current_frame->track_count;
 
 	/* 패킷의 크기를 구한다. */
-	frame_offset_base = DX_PACKET_MOVIE_FRAME_SIZE(current_frame->track_count, 0);
-	len = DX_PACKET_MOVIE_FRAME_SIZE(current_frame->track_count, current_frame->frame_length);
+	frame_offset_base = DX_PACKET_MOVIE_FRAME_SIZE(track_count, 0);
+	len = DX_PACKET_MOVIE_FRAME_SIZE(track_count, current_frame->frame_length);
 
 	packet = (dx_packet_movie_frame_t*)MALLOC(len);
 
-	dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_MOVIE, DX_MOVIE_INFO, DX_DATA_TYPE_MOVIE_INFO);
+	dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_MOVIE, DX_MOVIE_FRAME, DX_DATA_TYPE_MOVIE_FRAME);
 
 	packet->data.frameno = htonl(current_frame->frame_no);
 	packet->data.index_count = track_count;
@@ -121,7 +124,7 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 	packet->data.frame_length = htonl(current_frame->frame_length);
 	strncpy((char*)&(packet->data.path), context->path, DX_PATH_MAX_SIZE);
 
-	for(i = 0;i < current_frame->track_count;i++) {
+	for(i = 0;i < track_count;i++) {
 		dx_data_movie_track_index_t* packet_index = packet->data.track_index + i;
 		dx_movie_frame_track_index_t* movie_index = current_frame->track + i;
 
@@ -132,9 +135,11 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 
 		offset += movie_index->length;
 	}
-
-	if(packet->data.frame_length != dx_avi_get_frame_data(context, ((int8_t*)packet) + frame_offset_base)) {
-		ERROR("Frame Data Length is not correct.");
+	{
+		int frame_length = dx_avi_get_frame_data(context, ((int8_t*)packet) + frame_offset_base);
+		if(current_frame->frame_length != frame_length) {
+			ERROR("Frame Data Length is not correct.(%ld vs %ld)", frame_length, current_frame->frame_length);
+		}
 	}
 
 	dx_write(fd, packet, len, 1 /* discardable */);

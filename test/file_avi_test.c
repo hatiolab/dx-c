@@ -45,10 +45,13 @@ void file_avi_test(char* path, dx_movie_context_t* movie) {
 		CONSOLE("  Track %.4s : type - %.4s, Handler - %.4s, Rate : %d\n", info->id, info->type, info->handler, info->framerate);
 	}
 
-	index = dx_avi_seek_frame(context, context->total_frame, SEEK_SET);
+	index = dx_avi_seek_frame(context, context->total_frame - 1, SEEK_SET);
 
-	ASSERT("마지막 프레임의 인덱스는 찾을 수 있어야 한다.", index != -1)
+	ASSERT("프레임 갯수 -1 인덱스는 EOF가 아니어야 한다.", dx_movie_frame_eof(context) == 0)
 	CONSOLE("Found Index %d\n", index);
+
+	index = dx_avi_seek_frame(context, context->total_frame, SEEK_SET);
+	ASSERT("프레임 갯수번째 인덱스는 EOF이다.", dx_movie_frame_eof(context) != 0)
 
 	index = dx_avi_seek_frame(context, 0, SEEK_END);
 	ASSERT("현재 프레그먼트의 인덱스는 전체 프레그먼트의 갯수와 같아야 한다.", context->current_frame->fragment_no = context->total_fragment)
@@ -58,7 +61,7 @@ void file_avi_test(char* path, dx_movie_context_t* movie) {
 
 	index = dx_avi_seek_frame(context, context->total_frame + 1, SEEK_SET);
 
-	ASSERT("마지막 프레임보다 큰 인덱스는 찾을 수 없어야 한다.", index == -1)
+	ASSERT("마지막 프레임보다 큰 인덱스는 프레임 전체 갯수와 같아야 한다.", index == context->total_frame)
 	ASSERT("현재 프레그먼트의 인덱스는 전체 프레그먼트의 갯수와 같아야 한다.", context->current_frame->fragment_no = context->total_fragment)
 
 	dx_movie_context_destroy(context);

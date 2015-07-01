@@ -52,15 +52,15 @@ dx_schedule_t* demo_movie_playback_stream_schedule = NULL;
 void demo_movie_playback_schedule_callback(void* sender_fd) {
 	dx_movie_context_t* context = demo_movie_playback_context;
 
-	dx_packet_send_movie_frame((int)sender_fd, context);
-
-	if(!dx_movie_frame_eof(context))
+	if(!dx_movie_frame_eof(context)) {
+		dx_packet_send_movie_frame((int)sender_fd, context);
 		return;
+	}
 
-	dx_schedule_cancel(demo_movie_playback_context);
+	dx_schedule_cancel(demo_movie_playback_stream_schedule);
 	dx_event_mplexer_wakeup();
 
-	CONSOLE("Playback Stream End.");
+	CONSOLE("Playback Stream End.\n");
 }
 
 int od_handler_movie_get_info(int fd, dx_packet_t* packet) {
