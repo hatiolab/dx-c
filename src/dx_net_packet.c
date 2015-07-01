@@ -246,7 +246,7 @@ int dx_packet_send_string(int fd, int type, int code, char* data) {
   return ret;
 }
 
-int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int datalen) {
+int dx_packet_send_stream(int fd, int code, int enctype, int8_t* data, int datalen) {
   dx_stream_packet_t* packet;
   uint32_t len = DX_STREAM_PACKET_SIZE(datalen);
   int ret;

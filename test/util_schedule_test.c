@@ -9,15 +9,17 @@
 
 int text_schedule_count = 0;
 
-void test_schedule_callback(void* p) {
+int test_schedule_callback(void* p) {
 	printf("Schedule Callback %d\n", (int)p);
+
 	text_schedule_count++;
+
+	return 0;
 }
 
 void util_schedule_test() {
 
 	int i = 0;
-	LONGLONG t = 0;
 
 	dx_scheduler_start();
 

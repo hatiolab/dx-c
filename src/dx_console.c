@@ -27,7 +27,7 @@ int dx_console_handler(dx_event_context_t* context);
 dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_console_menu_t* menu);
 dx_console_menu_t* dx_console_menu_traverse(dx_console_menu_t* menus, dx_console_menu_t* current, dx_console_menu_traverse_callback callback, void* closure, void** out);
 
-void* dx_console_menu_print_callback(dx_console_menu_t* menus, dx_console_menu_t* current, void* nothing, void** nothing2) {
+dx_console_menu_t* dx_console_menu_print_callback(dx_console_menu_t* menus, dx_console_menu_t* current, void* nothing, void** nothing2) {
 	CONSOLE("- %s %s : %s\n", current->command, current->parameters, current->description);
 	return NULL; /* keep going */
 }
@@ -50,7 +50,7 @@ void dx_console_menu_recursive_prompt(dx_console_menu_t* menus, dx_console_menu_
 }
 
 void dx_print_console_prompt(dx_console_menu_t* menus, dx_console_menu_t* current) {
-	const char top_desc[] = "You are on the way to start (TOP MENU)";
+	char top_desc[] = "You are on the way to start (TOP MENU)";
 
 	char* desc = (current == NULL) ? top_desc : current->description;
 
@@ -162,7 +162,7 @@ dx_console_menu_t* dx_console_menu_get_parent(dx_console_menu_t* menus, dx_conso
 	return dx_console_menu_find_by_id(menus, id);
 }
 
-void* dx_console_menu_search_callback(dx_console_menu_t* menus, dx_console_menu_t* menu, char* cmdline, char** trailer) {
+dx_console_menu_t* dx_console_menu_search_callback(dx_console_menu_t* menus, dx_console_menu_t* menu, void* cmdline, void** trailer) {
 	const char* whitespace = " \t\n\f";
 
 	dx_console_menu_t* found;
@@ -170,36 +170,36 @@ void* dx_console_menu_search_callback(dx_console_menu_t* menus, dx_console_menu_
 	char* command;
 	int sz;
 
-	if(cmdline == NULL || strlen(cmdline) == 0)
+	if(cmdline == NULL || strlen((char*)cmdline) == 0)
 		return NULL;
 
 	/* cmdline 을 복사해둔다. */
-	strncpy(cmd_clone, cmdline, 128);
+	strncpy(cmd_clone, (char*)cmdline, 128);
 
-	command = strtok_r(cmdline, whitespace, trailer);
+	command = strtok_r((char*)cmdline, whitespace, (char**)trailer);
 
 	if(command == NULL || strlen(command) == 0) {
 		/* 못찾았으므로 원본 cmdline 복구 */
-		strncpy(cmdline, cmd_clone, 128);
+		strncpy((char*)cmdline, cmd_clone, 128);
 		return NULL;
 	}
 
 	sz = strlen(command) > strlen(menu->command) ? strlen(menu->command) : strlen(command);
 
 	if(strncmp(command, menu->command, sz) == 0) { /* match */
-		found = dx_console_menu_traverse(menus, menu, dx_console_menu_search_callback, *trailer, trailer);
+		found = dx_console_menu_traverse(menus, menu, dx_console_menu_search_callback, *trailer, (void**)trailer);
 		if(found != NULL)
 			return found;
 		return menu;
 	}
 
 	/* 못찾았으므로 원본 cmdline 복구 */
-	strncpy(cmdline, cmd_clone, 128);
+	strncpy((char*)cmdline, cmd_clone, 128);
 	return NULL;
 }
 
 dx_console_menu_t* dx_console_menu_find_menu_by_command(dx_console_menu_t* menus, dx_console_menu_t* current, char* cmdline, void** trailer) {
-	const char* whitespace = " \t\n\f";
+//	const char* whitespace = " \t\n\f";
 	const char* command_up = "up";
 	const char* command_top = "top";
 
@@ -259,7 +259,7 @@ int dx_console_handler(dx_event_context_t* context) {
 
 	/* find current menu using command line. */
 	copied = dx_console_current_menu;
-	dx_console_current_menu = dx_console_menu_find_menu_by_command(menus, dx_console_current_menu, cmdline, &remains);
+	dx_console_current_menu = dx_console_menu_find_menu_by_command(menus, dx_console_current_menu, cmdline, (void**)&remains);
 
 	if(dx_console_current_menu != NULL && dx_console_current_menu->handler != NULL) {
 		dx_console_current_menu->handler(remains);

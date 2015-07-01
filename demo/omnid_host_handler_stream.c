@@ -53,5 +53,6 @@ int od_host_handler_stream_playback(int fd, dx_packet_t* packet) {
 	}
 
 	LOG("Stream Received : %d, framerate %d, size (%d).", demo_stream_frames_received, framerate, htonl(stream->data.len));
+	return 0;
 }
 

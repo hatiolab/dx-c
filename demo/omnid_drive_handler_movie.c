@@ -49,18 +49,19 @@ int od_drive_handler_movie(int fd, dx_packet_t* packet) {
 dx_movie_context_t* demo_movie_playback_context = NULL;
 dx_schedule_t* demo_movie_playback_stream_schedule = NULL;
 
-void demo_movie_playback_schedule_callback(void* sender_fd) {
+int demo_movie_playback_schedule_callback(void* sender_fd) {
 	dx_movie_context_t* context = demo_movie_playback_context;
 
 	if(!dx_movie_frame_eof(context)) {
 		dx_packet_send_movie_frame((int)sender_fd, context);
-		return;
+		return 0;
 	}
 
 	dx_schedule_cancel(demo_movie_playback_stream_schedule);
 	dx_event_mplexer_wakeup();
 
 	CONSOLE("Playback Stream End.\n");
+	return -1;
 }
 
 int od_handler_movie_get_info(int fd, dx_packet_t* packet) {
@@ -98,7 +99,7 @@ int od_handler_movie_command_start(int fd, dx_packet_t* packet) {
 		demo_movie_playback_context = NULL;
 	}
 
-	demo_movie_playback_context = dx_movie_context_create(p->data.path);
+	demo_movie_playback_context = dx_movie_context_create((char*)p->data.path);
 
 	if(demo_movie_playback_context == NULL) {
 		ERROR("동영상 파일 오픈에 실패하였습니다.");
@@ -148,7 +149,7 @@ int od_handler_movie_command_stop(int fd, dx_packet_t* packet) {
 }
 
 int od_handler_movie_command_resume(int fd, dx_packet_t* packet) {
-	dx_packet_movie_command_t* p= (dx_packet_movie_command_t*)packet;
+//	dx_packet_movie_command_t* p= (dx_packet_movie_command_t*)packet;
 
 //	p->data.frames_per_sec;
 //	p->data.path;

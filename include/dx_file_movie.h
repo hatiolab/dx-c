@@ -73,7 +73,9 @@ struct dx_movie_context {
 dx_movie_context_t* dx_movie_context_create(char* path);
 void dx_movie_context_destroy(dx_movie_context_t* context);
 
-dx_movie_frame_index_t* dx_movie_get_index_for_frame_no(dx_movie_context_t* context, int offset, int whence);
+int dx_movie_seek_frame(dx_movie_context_t* context, int offset, int whence);
+
+//dx_movie_frame_index_t* dx_movie_get_index_for_frame_no(dx_movie_context_t* context, int offset, int whence);
 
 int dx_movie_frame_eof(dx_movie_context_t* context);
 

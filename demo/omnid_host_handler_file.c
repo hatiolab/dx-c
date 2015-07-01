@@ -12,22 +12,28 @@
 
 #include "omnid.h"
 
+int od_host_handler_file_list(int fd, dx_packet_t* p);
+int od_host_handler_file_get(int fd, dx_packet_t* p);
+int od_host_handler_file_get_list(int fd, dx_packet_t* p);
+int od_host_handler_file_delete(int fd, dx_packet_t* p);
+int od_host_handler_file(int fd, dx_packet_t* p);
+
 int od_host_handler_get_file_list(int fd, dx_packet_t* packet) {
     switch(packet->header.code) {
 
-	case DX_FILE_GET_LIST : 	/* 파일리스트 요청 */
+	case OD_FILE_GET_LIST : 	/* 파일리스트 요청 */
 		od_host_handler_file_get_list(fd, packet);
 		break;
-	case DX_FILE_LIST : /* 파일리스트 정보 */
+	case OD_FILE_LIST : /* 파일리스트 정보 */
 		od_host_handler_file_list(fd, packet);
 		break;
-	case DX_FILE_GET : /* 부분 파일 내용 요청 */
+	case OD_FILE_GET : /* 부분 파일 내용 요청 */
 		od_host_handler_file_get(fd, packet);
 		break;
-	case DX_FILE : /* 부분 파일 내용 */
+	case OD_FILE : /* 부분 파일 내용 */
 		od_host_handler_file(fd, packet);
 		break;
-	case DX_FILE_DELETE : /* 파일 삭제 요청 */
+	case OD_FILE_DELETE : /* 파일 삭제 요청 */
 		od_host_handler_file_delete(fd, packet);
 		break;
     }
@@ -66,20 +72,20 @@ int od_host_handler_file_get_list(int fd, dx_packet_t* p) {
 }
 
 int od_host_handler_file_delete(int fd, dx_packet_t* p) {
-
+	return 0;
 }
 
 int od_host_handler_file(int fd, dx_packet_t* p) {
-	int total_len, partial_len, offset_begin, offset_end;
+	int total_len, offset_begin, offset_end;
 	dx_file_packet_t* packet = (dx_file_packet_t*)p;
 	char path[DX_PATH_MAX_SIZE + 1];
 
 	total_len = ntohl(packet->file.total_len);
-	partial_len = ntohl(packet->file.partial_len);
+//	partial_len = ntohl(packet->file.partial_len);
 	offset_begin = ntohl(packet->file.offset_begin);
 	offset_end = ntohl(packet->file.offset_end);
 	bzero(path, DX_PATH_MAX_SIZE + 1);
-	strncpy(path, packet->file.path, DX_PATH_MAX_SIZE);
+	strncpy(path, (char*)packet->file.path, DX_PATH_MAX_SIZE);
 
 	printf("(Host Event Handling) File(path : %s, size : %d - %d of %d)\n", path, offset_begin, offset_end, total_len);
 

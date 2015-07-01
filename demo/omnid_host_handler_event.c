@@ -19,7 +19,7 @@ int od_host_handler_event(int fd, dx_packet_t* packet) {
 
     case OD_EVT_CONNECT                  :   /* 옴니드라이브가 연결되었을 때 발생 */
 		{
-			dx_primitive_packet_t* primitive_packet = (dx_primitive_packet_t*)packet;
+//			dx_primitive_packet_t* primitive_packet = (dx_primitive_packet_t*)packet;
 
 			printf("(Host Event Handling) Event(OD_EVT_CONNECT)\n");
 		}

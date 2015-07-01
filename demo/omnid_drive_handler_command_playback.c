@@ -19,7 +19,7 @@ int demo_playback_fragment_idx = 0;
 
 int8_t* demo_playback_buffer = NULL;
 
-void demo_playback_schedule_callback(void* sender_fd) {
+int demo_playback_schedule_callback(void* sender_fd) {
 	dx_movie_context_t* context = demo_movie_context;
 	off_t seek_pos;
 
@@ -54,7 +54,7 @@ void demo_playback_schedule_callback(void* sender_fd) {
 		}
 
 		demo_playback_fragment_idx++;
-		return;
+		return 0;
 	}
 
 	demo_playback_fragment_idx = 0;
@@ -66,11 +66,12 @@ void demo_playback_schedule_callback(void* sender_fd) {
 	}
 
 	CONSOLE("Playback Stream End.\n");
+	return 0;
 }
 
 void od_on_playback_start(int fd, dx_packet_t* packet) {
 	dx_u8_array_packet_t* strpacket = (dx_u8_array_packet_t*)packet;
-	char path[256] = { NULL };
+	char path[256] = { 0 };
 
 	/* 만약 현재 동작중인 스케쥴러가 있으면, 동작하지 않음 */
 	if(demo_playback_stream_schedule != NULL && demo_playback_stream_schedule->next_schedule != 0) {

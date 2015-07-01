@@ -12,15 +12,15 @@ void demo_client_hb_handler(char* cmdline) {
 
 dx_schedule_t* demo_client_repeat_hb_scheduler = NULL;
 
-void demo_client_hb_callback(void* p) {
+int demo_client_hb_callback(void* p) {
 	if(demo_client < 0){
 		ERROR("Cannot Send HeartBeat Repeatedly - Demo Client is not started.");
 		ERROR("Schedule will be canceled.");
 		dx_schedule_cancel(demo_client_repeat_hb_scheduler);
 		demo_client_repeat_hb_scheduler = NULL;
-		return;
+		return -1;
 	}
-	dx_packet_send_heartbeat(demo_client, 0);
+	return dx_packet_send_heartbeat(demo_client, 0);
 }
 
 void demo_client_repeat_hb_handler(char* cmdline) {

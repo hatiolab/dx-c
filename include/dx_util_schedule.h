@@ -32,6 +32,8 @@ void dx_scheduler_do();
 
 dx_schedule_t* dx_schedule_create(long initial_interval, long interval,
 		int repeatable, dx_schedule_callback callback, void* clojure);
+dx_schedule_t* dx_schedule_register(long initial_interval, long interval,
+		int repeatable, dx_schedule_callback callback, void* clojure);
 void dx_schedule_cancel(dx_schedule_t* schedule);
 long dx_schedule_next(dx_schedule_t* schedule);
 

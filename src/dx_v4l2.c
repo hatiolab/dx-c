@@ -209,7 +209,7 @@ void init_device(int fd, int io) {
 //	}
 }
 
-void uninit_device(struct params* p) {
+void uninit_device(int fd) {
 //	unsigned int i;
 //
 //	switch (p->io) {
@@ -254,5 +254,7 @@ int dx_v4l2_open_device(char* dev_name) {
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
+
+	return 0;
 }
 

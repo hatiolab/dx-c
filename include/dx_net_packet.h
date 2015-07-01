@@ -275,6 +275,6 @@ int dx_packet_send_command_f32(int fd, int code, float value);
 int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datalen);
 int dx_packet_send_string(int fd, int type, int code, char* data);
 
-int dx_packet_send_stream(int fd, int code, int enctype, uint8_t* data, int datalen);
+int dx_packet_send_stream(int fd, int code, int enctype, int8_t* data, int datalen);
 
 #endif /* DX_NET_PACKET_H */

@@ -20,10 +20,10 @@ int od_host_handler_movie(int fd, dx_packet_t* packet) {
 
     switch(packet->header.code) {
 
-	case DX_MOVIE_INFO				: /* 영상파일 정보 */
+	case OD_MOVIE_INFO				: /* 영상파일 정보 */
 		return od_handler_movie_info(fd, packet);
 
-	case DX_MOVIE_FRAME				: /* 영상파일 스트림 */
+	case OD_MOVIE_FRAME				: /* 영상파일 스트림 */
 		return od_handler_movie_frame(fd, packet);
     }
 
@@ -60,10 +60,10 @@ int od_handler_movie_frame(int fd, dx_packet_t* packet) {
 	int track_count = frame->data.index_count;
 	int i;
 
-	LOG("Frame #%d : %ld sized.", frame_no, frame_length);
+	LOG("Frame #%d : %d sized.", frame_no, frame_length);
 
 	for(i = 0;i < track_count;i++) {
-		LOG("\tTrack #%d [%.4s] : %ld Sized %ld Offset", i,
+		LOG("\tTrack #%d [%.4s] : %d Sized %d Offset", i,
 			frame->data.track_index[i].track_id,
 			ntohl(frame->data.track_index[i].length),
 			ntohl(frame->data.track_index[i].offset));

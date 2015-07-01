@@ -136,7 +136,7 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 	{
 		int frame_length = dx_avi_get_frame_data(context, ((int8_t*)packet) + frame_offset_base);
 		if(current_frame->frame_length != frame_length) {
-			ERROR("Frame Data Length is not correct.(%ld vs %ld)", frame_length, current_frame->frame_length);
+			ERROR("Frame Data Length is not correct.(%d vs %d)", frame_length, current_frame->frame_length);
 		}
 	}
 

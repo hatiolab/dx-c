@@ -41,7 +41,8 @@ int od_drive_handler_get_state(int fd, dx_packet_t* packet);
 int od_drive_handler_set_state(int fd, dx_packet_t* packet);
 int od_drive_handler_event(int fd, dx_packet_t* packet);
 int od_drive_handler_command(int fd, dx_packet_t* packet);
-int omnid_drive_handler_file(int fd, dx_packet_t* packet);
+int od_drive_handler_file(int fd, dx_packet_t* packet);
+int od_drive_handler_movie(int fd, dx_packet_t* packet);
 
 int od_host_handler_hb(int fd, dx_packet_t* packet);
 int od_host_handler_get_setting(int fd, dx_packet_t* packet);
@@ -55,7 +56,7 @@ int od_host_handler_file_list(int fd, dx_packet_t* packet);
 int od_host_handler_get_file(int fd, dx_packet_t* packet);
 int od_host_handler_file(int fd, dx_packet_t* packet);
 int od_host_handler_stream(int fd, dx_packet_t* packet);
-
+int od_host_handler_movie(int fd, dx_packet_t* packet);
 
 /* codes */
 /* Streaming View Modes */

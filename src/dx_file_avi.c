@@ -197,7 +197,7 @@ int dx_avi_seek_frame(dx_movie_context_t* context, int offset, int whence) {
 				context->current_frame->frame_no = frame_no;
 				context->current_frame->fragment_no = i;
 
-				CONSOLE("++++ SEEK Current Frame : %ld, Current Fragment : %ld\n", context->current_frame->frame_no, context->current_frame->fragment_no);
+				CONSOLE("++++ SEEK Current Frame : %d, Current Fragment : %d\n", context->current_frame->frame_no, context->current_frame->fragment_no);
 
 				return i;
 			}
@@ -215,7 +215,7 @@ dx_movie_frame_index_t* dx_avi_get_frame_index(dx_movie_context_t* context) {
 	int i = 0;
 	int frame_length = 0;
 	int current_fragment_no = context->current_frame->fragment_no;
-	int current_frame_no = context->current_frame->frame_no;
+//	int current_frame_no = context->current_frame->frame_no;
 	dx_avi_index_entry_t entry;
 
 	/*
@@ -319,7 +319,7 @@ int dx_avi_chunk_avih_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t*
 	*((dx_movie_context_t**)clojure) = context;
 	context->header_offset = offset; /* chunk->data의 오프셋임 */
 
-	dx_movie_frame_index_t* current_frame;
+//	dx_movie_frame_index_t* current_frame;
 
 	context->current_frame = (dx_movie_frame_index_t*)MALLOC(DX_MOVIE_FRAME_INDEX_SIZE(context->track_count));
 	memset(context->current_frame, 0x0, DX_MOVIE_FRAME_INDEX_SIZE(context->track_count));
@@ -332,7 +332,7 @@ int dx_avi_chunk_strh_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t*
 
 	dx_movie_context_t** pcontext = (dx_movie_context_t**)clojure;
 	dx_movie_track_info_t* track_info;
-	dx_movie_frame_track_index_t* track_index;
+//	dx_movie_frame_track_index_t* track_index;
 
 	int i = 0;
 
@@ -340,7 +340,7 @@ int dx_avi_chunk_strh_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t*
 
 	for(i = 0;i < (*pcontext)->track_count;i++) {
 		track_info = (*pcontext)->track_info;
-		track_index = (*pcontext)->current_frame->track + i;
+//		track_index = (*pcontext)->current_frame->track + i;
 
 		if(track_info[i].id[0] != 0)
 			continue;
@@ -361,7 +361,6 @@ int dx_avi_chunk_strh_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t*
 		memcpy(track_info[i].type, header.type, 4);
 		memcpy(track_info[i].handler, header.handler, 4);
 		track_info[i].framerate = (header.scale != 0) ? header.rate / header.scale : header.rate;
-
 
 		break;
 	}
