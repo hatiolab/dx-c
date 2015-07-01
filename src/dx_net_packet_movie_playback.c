@@ -101,8 +101,6 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 	uint32_t offset = 0;
 	uint32_t frame_offset_base;
 
-	if(dx_movie_frame_eof(context))
-		return -1;
 	/*
 	 * 현재 프레임을 만들어낸다.
 	 */
