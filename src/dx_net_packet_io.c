@@ -97,7 +97,7 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 /*
  * 주의 : 파라미터로 넘겨진 버퍼는 MALLOC 된 것이어야 하며, send된 후에 자동으로 FREE된다.
  */
-int dx_write(int fd, const void* buf, ssize_t sz, int discardable) {
+int dx_write(int fd, void* buf, ssize_t sz, int discardable) {
 	dx_event_context_t* pcontext = dx_get_event_context(fd);
 	dx_list_t* plist = NULL;
 	dx_buffer_t* pbuf = NULL;
@@ -262,7 +262,6 @@ int dx_send_to(int fd, dx_packet_t* packet, struct sockaddr_in* to) {
  * dx_send_broadcast
  *
  * Datagram Socket으로 패킷을 Broadcast 한다.
- * TODO 브로드캐스트 주소가 임베디드에서 동작하지 않는다. - 확인요.
  */
 int dx_send_broadcast(int fd, dx_packet_t* packet, int port) {
 	struct sockaddr_in broadcast_addr;

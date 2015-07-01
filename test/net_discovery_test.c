@@ -10,6 +10,7 @@
 #include "dx_debug_malloc.h"
 
 #include "dx_util_buffer.h"
+#include "dx_util_log.h"
 
 #include "dx_event_mplexer.h"
 #include "dx_net_packet.h"
@@ -46,7 +47,7 @@ void net_discovery_test() {
 }
 
 void discovery_test_server_found_callback(char* hostname, int port) {
-	printf("Server Found : %s(%d)\n", hostname, port);
+	CONSOLE("Server Found : %s(%d)\n", hostname, port);
 	ASSERT("Port Number should be 1000\n", port == 1000);
 }
 

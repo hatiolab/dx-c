@@ -24,6 +24,7 @@ typedef struct dx_buffer {
 } dx_buffer_t;
 
 dx_buffer_t* dx_buffer_alloc(int capacity);
+dx_buffer_t* dx_buffer_wrap(int8_t* buffer, int size);
 void dx_buffer_free(dx_buffer_t* pbuf);
 void dx_buffer_clear(dx_buffer_t* pbuf);
 void dx_buffer_reset(dx_buffer_t* pbuf);
@@ -45,7 +46,7 @@ int dx_buffer_remains(dx_buffer_t* pbuf);
  *
  * 바이트 버퍼의 현재 포지션에 해당하는 주소를 반환한다.
  */
-uint8_t* dx_buffer_ppos(dx_buffer_t* pbuf);
+int8_t* dx_buffer_ppos(dx_buffer_t* pbuf);
 int dx_buffer_put(dx_buffer_t* pbuf, void* psrc, int sz);
 int dx_buffer_get(dx_buffer_t* pbuf, void* pdest, int sz);
 

@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> // For sleep
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
+#include "dx_util_log.h"
 #include "dx_util_clock.h"
 #include "dx_util_schedule.h"
 
 int text_schedule_count = 0;
 
 int test_schedule_callback(void* p) {
-	printf("Schedule Callback %d\n", (int)p);
+	CONSOLE("Schedule Callback %d\n", (int)p);
 
 	text_schedule_count++;
 

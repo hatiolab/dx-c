@@ -10,12 +10,13 @@
 #include "dx_debug_malloc.h"
 
 #include "dx_util_buffer.h"
+#include "dx_util_log.h"
 
 #include "dx_event_mplexer.h"
 #include "dx_net_packet.h"
 #include "dx_net_dgram.h"
 
-int net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr);
+void net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr);
 
 #define TEST_DGRAM_PORT 2017
 
@@ -57,19 +58,19 @@ int dx_send_hearbeat_broadcast(int fd, int to_port) {
 	packet->header.code = 0;
 	packet->header.data_type = DX_DATA_TYPE_NONE;
 
-	dx_send_broadcast(fd, packet, to_port);
+	dx_send_broadcast(fd, (dx_packet_t*)packet, to_port);
 
 	FREE(packet);
 
 	return 0;
 }
 
-int net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr) {
+void net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet, struct sockaddr_in* peer_addr) {
 	switch(packet->header.type) {
 	case DX_PACKET_TYPE_HB : /* Heartbeat */
 
-		printf("[DGRAM] Receive Heartbeat....\n");
-		printf("Port : %d, %d\n", peer_addr->sin_port, ntohs(peer_addr->sin_port));
+		CONSOLE("[DGRAM] Receive Heartbeat....\n");
+		CONSOLE("Port : %d, %d\n", peer_addr->sin_port, ntohs(peer_addr->sin_port));
 		dx_send_hearbeat_broadcast(context->fd, ntohs(peer_addr->sin_port));
 
 		break;
@@ -77,5 +78,4 @@ int net_dgram_loopback_handler(dx_event_context_t* context, dx_packet_t* packet,
 		ASSERT("Datagrem Event Handling.. should not reach to here.", !!0);
 		break;
 	}
-    return 0;
 }

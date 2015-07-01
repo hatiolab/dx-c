@@ -90,7 +90,7 @@ int dx_buffer_remains(dx_buffer_t* pbuf) {
 	return pbuf->limit - pbuf->position;
 }
 
-uint8_t* dx_buffer_ppos(dx_buffer_t* pbuf) {
+int8_t* dx_buffer_ppos(dx_buffer_t* pbuf) {
 	return &(pbuf->data[0]) + pbuf->position;
 }
 

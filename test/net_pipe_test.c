@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <strings.h>	// For bzero
 #include <fcntl.h>		// For fcntl
 #include <unistd.h>		// For pipe
@@ -8,6 +9,8 @@
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
+
+#include "dx_util_log.h"
 
 #include "dx_event_mplexer.h"
 #include "dx_event_pipe.h"
@@ -41,7 +44,7 @@ int dx_net_pipe_handler(dx_event_context_t* context) {
 
     ssize_t nbytes = read(context->fd, buf, sizeof(buf));
     if(0 == nbytes) {
-        printf("Console hung up\n");
+        CONSOLE("Console hung up\n");
         return -1;
     } else if(0 > nbytes) {
         perror("Console read() error");
@@ -50,9 +53,9 @@ int dx_net_pipe_handler(dx_event_context_t* context) {
         return -2;
     }
 
-    printf("[READ FROM PIPE] %s\n", buf);
+    CONSOLE("[READ FROM PIPE] %s\n", buf);
 
-    ASSERT("Input Value should be HELLO", strncmp(buf, "HELLO", 5) == 0)
+    ASSERT("Input Value should be HELLO", strncmp((char*)buf, "HELLO", 5) == 0)
 
     pipe_test_quit = 1;
 

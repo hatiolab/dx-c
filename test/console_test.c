@@ -6,6 +6,7 @@
 #include "dx_debug_malloc.h"
 
 #include "dx_util_buffer.h"
+#include "dx_util_log.h"
 
 #include "dx_event_mplexer.h"
 
@@ -19,7 +20,7 @@
 #include "dx_console.h"
 
 void test_console_menu_handler(char* cmdline) {
-	printf("CMD : %s\n", cmdline);
+	CONSOLE("CMD : %s\n", cmdline);
 }
 
 dx_console_menu_t test_console_menus[]  = {
@@ -56,7 +57,7 @@ dx_console_menu_t test_console_menus[]  = {
 int console_test_quit = 0;
 
 void test_exit_handler() {
-	printf("Exit Handler works.\n");
+	CONSOLE("Exit Handler works.\n");
 	console_test_quit = 1;
 }
 

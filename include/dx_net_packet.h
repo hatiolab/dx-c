@@ -234,6 +234,8 @@ void dx_packet_set_header(dx_packet_t* packet, uint32_t len, uint8_t type, uint8
 void dx_packet_set_flag(dx_packet_t* packet, int8_t mask);
 void dx_packet_reset_flag(dx_packet_t* packet, int8_t mask);
 
+int dx_send_broadcast(int fd, dx_packet_t* packet, int port);
+
 int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t data);
 
 int dx_packet_send_heartbeat(int fd, int code);
