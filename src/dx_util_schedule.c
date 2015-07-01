@@ -18,6 +18,7 @@
 #include "dx_debug_malloc.h"
 #include "dx_debug_assert.h"
 
+#include "dx_util_log.h"
 #include "dx_util_list.h"
 #include "dx_util_schedule.h"
 #include "dx_util_clock.h"

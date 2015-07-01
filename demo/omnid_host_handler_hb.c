@@ -13,7 +13,7 @@
 #include "omnid.h"
 
 int od_host_handler_hb(int fd, dx_packet_t* packet) {
-	printf("(Host Event Handling) HeartBeat : %d\n", packet->header.len);
+	printf("(Host Event Handling) HeartBeat : Size %d\n", ntohl(packet->header.len));
 
 	return 0;
 }
