@@ -52,8 +52,6 @@ int dx_packet_send_header(int fd, int type, int code) {
 
   ret = dx_write(fd, packet, len, 0);
 
-  FREE(packet);
-
   return ret;
 }
 
@@ -71,8 +69,6 @@ int dx_packet_send_primitive(int fd, int type, int code, dx_primitive_data_t dat
   packet->data = data;
 
   ret = dx_write(fd, packet, DX_PRIMITIVE_PACKET_SIZE, 0);
-
-  FREE(packet);
 
   return ret;
 }
@@ -218,8 +214,6 @@ int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datal
 
   ret =dx_write(fd, packet, len, 0);
 
-  FREE(packet);
-
   return ret;
 }
 
@@ -241,8 +235,6 @@ int dx_packet_send_string(int fd, int type, int code, char* data) {
 
   ret = dx_write(fd, packet, len, 0);
 
-  FREE(packet);
-
   return ret;
 }
 
@@ -263,8 +255,6 @@ int dx_packet_send_stream(int fd, int code, int enctype, int8_t* data, int datal
     memcpy(&(packet->data.data), data, datalen);
 
   ret = dx_write(fd, packet, len, 1 /* discardable */);
-
-  FREE(packet);
 
   return ret;
 }

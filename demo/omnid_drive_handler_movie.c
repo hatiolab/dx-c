@@ -57,6 +57,9 @@ int demo_movie_playback_schedule_callback(void* sender_fd) {
 		return 0;
 	}
 
+	dx_movie_context_destroy(demo_movie_playback_context);
+	demo_movie_playback_context = NULL;
+
 	dx_schedule_cancel(demo_movie_playback_stream_schedule);
 	dx_event_mplexer_wakeup();
 
@@ -95,7 +98,7 @@ int od_handler_movie_command_start(int fd, dx_packet_t* packet) {
 	if(demo_movie_playback_context != NULL) {
 		close(demo_movie_playback_context->fd);
 		CONSOLE("현재 열려있는 비디오 파일을 닫았습니다.\n");
-		FREE(demo_movie_playback_context);
+		dx_movie_context_destroy(demo_movie_playback_context);
 		demo_movie_playback_context = NULL;
 	}
 
@@ -141,7 +144,7 @@ int od_handler_movie_command_stop(int fd, dx_packet_t* packet) {
 
 	if(demo_movie_playback_context != NULL) {
 		close(demo_movie_playback_context->fd);
-		FREE(demo_movie_playback_context);
+		dx_movie_context_destroy(demo_movie_playback_context);
 		demo_movie_playback_context = NULL;
 	}
 

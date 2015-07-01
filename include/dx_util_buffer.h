@@ -20,10 +20,8 @@ typedef struct dx_buffer {
   int position;
   int limit;
   int mark;
-  uint8_t data[0];
+  int8_t* data;
 } dx_buffer_t;
-
-#define DX_BUFFER_SIZE(sz) (sizeof(dx_buffer_t)+sz)
 
 dx_buffer_t* dx_buffer_alloc(int capacity);
 void dx_buffer_free(dx_buffer_t* pbuf);

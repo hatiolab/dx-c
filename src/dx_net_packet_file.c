@@ -84,8 +84,6 @@ int dx_packet_send_filelist(int fd, char* path) {
     closedir(dir);
 
     dx_write(fd, packet, packet_len, 0);
-
-    FREE(packet);
   }
 
   return 0;
@@ -105,8 +103,6 @@ int dx_packet_get_file(int fd, char* path, uint32_t begin, uint32_t end) {
   strncpy((char*)&(packet->file.path), path, DX_PATH_MAX_SIZE);
 
   dx_write(fd, packet, len, 0);
-
-  FREE(packet);
 
   return 0;
 }
@@ -173,8 +169,6 @@ int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {
       memcpy(&(packet->file.content), data, partial_len);
 
     dx_write(fd, packet, packet_len, 0);
-
-    FREE(packet);
   }
 
   if(data)

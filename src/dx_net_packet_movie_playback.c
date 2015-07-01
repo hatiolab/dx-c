@@ -51,8 +51,6 @@ int dx_packet_send_movie_get_info(int fd, char* path) {
 
 	dx_write(fd, packet, len, 0);
 
-	FREE(packet);
-
 	return 0;
 }
 
@@ -85,8 +83,6 @@ int dx_packet_send_movie_info(int fd, char* path, dx_movie_context_t* context) {
 	}
 
 	dx_write(fd, packet, len, 0);
-
-	FREE(packet);
 
 	return 0;
 }
@@ -142,8 +138,6 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 
 	dx_write(fd, packet, len, 1 /* discardable */);
 
-	FREE(packet);
-
 	return 0;
 }
 
@@ -159,8 +153,6 @@ int dx_packet_send_movie_start(int fd, char* path, uint32_t start_frame, uint32_
 
 	dx_write(fd, packet, DX_PACKET_MOVIE_COMMAND_I_SIZE, 0);
 
-	FREE(packet);
-
 	return 0;
 }
 
@@ -172,8 +164,6 @@ int dx_packet_send_movie_stop(int fd, char* path) {
 	strncpy((char*)packet->data.path, path, DX_PATH_MAX_SIZE);
 
 	dx_write(fd, packet, DX_PACKET_MOVIE_COMMAND_II_SIZE, 0);
-
-	FREE(packet);
 
 	return 0;
 }
@@ -190,8 +180,6 @@ int dx_packet_send_movie_resume(int fd, char* path, uint32_t start_frame, uint32
 
 	dx_write(fd, packet, DX_PACKET_MOVIE_COMMAND_I_SIZE, 0);
 
-	FREE(packet);
-
 	return 0;
 }
 
@@ -203,8 +191,6 @@ int dx_packet_send_movie_pause(int fd, char* path) {
 	strncpy((char*)packet->data.path, path, DX_PATH_MAX_SIZE);
 
 	dx_write(fd, packet, DX_PACKET_MOVIE_COMMAND_II_SIZE, 0);
-
-	FREE(packet);
 
 	return 0;
 }

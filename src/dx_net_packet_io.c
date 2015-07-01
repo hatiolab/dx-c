@@ -94,6 +94,9 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 	return nwrite;
 }
 
+/*
+ * 주의 : 파라미터로 넘겨진 버퍼는 MALLOC 된 것이어야 하며, send된 후에 자동으로 FREE된다.
+ */
 int dx_write(int fd, const void* buf, ssize_t sz, int discardable) {
 	dx_event_context_t* pcontext = dx_get_event_context(fd);
 	dx_list_t* plist = NULL;
@@ -108,9 +111,7 @@ int dx_write(int fd, const void* buf, ssize_t sz, int discardable) {
 		return 0;
 	}
 
-	pbuf = dx_buffer_alloc(sz);
-
-	memcpy(pbuf->data, buf, sz);
+	pbuf = dx_buffer_wrap(buf, sz);
 
 	if (plist == NULL) {
 		pcontext->plist_writing = plist = (dx_list_t*) MALLOC(
@@ -127,10 +128,6 @@ int dx_write(int fd, const void* buf, ssize_t sz, int discardable) {
 	dx_event_mplexer_wakeup();
 
 	return 0;
-}
-
-int dx_write_packet(int fd, const dx_packet_t* packet) {
-	return dx_write(fd, packet, ntohl(packet->header.len), packet->header.flags & DX_PACKET_FLAG_DISCARDABLE);
 }
 
 /*
