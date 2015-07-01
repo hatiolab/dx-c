@@ -16,7 +16,7 @@ int od_handler_movie_info(int fd, dx_packet_t* packet);
 int od_handler_movie_frame(int fd, dx_packet_t* packet);
 
 int od_host_handler_movie(int fd, dx_packet_t* packet) {
-    CONSOLE("(Host Event Handling) Movie(%d)\n", packet->header.code);
+    LOG("(Host Event Handling) Movie(%d)", packet->header.code);
 
     switch(packet->header.code) {
 
