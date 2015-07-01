@@ -54,9 +54,9 @@ int od_drive_handler_set_state(int fd, dx_packet_t* packet) {
 
 			printf("(Drive Event Handling) SetState(%d, %d)\n", code, data);
 
-			od_host_status[code].data.u32 = data;
+			od_drive_status[code].data.u32 = data;
 
-			dx_packet_send_set_state_u32(fd, code, od_host_status[code].data.u32);
+			dx_packet_send_set_state_u32(fd, code, od_drive_status[code].data.u32);
 		}
     }
 

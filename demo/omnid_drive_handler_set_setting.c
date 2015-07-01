@@ -26,9 +26,9 @@ int od_drive_handler_set_setting(int fd, dx_packet_t* packet) {
 //
 //	    	printf("(Drive Event Handling) SetSetting(OD_SET_VIEW_DEFAULT, %d)\n", viewmode);
 //
-//	        od_host_settings[OD_SET_VIEW_DEFAULT].data.u32 = viewmode;
+//	        od_drive_settings[OD_SET_VIEW_DEFAULT].data.u32 = viewmode;
 //
-//	    	dx_packet_send_set_setting_u32(fd, OD_SET_VIEW_DEFAULT, od_host_settings[OD_SET_VIEW_DEFAULT].data.u32);
+//	    	dx_packet_send_set_setting_u32(fd, OD_SET_VIEW_DEFAULT, od_drive_settings[OD_SET_VIEW_DEFAULT].data.u32);
 //		}
 //        break;
 //    case OD_SET_VIEW_ON_R_GEAR     :  /* 후진기어모드 상태시 뷰 */
@@ -156,9 +156,9 @@ int od_drive_handler_set_setting(int fd, dx_packet_t* packet) {
 
 			printf("(Drive Event Handling) SetSetting(%d, %d)\n", code, data);
 
-			od_host_settings[code].data.u32 = data;
+			od_drive_settings[code].data.u32 = data;
 
-			dx_packet_send_set_setting_u32(fd, code, od_host_settings[code].data.u32);
+			dx_packet_send_set_setting_u32(fd, code, od_drive_settings[code].data.u32);
 		}
     }
 
