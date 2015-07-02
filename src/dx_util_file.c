@@ -12,6 +12,7 @@
 
 #include <fcntl.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #ifndef F_GETPATH
 #define F_GETPATH	(1024 + 7)
@@ -29,4 +30,8 @@ char* dx_file_get_path(int fd) {
 		return dx_filepath_buffer;
 
 	return NULL;
+}
+
+int dx_file_is_closed(int fd) {
+	return fcntl(fd, F_GETFL) < 0 && errno == EBADF;
 }

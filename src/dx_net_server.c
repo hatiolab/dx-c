@@ -145,6 +145,7 @@ int dx_server_writable_handler(dx_event_context_t* context) {
     if(nwrite < 0) {
       perror("Server write() error");
       close(context->fd);
+      context->fd = -1;
       dx_del_event_context(context);
       return -2;
     }

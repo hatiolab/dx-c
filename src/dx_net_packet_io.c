@@ -20,6 +20,7 @@
 #include "dx_debug_malloc.h"
 
 #include "dx_util_buffer.h"
+#include "dx_util_file.h"
 
 #include "dx_event_mplexer.h"
 
@@ -107,17 +108,19 @@ int dx_write(int fd, void* buf, ssize_t sz, int discardable) {
 
 	plist = pcontext->plist_writing;
 
+	if (plist == NULL) {
+		if(dx_file_is_closed(fd))
+			return 0;
+		pcontext->plist_writing = plist = (dx_list_t*) MALLOC(
+				sizeof(dx_list_t));
+		dx_list_init(plist, NULL, (dx_destroyer_function) dx_buffer_free);
+	}
+
 	if(discardable && dx_list_size(plist) > 3) {
 		return 0;
 	}
 
 	pbuf = dx_buffer_wrap(buf, sz);
-
-	if (plist == NULL) {
-		pcontext->plist_writing = plist = (dx_list_t*) MALLOC(
-				sizeof(dx_list_t));
-		dx_list_init(plist, NULL, (dx_destroyer_function) dx_buffer_free);
-	}
 
 	dx_list_add(plist, pbuf);
 

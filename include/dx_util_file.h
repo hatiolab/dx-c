@@ -15,5 +15,6 @@
 #define __DX_UTIL_FILE_H
 
 char* dx_file_get_path(int fd);
+int dx_file_is_closed(int fd);
 
 #endif /* __DX_UTIL_FILE_H */
