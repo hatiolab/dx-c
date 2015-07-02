@@ -21,6 +21,7 @@
 
 #include "dx_util_buffer.h"
 #include "dx_util_file.h"
+#include "dx_util_log.h"
 
 #include "dx_event_mplexer.h"
 
