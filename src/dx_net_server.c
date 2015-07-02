@@ -10,15 +10,15 @@
 // PARTICULAR PURPOSE.
 //
 
-#include <stdio.h>      // For printf, ..
-#include <stdlib.h>     // For exit, ..
-#include <unistd.h>     // For STDIN_FILENO, close
-#include <linux/types.h>  // For __u8, __u16, ...
-#include <netinet/in.h>   // For uint16_t, ...
-#include <netinet/tcp.h>  // TCP_NODELAY, TCP_QUICKACK
-#include <string.h>     // For memset
-#include <fcntl.h>      // For fcntl
-#include <sys/epoll.h>    // For epoll
+#include <stdio.h>      	// For printf, ..
+#include <stdlib.h>     	// For exit, ..
+#include <unistd.h>     	// For STDIN_FILENO, close
+#include <linux/types.h>  	// For __u8, __u16, ...
+#include <netinet/in.h>   	// For uint16_t, ...
+#include <netinet/tcp.h>  	// TCP_NODELAY, TCP_QUICKACK
+#include <string.h>     	// For memset
+#include <fcntl.h>      	// For fcntl
+#include <sys/epoll.h>    	// For epoll
 
 #include "dx.h"
 
@@ -26,6 +26,7 @@
 #include "dx_debug_malloc.h"
 
 #include "dx_util_buffer.h"
+#include "dx_util_log.h"
 
 #include "dx_event_mplexer.h"
 #include "dx_net_packet_io.h"
@@ -48,11 +49,22 @@ int dx_accept_client(int fd) {
   int client_fd;
   int rcvbufsize = DX_SOCKET_BUF_SIZE;
   int sndbufsize = DX_SOCKET_BUF_SIZE;
-  int yes = 1;
+  int yes = 1, flags;
 
   addrlen = sizeof(clientaddr);
 
   client_fd = accept(fd, (struct sockaddr*)&clientaddr, &addrlen);
+
+
+  /* Set socket to non-blocking mode */
+  flags = fcntl(client_fd, F_GETFL);
+  fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+
+  if(-1 == setsockopt(client_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
+    perror("Accepted Client Socket - setsockopt() error");
+    exit(EXIT_FAILURE);
+  }
+
 
   /* Set Receive Buffer Size */
   setsockopt(client_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
@@ -117,7 +129,7 @@ int dx_server_acceptable_handler(dx_event_context_t* server_context) {
   dx_event_context_t* pcontext;
   int client_fd = dx_accept_client(server_context->fd);
 
-  printf("A Client tried to connect.. \n");
+  CONSOLE("A Client tried to connect.. \n");
   pcontext = dx_event_context_create();
   pcontext->fd = client_fd;
   pcontext->readable_handler = dx_server_readable_handler;
@@ -127,7 +139,7 @@ int dx_server_acceptable_handler(dx_event_context_t* server_context) {
   pcontext->user_handler = server_context->user_handler;
 
   dx_add_event_context(pcontext, EPOLLIN | EPOLLOUT);
-  printf("A Client tried to connect.. Accepted.\n");
+  CONSOLE("........ Accepted.\n");
 
   return 0;
 }
@@ -162,7 +174,7 @@ int dx_server_readable_handler(dx_event_context_t* context) {
   ret = dx_receive_packet(context, &packet);
 
   if(0 == ret) {
-    printf("Client hung up\n");
+    CONSOLE("Client hung up\n");
     dx_del_event_context(context);
     return -1;
   } else if(0 > ret) {
