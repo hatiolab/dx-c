@@ -117,6 +117,7 @@ int dx_write(int fd, void* buf, ssize_t sz, int discardable) {
 	}
 
 	if(discardable && dx_list_size(plist) > 3) {
+		ERROR("Cut off pending discardable messages.");
 		return 0;
 	}
 
