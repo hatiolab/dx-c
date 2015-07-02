@@ -30,6 +30,8 @@
 
 #include "dx_net_dgram.h" // For DX_DGRAM_MAX_PACKET_SIZE
 
+int send_count = 0;
+
 int dx_write_by_poller(dx_event_context_t* pcontext) {
 	dx_list_t* plist = pcontext->plist_writing;
 	dx_buffer_t* pbuf;
@@ -59,8 +61,11 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 		if(dx_buffer_getpos(pbuf) == 0 && dx_list_size(plist) > 3) {
 			/* 새로 시작하는 버퍼이면, 먼저 버퍼리스트의 크기가 일정 갯수(3개) 이상인 상황이고, discardable 이면 그냥 제거한다. */
 			dx_packet_t* packet = (dx_packet_t*)dx_buffer_ppos(pbuf);
-			if(packet->header.flags & DX_PACKET_FLAG_DISCARDABLE)
+			if(packet->header.flags & DX_PACKET_FLAG_DISCARDABLE) {
+				ERROR("Cut off pending discardable messages just before send..");
+
 				goto send_buffer_done;
+			}
 		}
 
 		nwrite = write(pcontext->fd, dx_buffer_ppos(pbuf),
@@ -74,6 +79,7 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 		if (dx_buffer_remains(pbuf) != 0)
 			return nwrite;
 
+		CONSOLE("Write Packet...(%d\n", send_count++);
 	send_buffer_done:
 		dx_list_remove(plist, pbuf);
 		/* 여기에서 버퍼를 free해줄 필요없음 - destroyer에 의해서 자동 free됨 */
@@ -117,7 +123,7 @@ int dx_write(int fd, void* buf, ssize_t sz, int discardable) {
 		dx_list_init(plist, NULL, (dx_destroyer_function) dx_buffer_free);
 	}
 
-	if(discardable && dx_list_size(plist) > 3) {
+	if(discardable && dx_list_size(plist) > 10) {
 		ERROR("Cut off pending discardable messages.");
 		return 0;
 	}

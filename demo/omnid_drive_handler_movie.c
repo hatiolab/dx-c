@@ -82,6 +82,7 @@ int od_handler_movie_command_start(int fd, dx_packet_t* packet) {
 
 	dx_packet_movie_command_t* p= (dx_packet_movie_command_t*)packet;
 	long interval;
+	long frames_per_sec;
 
 //	p->data.frames_per_sec;
 //	p->data.path;
@@ -121,11 +122,12 @@ int od_handler_movie_command_start(int fd, dx_packet_t* packet) {
 	CONSOLE("Width : %d\n", demo_movie_playback_context->width);
 	CONSOLE("Height : %d\n", demo_movie_playback_context->height);
 
-	dx_movie_seek_frame(demo_movie_playback_context, p->data.start_frame, SEEK_SET);
+	dx_movie_seek_frame(demo_movie_playback_context, ntohl(p->data.start_frame), SEEK_SET);
 
 	/* 새로운 스트리밍 스케쥴러를 등록하고, 바로 시작합니다. */
-	if(p->data.frames_per_sec > 0)
-		interval = 1000 / (p->data.frames_per_sec > 40 ? 40 : p->data.frames_per_sec);
+	frames_per_sec = ntohs(p->data.frames_per_sec);
+	if(frames_per_sec > 0)
+		interval = 1000 / (frames_per_sec > 40 ? 40 : frames_per_sec);
 	else
 		interval = 1000 / 30;
 
