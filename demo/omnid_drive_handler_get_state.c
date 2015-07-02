@@ -46,7 +46,7 @@ int od_drive_handler_get_state(int fd, dx_packet_t* packet) {
 //    case OD_STAT_RECORDING_TIME          :  /* 블랙박스 상시 녹화 경과 시간 */
 //        break;
     default :
-		dx_packet_send_set_state_u32(fd, packet->header.code, od_host_status[packet->header.code].data.u32);
+		dx_packet_send_set_state_u32(fd, packet->header.code, od_drive_status[packet->header.code].data.u32);
     }
 
     printf("(Drive Event Handling) GetState(%d).. Sent back.\n", packet->header.code);

@@ -132,7 +132,7 @@ int od_drive_handler_get_setting(int fd, dx_packet_t* packet) {
 //	case OD_SET_FLEET_SIGNATURE          :   /* 관제 서버에 연결하기위한 단말기 인증 정보 */
 //		break;
     default :
-		dx_packet_send_set_setting_u32(fd, packet->header.code, od_host_settings[packet->header.code].data.u32);
+		dx_packet_send_set_setting_u32(fd, packet->header.code, od_drive_settings[packet->header.code].data.u32);
 	}
 
 	printf("(Drive Event Handling) GetSetting(%d).. Sent back.\n", packet->header.code);
