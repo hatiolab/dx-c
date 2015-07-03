@@ -9,6 +9,8 @@
 #include <strings.h>
 #include <unistd.h>
 
+#include "dx.h"
+
 #include "dx_debug_malloc.h"
 #include "dx_debug_assert.h"
 
@@ -31,7 +33,6 @@
 
 #include "dx_file_h264.h"
 
-#include "dx.h"
 
 #include "omnid.h"
 

@@ -23,6 +23,9 @@
  *
  */
 
+#define DX_DEBUG
+#define DX_MULTITHREADED
+
 /* Discovery Code */
 #define DX_DISCOVERY_BASE       0x00
 #define DX_DISCOVERY_REQ        (DX_DISCOVERY_BASE + 0) /* Discovery 요청 */

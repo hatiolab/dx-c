@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
+#include "dx.h"
+
 #include "dx_util_clock.h"
 
 #ifndef CLOCK_MONOTONIC

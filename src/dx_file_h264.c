@@ -14,6 +14,8 @@
 #include <fcntl.h>
 #include <unistd.h>	// For lseek, read, close
 
+#include "dx.h"
+
 #include "dx_util_buffer.h"
 
 #include "dx_file_h264.h"

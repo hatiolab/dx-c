@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "dx.h"
+
 #include "dx_debug_malloc.h"
 
 void debug_malloc_test() {

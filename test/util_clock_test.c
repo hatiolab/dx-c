@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h> // For sleep
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 

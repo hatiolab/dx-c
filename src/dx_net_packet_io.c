@@ -16,6 +16,8 @@
 #include <string.h>		// For memset
 #include <sys/epoll.h>	// For EPOLLIN, EPOLLOUT
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
@@ -79,7 +81,6 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 		if (dx_buffer_remains(pbuf) != 0)
 			return nwrite;
 
-		CONSOLE("Write Packet...(%d\n", send_count++);
 	send_buffer_done:
 		dx_list_remove(plist, pbuf);
 		/* 여기에서 버퍼를 free해줄 필요없음 - destroyer에 의해서 자동 free됨 */

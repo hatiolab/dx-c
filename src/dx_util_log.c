@@ -12,6 +12,8 @@
 
 #include <stdio.h>
 
+#include "dx.h"
+
 FILE* _dx_logfile = NULL;
 
 void dx_loginit() {

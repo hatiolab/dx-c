@@ -21,6 +21,8 @@
 #include <fcntl.h>      // For fcntl
 #include <sys/epoll.h>    // For EPOLLIN
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_net_packet_io.h"
 

@@ -32,8 +32,9 @@
 #include <linux/uvcvideo.h>
 #include <linux/usb/video.h>
 
-#include "dx_util_file.h"
+#include "dx.h"
 
+#include "dx_util_file.h"
 
 typedef enum {
 	IO_METHOD_READ,

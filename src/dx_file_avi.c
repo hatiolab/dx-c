@@ -18,6 +18,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
@@ -214,8 +216,8 @@ dx_movie_frame_index_t* dx_avi_get_frame_index(dx_movie_context_t* context) {
 
 	int i = 0;
 	int frame_length = 0;
+	int track_count = 0;
 	int current_fragment_no = context->current_frame->fragment_no;
-//	int current_frame_no = context->current_frame->frame_no;
 	dx_avi_index_entry_t entry;
 
 	/*
@@ -236,14 +238,21 @@ dx_movie_frame_index_t* dx_avi_get_frame_index(dx_movie_context_t* context) {
 			break;
 
 		memcpy(index->track_id, entry.ckid, 4);
-		index->length = entry.length;
-		index->offset = entry.offset;
 
-		frame_length += entry.length;
+		/* FIXME 여기에 요청된 트랙 아이디만 추가하는 것으로 변경해야 함. */
+//		if(strncmp("01dc", entry.ckid, 4) != 0 && strncmp("02wb", entry.ckid, 4) != 0) {
+//			index->length = 0;
+//		} else {
+			index->length = entry.length;
+//		}
+
+		index->offset = entry.offset;
+		frame_length += index->length;
+		track_count++;
 	}
 
 	if(i > 0) {
-		context->current_frame->track_count = i;
+		context->current_frame->track_count = track_count;
 		context->current_frame->frame_length = frame_length;
 	}
 

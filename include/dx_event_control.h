@@ -13,8 +13,6 @@
 #ifndef __DX_EVENT_CONTROL_H
 #define __DX_EVENT_CONTROL_H
 
-#include "dx_event_mplexer.h"
-
 /*
  * Definitions
  */

@@ -17,6 +17,8 @@
 #include <stddef.h>   // For NULL
 #include <sys/epoll.h>  // For EPOLLIN
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 

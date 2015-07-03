@@ -13,20 +13,24 @@
 #ifndef __DX_UTIL_LOG_H
 #define __DX_UTIL_LOG_H
 
-#include "stdio.h"
+#include <stdio.h>
 
 FILE* dx_logfile();
 
-#if 0
-#define LOG(fmt, ...) do { fprintf(dx_logfile(), fmt "=> %s:%d:%s()\n", ##__VA_ARGS__, __FILE__, __LINE__, __func__); } while(0)
-#define CONSOLE(fmt, ...) do { fprintf(stdout, fmt, ##__VA_ARGS__); } while(0)
-#define DEBUG(fmt, ...) do { fprintf(stdout, "[[[\n" fmt "]]]\n", ##__VA_ARGS__); } while(0)
-#define ERROR(fmt, ...) do { fprintf(stderr, fmt "=> %s:%d:%s()\n", ##__VA_ARGS__, __FILE__, __LINE__, __func__); } while(0)
+#ifdef DX_DEBUG
+
+#define LOG(fmt, ...) do { fprintf(dx_logfile(), fmt "=> %s:%d:%s()\n", ##__VA_ARGS__, __FILE__, __LINE__, __func__); } while(0);
+#define CONSOLE(fmt, ...) do { fprintf(stdout, fmt, ##__VA_ARGS__); } while(0);
+#define DEBUG(fmt, ...) do { fprintf(stdout, "[[[\n" fmt "]]]\n", ##__VA_ARGS__); } while(0);
+#define ERROR(fmt, ...) do { fprintf(stderr, fmt "=> %s:%d:%s()\n", ##__VA_ARGS__, __FILE__, __LINE__, __func__); } while(0);
+
 #else
-#define LOG(fmt, ...) do { fprintf(dx_logfile(), fmt "\n", ##__VA_ARGS__); } while(0)
-#define CONSOLE(fmt, ...) do { fprintf(stdout, fmt, ##__VA_ARGS__); } while(0)
-#define DEBUG(fmt, ...) do { fprintf(stdout, "[[[\n" fmt "]]]\n", ##__VA_ARGS__); } while(0)
-#define ERROR(fmt, ...) do { fprintf(stderr, fmt "=> %s:%d:%s()\n", ##__VA_ARGS__, __FILE__, __LINE__, __func__); } while(0)
+
+#define LOG(fmt, ...) do { fprintf(dx_logfile(), fmt "\n", ##__VA_ARGS__); } while(0);
+#define CONSOLE(fmt, ...) do { fprintf(stdout, fmt, ##__VA_ARGS__); } while(0);
+#define DEBUG(fmt, ...) do { fprintf(stdout, "[[[\n" fmt "]]]\n", ##__VA_ARGS__); } while(0);
+#define ERROR(fmt, ...) do { fprintf(stderr, fmt "=> %s:%d:%s()\n", ##__VA_ARGS__, __FILE__, __LINE__, __func__); } while(0);
+
 #endif
 
 #endif /* __DX_UTIL_LOG_H */

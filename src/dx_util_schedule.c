@@ -10,10 +10,14 @@
 // PARTICULAR PURPOSE.
 //
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h> // For memcpy
 #include <unistd.h> // For read
 #include <stdarg.h>	// For va_start, va_end, va_arg,..
 #include <sys/sysinfo.h>
+
+#include "dx.h"
 
 #include "dx_debug_malloc.h"
 #include "dx_debug_assert.h"
@@ -22,9 +26,6 @@
 #include "dx_util_list.h"
 #include "dx_util_schedule.h"
 #include "dx_util_clock.h"
-
-#include <stdio.h>
-#include <stdlib.h>
 
 dx_list_t* __dx_schedule_list = NULL;
 
@@ -43,8 +44,7 @@ void dx_scheduler_start() {
 void dx_scheduler_stop() {
 	ASSERT("Schedule System should be already started.", __dx_schedule_list != NULL)
 
-	dx_list_clear(__dx_schedule_list);
-
+	dx_list_close(__dx_schedule_list);
 	FREE(__dx_schedule_list);
 }
 

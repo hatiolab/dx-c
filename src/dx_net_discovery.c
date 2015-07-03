@@ -19,6 +19,7 @@
 #include <arpa/inet.h>    // For inet_ntoa
 
 #include "dx.h"
+
 #include "dx_net_discovery.h"
 #include "dx_event_mplexer.h"
 

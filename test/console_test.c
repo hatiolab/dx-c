@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <strings.h>
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
@@ -16,7 +18,6 @@
 #include "dx_net_packet.h"
 #include "dx_net_packet_file.h"
 
-#include "dx.h"
 #include "dx_console.h"
 
 void test_console_menu_handler(char* cmdline) {

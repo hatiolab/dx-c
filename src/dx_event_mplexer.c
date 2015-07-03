@@ -18,6 +18,8 @@
 #include <unistd.h>     // For close
 #include <string.h>		// For memset
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
@@ -61,7 +63,7 @@ int dx_event_mplexer_destroy() {
   ASSERT("Only Polling Thread can destroy Mplexer", __dx_mplexer->polling_thread)
 
   dx_clear_event_context();
-  dx_list_clear(&__dx_mplexer->context_list);
+  dx_list_close(&__dx_mplexer->context_list);
 
   FREE(__dx_mplexer->events);
 
@@ -163,7 +165,7 @@ int dx_event_context_destroyer(void* data) {
     dx_buffer_free(context->pbuf_reading);
 
   if(context->plist_writing != NULL) {
-    dx_list_clear(context->plist_writing);
+    dx_list_close(context->plist_writing);
     FREE(context->plist_writing);
     context->plist_writing = NULL;
   }

@@ -2,10 +2,13 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
 #include "dx_util_lock.h"
+#include "dx_util_log.h"
 
 #define UTIL_LOCK_TEST_THREAD_COUNT 16
 
@@ -15,23 +18,25 @@ void* util_lock_test_task(void* arg) {
 
 	unsigned long i = 0;
 
-	dx_lock();
+	DX_LOCK_GLOBAL()
 
 	for(i = 0;i < 0xFFFFFFL;i++) {
 		_util_lock_test_counter++;
 	}
 
-	dx_unlock();
+	DX_UNLOCK_GLOBAL()
 
 	return NULL;
 }
+
+#ifdef DX_MULTITHREADED
 
 void util_lock_test() {
 	int i;
 
 	_util_lock_test_counter = 0;
 
-	dx_lock_init();
+	DX_LOCK_GLOBAL_INIT()
 
 	pthread_t tid[UTIL_LOCK_TEST_THREAD_COUNT];
 
@@ -43,7 +48,15 @@ void util_lock_test() {
 
 	ASSERT("Lock dosen't work.", _util_lock_test_counter == 0xFFFFFFL * UTIL_LOCK_TEST_THREAD_COUNT)
 
-	CHKMEM();
+	CHKMEM()
 
-	dx_lock_destroy();
+	DX_LOCK_GLOBAL_DESTROY()
 }
+
+#else
+
+void util_lock_test() {
+	CONSOLE("This test only for multithreaded environment.\n")
+}
+
+#endif

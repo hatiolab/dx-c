@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h> // For sleep
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
@@ -12,7 +14,7 @@
 int text_schedule_count = 0;
 
 int test_schedule_callback(void* p) {
-	CONSOLE("Schedule Callback %d\n", (int)p);
+	CONSOLE("Schedule Callback %d\n", (int)p)
 
 	text_schedule_count++;
 

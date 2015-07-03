@@ -18,6 +18,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+#include "dx.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 

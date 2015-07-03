@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include "dx.h"
+
 #ifndef F_GETPATH
 #define F_GETPATH	(1024 + 7)
 #endif

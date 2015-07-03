@@ -19,12 +19,22 @@
  * Definitions
  */
 
+#ifdef DX_DEBUG
+
 void* dx_malloc(size_t sz, char* fname, int line);
 void dx_free(void* p, char* filename, int line);
 void dx_chkmem();
 
 #define MALLOC(z) (dx_malloc(z, __FILE__, __LINE__))
 #define FREE(p) (dx_free(p, __FILE__, __LINE__))
-#define CHKMEM() (dx_chkmem())
+#define CHKMEM() (dx_chkmem());
+
+#else
+
+#define MALLOC(z) (malloc(z))
+#define FREE(p) (free(p))
+#define CHKMEM()
+
+#endif /* DX_DEBUG */
 
 #endif /* DX_UTIL_MALLOC_H */

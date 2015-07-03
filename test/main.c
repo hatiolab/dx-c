@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "dx.h"
+
 #include "dx_util_buffer.h"
 #include "dx_util_log.h"
 

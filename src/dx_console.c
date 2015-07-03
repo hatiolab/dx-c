@@ -15,6 +15,8 @@
 #include <unistd.h>     // For STDIN_FILENO
 #include <string.h>		// For strtok_r
 
+#include "dx.h"
+
 #include "dx_util_log.h"
 
 #include "dx_console.h"

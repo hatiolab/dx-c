@@ -15,8 +15,12 @@
 #include <stdlib.h> // For malloc, free, size_t
 #include <string.h> // For memset
 
+#include "dx.h"
+
 #include "dx_util_log.h"
 #include "dx_util_list.h"
+
+#ifdef DX_DEBUG
 
 #define DX_MALLOC_WATERMARK "DXMAWTMR"
 #define DX_MALLOC_WATERMARK_SIZE 8
@@ -122,10 +126,15 @@ void dx_free(void* p, char* filename, int line) {
 
 void dx_chkmem_callback(dx_malloc_head_t* p) {
 	CONSOLE("[MEM] allocated on %48s:%d(size %d)\n", p->filename, p->line, p->size);
+	__dx_alloc_count = 0;
+	__dx_free_count = 0;
 }
 
 void dx_chkmem() {
 	CONSOLE("[CHKMEM] %ld Allocated, %ld Freed. \n", __dx_alloc_count, __dx_free_count);
 
 	dx_list_iterator(&__dx_alloc_list, (dx_list_iterator_callback) dx_chkmem_callback);
+	dx_list_close(&__dx_alloc_list);
 }
+
+#endif
