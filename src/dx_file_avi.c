@@ -249,6 +249,11 @@ dx_movie_frame_index_t* dx_avi_get_frame_index(dx_movie_context_t* context) {
 		index->offset = entry.offset;
 		frame_length += index->length;
 		track_count++;
+
+//		if(strncmp("01dc", entry.ckid, 4) == 0) {
+//			CONSOLE("[01dc-entry] OFFSET : %d, LENGTH : %d\n", entry.offset, entry.length);
+//			CONSOLE("[01dc-index] OFFSET : %d, LENGTH : %d\n", entry.offset, entry.length);
+//		}
 	}
 
 	if(i > 0) {
@@ -269,6 +274,7 @@ int dx_avi_get_frame_data(dx_movie_context_t* context, int8_t* buffer) {
 
 	for(i = 0;i < current_frame->track_count;i++) {
 		dx_movie_frame_track_index_t* index = current_frame->track + i;
+
 
 		lseek(context->fd, context->frame_offset + index->offset, SEEK_SET);
 		read(context->fd, buffer + offset, index->length);
@@ -470,7 +476,7 @@ int dx_avi_list_handler(int fd, dx_avi_chunk_t* chunk, dx_avi_chunk_map_t* map, 
 
 	if(memcmp(list.cc, "movi", 4) == 0) {
 		dx_movie_context_t** pcontext = (dx_movie_context_t**)clojure;
-		(*pcontext)->frame_offset = pos; /* list(movi)->data의 오프셋임 */
+		(*pcontext)->frame_offset = pos + 4; /* list(movi)->data의 오프셋임. +4 bytes 의미는 알 수없음. */
 	}
 
 	/* traverse child chunks */
