@@ -23,7 +23,7 @@ int od_handler_movie_command_resume(int fd, dx_packet_t* packet);
 int od_handler_movie_command_pause(int fd, dx_packet_t* packet);
 
 int od_drive_handler_movie(int fd, dx_packet_t* packet) {
-    printf("(Drive Event Handling) Command(%d)\n", packet->header.code);
+    CONSOLE("(Drive Event Handling) Command(%d)\n", packet->header.code);
 
     switch(packet->header.code) {
 

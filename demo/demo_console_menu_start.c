@@ -26,6 +26,7 @@ void demo_start_menu_handler(char* cmdline) {
 }
 
 void demo_start_discovery_server_handler(char* cmdline) {
+	char* param;
 	int port = DEFAULT_DISCOVERY_PORT;
 
 	if(demo_discovery_server >= 0) {
@@ -33,14 +34,15 @@ void demo_start_discovery_server_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		port = atoi(strtok(cmdline, " \t\n\f"));
+	if(cmdline != NULL && (param = strtok(cmdline, " \t\n\f")) != NULL)
+		port = atoi(param);
 
 	demo_discovery_server = dx_discovery_server_start(port, demo_discovery_server_callback);
 	CONSOLE("Discovery Server(%d:%d) Started Successfully\n", demo_discovery_server, port);
 }
 
 void demo_start_discovery_client_handler(char* cmdline) {
+	char* param;
 	int port = 0;
 
 	if(demo_discovery_client >= 0) {
@@ -48,14 +50,15 @@ void demo_start_discovery_client_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		port = atoi(strtok(cmdline, " \t\n\f"));
+	if(cmdline != NULL && (param = strtok(cmdline, " \t\n\f")) != NULL)
+		port = atoi(param);
 
 	demo_discovery_client = dx_discovery_client_start(port, demo_discovery_server_found_callback);
 	CONSOLE("Discovery Client(%d:%d) Started Successfully\n", demo_discovery_client, port);
 }
 
 void demo_start_server_handler(char* cmdline) {
+	char* param;
 	int port = DEFAULT_SERVER_PORT;
 
 	if(demo_server >= 0) {
@@ -63,8 +66,8 @@ void demo_start_server_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		port = atoi(strtok(cmdline, " \t\n\f"));
+	if(cmdline != NULL && (param = strtok(cmdline, " \t\n\f")) != NULL)
+		port = atoi(param);
 
 	demo_server = dx_server_start(port, demo_server_event_handler);
 	CONSOLE("Demo Server(%d:%d) Started Successfully\n", demo_server, dx_server_get_service_port(demo_server));
@@ -93,6 +96,7 @@ void demo_start_client_handler(char* cmdline) {
 }
 
 void demo_discovery_send_handler(char* cmdline) {
+	char* param;
 	int port = DEFAULT_DISCOVERY_PORT;
 
 	if(demo_discovery_client < 0) {
@@ -100,17 +104,18 @@ void demo_discovery_send_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		port = atoi(strtok(cmdline, " \t\n\f"));
+	if(cmdline != NULL && (param = strtok(cmdline, " \t\n\f")) != NULL)
+		port = atoi(param);
 
 	dx_discovery_send_broadcast(demo_discovery_client, port);
 }
 
 void demo_start_all_handler(char* cmdline) {
+	char* param;
 	int port = DEFAULT_DISCOVERY_PORT;
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		port = atoi(strtok(cmdline, " \t\n\f"));
+	if(cmdline != NULL && (param = strtok(cmdline, " \t\n\f")) != NULL)
+		port = atoi(param);
 
 	if(demo_server < 0)
 		demo_server = dx_server_start(0, demo_server_event_handler);
@@ -124,10 +129,11 @@ void demo_start_all_handler(char* cmdline) {
 }
 
 void demo_start_all_server_handler(char* cmdline) {
+	char* param;
 	int port = DEFAULT_DISCOVERY_PORT;
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		port = atoi(strtok(cmdline, " \t\n\f"));
+	if(cmdline != NULL && (param = strtok(cmdline, " \t\n\f")) != NULL)
+		port = atoi(param);
 
 	if(demo_server < 0)
 		demo_server = dx_server_start(0, demo_server_event_handler);
@@ -136,10 +142,11 @@ void demo_start_all_server_handler(char* cmdline) {
 }
 
 void demo_start_all_client_handler(char* cmdline) {
+	char* param;
 	int port = DEFAULT_DISCOVERY_PORT;
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		port = atoi(strtok(cmdline, " \t\n\f"));
+	if(cmdline != NULL && (param = strtok(cmdline, " \t\n\f")) != NULL)
+		port = atoi(param);
 
 	if(demo_discovery_client < 0)
 		demo_discovery_client = dx_discovery_client_start(0, demo_discovery_server_found_callback);

@@ -96,11 +96,6 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 		pbuf = (dx_buffer_t*) pnode->data;
 		ASSERT("Buffer should not be NULL\n", pbuf != NULL)
 	}
-
-	/* TODO 현재의 값을 가져와서 EPOLLOUT을 제거하는 방법으로 수정해야 함. */
-	dx_mod_event_context(pcontext, EPOLLIN);
-
-	return nwrite;
 }
 
 /*

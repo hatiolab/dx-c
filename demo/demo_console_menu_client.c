@@ -24,6 +24,7 @@ int demo_client_hb_callback(void* p) {
 }
 
 void demo_client_repeat_hb_handler(char* cmdline) {
+	char* param;
 	int duration = 5000; /* default heartbeat duration */
 
 	if(demo_client < 0){
@@ -31,8 +32,9 @@ void demo_client_repeat_hb_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		duration = atoi(strtok(cmdline, " \t\n\f"));
+	if(cmdline != NULL && (param = strtok(cmdline, " \t\n\f")) != NULL) {
+		duration = atoi(param);
+	}
 
 	if(duration < 1000)
 		duration = 5000;

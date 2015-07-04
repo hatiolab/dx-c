@@ -11,10 +11,7 @@ void demo_movie_playback_start_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		path = strtok(cmdline, " \t\n\f");
-
-	if(path == NULL || strlen(path) == 0) {
+	if(cmdline == NULL || (path = strtok(cmdline, " \t\n\f")) == NULL) {
 		ERROR("Path is Empty..")
 	} else
 		dx_packet_send_string(demo_client, DX_PACKET_TYPE_COMMAND, OD_CMD_START_PLAYBACK, path);
@@ -41,10 +38,7 @@ void demo_movie_get_movie_info_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		path = strtok(cmdline, " \t\n\f");
-
-	if(path == NULL || strlen(path) == 0) {
+	if(cmdline == NULL || (path = strtok(cmdline, " \t\n\f")) == NULL) {
 		ERROR("Path is Empty..")
 	} else
 		dx_packet_send_movie_get_info(demo_client, path);
@@ -58,10 +52,7 @@ void demo_movie_start_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		path = strtok(cmdline, " \t\n\f");
-
-	if(path == NULL || strlen(path) == 0) {
+	if(cmdline == NULL || (path = strtok(cmdline, " \t\n\f")) == NULL) {
 		ERROR("Path is Empty..")
 	} else
 		dx_packet_send_movie_start(demo_client, path, 0, -1, 30);
@@ -75,10 +66,7 @@ void demo_movie_stop_handler(char* cmdline) {
 		return;
 	}
 
-	if(cmdline != NULL && strlen(cmdline) > 0)
-		path = strtok(cmdline, " \t\n\f");
-
-	if(path == NULL || strlen(path) == 0) {
+	if(cmdline == NULL || (path = strtok(cmdline, " \t\n\f")) == NULL) {
 		ERROR("Path is Empty..")
 	} else
 		dx_packet_send_movie_stop(demo_client, path);
