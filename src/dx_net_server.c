@@ -19,6 +19,7 @@
 #include <string.h>     	// For memset
 #include <fcntl.h>      	// For fcntl
 #include <sys/epoll.h>    	// For epoll
+#include <errno.h>			// For EAGAIN
 
 #include "dx.h"
 
@@ -154,7 +155,7 @@ int dx_server_writable_handler(dx_event_context_t* context) {
     return 0;
   } else {
     int nwrite = dx_write_by_poller(context);
-    if(nwrite < 0) {
+    if(nwrite < 0 && errno != EAGAIN) {
       perror("Server write() error");
       close(context->fd);
       context->fd = -1;

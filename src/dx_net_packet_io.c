@@ -73,7 +73,7 @@ int dx_write_by_poller(dx_event_context_t* pcontext) {
 		nwrite = write(pcontext->fd, dx_buffer_ppos(pbuf),
 				dx_buffer_remains(pbuf));
 		if (nwrite <= 0)
-			return -1;
+			return nwrite;
 
 		twrite += nwrite;
 
