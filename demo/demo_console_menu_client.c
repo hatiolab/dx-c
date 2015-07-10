@@ -52,4 +52,5 @@ void demo_client_file_handler(char* cmdline){}
 
 void demo_client_stop_handler(char* cmdline) {
 	close(demo_client);
+	demo_client = -1;
 }

@@ -171,18 +171,27 @@ int dx_server_readable_handler(dx_event_context_t* context) {
 
   dx_packet_t* packet = NULL;
   int ret;
+  int closed = 0;
 
   ret = dx_receive_packet(context, &packet);
 
-  if(0 == ret) {
-    CONSOLE("Client hung up\n");
-    dx_del_event_context(context);
-    return -1;
-  } else if(0 > ret) {
-    perror("Server read() error");
-    close(context->fd);
-    dx_del_event_context(context);
-    return -2;
+  if(0 >= ret) {
+    if(0 == ret) {
+      CONSOLE("Client hung up\n");
+    } else if(0 > ret) {
+      perror("Server read() error");
+    }
+
+    /* Set DISCONNECT Event on Purpose */
+    dx_primitive_packet_t disconnect_packet;
+    disconnect_packet.header.len = DX_PRIMITIVE_PACKET_SIZE;
+    disconnect_packet.header.type = DX_PACKET_TYPE_EVENT;
+    disconnect_packet.header.code = DX_EVT_DISCONNECT;
+    disconnect_packet.data.u32 = 0;
+
+    packet = (dx_packet_t*)&disconnect_packet;
+
+    closed = 1;
   }
 
   /* 이번 이벤트처리시에 패킷 데이타를 다 못읽었기 때문에, 다음 이벤트에서 계속 진행하도록 리턴함 */
@@ -191,6 +200,11 @@ int dx_server_readable_handler(dx_event_context_t* context) {
 
   /* 받은 메시지로 완성된 패킷을 핸들러(사용자 로직)로 보내서 처리한다. */
   ((dx_server_event_handler)context->user_handler)(context, packet);
+
+  if(closed == 1) {
+    close(context->fd);
+    dx_del_event_context(context);
+  }
 
   return 0;
 }

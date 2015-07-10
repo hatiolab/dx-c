@@ -20,6 +20,7 @@ int od_drive_handler_event(int fd, dx_packet_t* packet) {
     case OD_EVT_CONNECT                  :   /* 옴니드라이브가 연결되었을 때 발생 */
         break;
     case OD_EVT_DISCONNECT               :   /* 옴니드라이브 연결이 끊겼을 때 발생 */
+    	od_drive_handler_evt_disconnect(fd, packet);
         break;
     case OD_EVT_ERROR                    :   /* 오류 발생 이벤트 */
         break;
@@ -58,3 +59,8 @@ int od_drive_handler_event(int fd, dx_packet_t* packet) {
     return 0;
 }
 
+int od_drive_handler_evt_disconnect(int fd, dx_packet_t* packet) {
+	CONSOLE("(Drive Event Handler) Host Disconnected\n");
+
+    return 0;
+}

@@ -106,14 +106,18 @@ int dx_write(int fd, void* buf, ssize_t sz, int discardable) {
 	dx_list_t* plist = NULL;
 	dx_buffer_t* pbuf = NULL;
 
-	if(pcontext == NULL)
+	if(pcontext == NULL) {
+		FREE(buf);
 		return -1;
+	}
 
 	plist = pcontext->plist_writing;
 
 	if (plist == NULL) {
-		if(dx_file_is_closed(fd))
-			return 0;
+		if(dx_file_is_closed(fd)) {
+			FREE(buf);
+			return -1;
+		}
 		pcontext->plist_writing = plist = (dx_list_t*) MALLOC(
 				sizeof(dx_list_t));
 		dx_list_init(plist, NULL, (dx_destroyer_function) dx_buffer_free);
@@ -121,6 +125,7 @@ int dx_write(int fd, void* buf, ssize_t sz, int discardable) {
 
 	if(discardable && dx_list_size(plist) > 10) {
 		ERROR("Cut off pending discardable messages.");
+		FREE(buf);
 		return 0;
 	}
 

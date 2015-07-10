@@ -17,6 +17,8 @@
 
 #include "dx.h"
 
+#include "dx_debug_assert.h"
+
 #include "dx_util_log.h"
 #include "dx_util_list.h"
 
@@ -74,6 +76,10 @@ void* dx_malloc(size_t sz, char* fname, int line) {
 		return malloc(sz);
 
 	p = malloc(sz + DX_MALLOC_HEAD_SIZE);
+	ASSERT("Memory allocation failed.", p != NULL)
+	if(p == NULL)
+		return NULL;
+
 	head = (dx_malloc_head_t*) p;
 
 	if (__dx_alloc_count == 0)

@@ -53,8 +53,8 @@ int demo_movie_playback_schedule_callback(void* sender_fd) {
 	dx_movie_context_t* context = demo_movie_playback_context;
 
 	if(!dx_movie_frame_eof(context)) {
-		dx_packet_send_movie_frame((int)sender_fd, context);
-		return 0;
+		if(-1 != dx_packet_send_movie_frame((int)sender_fd, context))
+			return 0;
 	}
 
 	dx_movie_context_destroy(demo_movie_playback_context);
