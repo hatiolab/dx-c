@@ -319,7 +319,8 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_CMD_STOP_STREAM              	(OD_CMD_BASE + 10)   /* 영상 스트림 종료 명령 */
 #define OD_CMD_START_LIVE_4CH             	(OD_CMD_BASE + 11)
 #define OD_CMD_START_LIVE_HD             	(OD_CMD_BASE + 12)
-#define OD_CMD_STOP_LIVE	            	(OD_CMD_BASE + 13)
+#define OD_CMD_STOP_LIVE_4CH	            (OD_CMD_BASE + 13)
+#define OD_CMD_STOP_LIVE_HD	            	(OD_CMD_BASE + 14)
 
 /* File */
 #define OD_FILE_BASE                    0x00
