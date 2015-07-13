@@ -5,6 +5,7 @@ int demo_server_event_handler(dx_event_context_t* context, dx_packet_t* packet) 
 	switch(packet->header.type) {
 	case DX_PACKET_TYPE_HB : /* Heart Beat */
 		od_drive_handler_hb(context->fd, packet);
+//		dx_event_context_touch(context);
 		break;
 	case DX_PACKET_TYPE_GET_SETTING	: /* Get Setting */
 		od_drive_handler_get_setting(context->fd, packet);

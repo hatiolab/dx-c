@@ -25,6 +25,7 @@
 
 #include "dx_util_buffer.h"
 #include "dx_util_list.h"
+#include "dx_util_log.h"
 
 #include "dx_net_packet.h"
 #include "dx_event_control.h"
@@ -60,7 +61,8 @@ int dx_event_mplexer_destroy() {
   /*
    * 현재 이벤트 폴링을 진행중인 쓰레드만이 이 메쏘드를 호출하도록 제한한다.
    */
-  ASSERT("Only Polling Thread can destroy Mplexer", __dx_mplexer->polling_thread)
+  if(__dx_mplexer->state == DX_EVENT_MPLEXER_STATE_POLLING)
+    ASSERT("Only Polling Thread can destroy Mplexer", __dx_mplexer->polling_thread)
 
   dx_clear_event_context();
   dx_list_close(&__dx_mplexer->context_list);
@@ -198,7 +200,7 @@ int dx_mod_event_context(struct dx_event_context* context, uint32_t events) {
   event.events = events;
   event.data.ptr = context;
   if(0 > epoll_ctl(__dx_mplexer->fd, EPOLL_CTL_MOD, context->fd, &event)) {
-    printf("Multiplexer - epoll_ctl (EPOLL_CTL_MOD) error.\n");
+    perror("Multiplexer - epoll_ctl (EPOLL_CTL_MOD) error.");
   }
 
   return 0;
@@ -225,4 +227,10 @@ dx_event_context_t* dx_get_event_context(int fd) {
     pnode = pnode->next;
 
   return pnode == NULL ? NULL : (dx_event_context_t*)pnode->data;
+}
+
+void dx_event_context_touch(dx_event_context_t* context) {
+	if(context == NULL)
+		return;
+	dx_clock_get_abs_msec(&context->last_clock_touch);
 }

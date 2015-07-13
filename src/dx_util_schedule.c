@@ -46,6 +46,7 @@ void dx_scheduler_stop() {
 
 	dx_list_close(__dx_schedule_list);
 	FREE(__dx_schedule_list);
+	__dx_schedule_list = NULL;
 }
 
 void dx_scheduler_next_callback(void* ps, va_list ap) {

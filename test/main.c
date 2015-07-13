@@ -18,12 +18,17 @@ void net_pipe_test();
 void net_server_test();
 void net_dgram_loopback_test();
 void net_discovery_test();
+void net_server_connection_test();
 
 void event_control_test();
 void console_test();
 void file_avi_test();
 
+
 int main(void) {
+	CONSOLE("\nTest - net_server_connection_test()..\n");
+	net_server_connection_test();
+	CONSOLE("..Done\n");
 
 	CONSOLE("\nTest - dx_avi_test()..\n");
 	file_avi_test();

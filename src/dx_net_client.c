@@ -115,6 +115,7 @@ int dx_client_readable_handler(dx_event_context_t* context) {
   if(0 >= ret) {
     if(0 == ret) {
       CONSOLE("Server hung up\n");
+      close(context->fd);
     } else if(0 > ret) {
       perror("Client read() error");
     }
@@ -138,10 +139,8 @@ int dx_client_readable_handler(dx_event_context_t* context) {
   /* 서버로부터 받은 메시지로 완성된 패킷을 핸들러(사용자 로직)로 보내서 처리한다. */
   ((dx_client_event_handler)context->user_handler)(context, packet);
 
-  if(closed == 1) {
-    close(context->fd);
+  if(closed == 1)
     dx_del_event_context(context);
-  }
 
   return 0;
 }

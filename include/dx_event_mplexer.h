@@ -18,6 +18,7 @@
 
 #include "dx_util_buffer.h"
 #include "dx_util_list.h"
+#include "dx_util_clock.h"
 
 /*
  * Definitions
@@ -33,34 +34,36 @@ typedef int (*dx_event_handler)(dx_event_context_t*);
 typedef int (*dx_event_context_destroy_handler)(void*);
 
 struct dx_event_context {
-    int         fd;
+	int fd;
 
-    dx_event_handler readable_handler;
-    dx_event_handler writable_handler;
-    dx_event_handler error_handler;
+	dx_event_handler readable_handler;
+	dx_event_handler writable_handler;
+	dx_event_handler error_handler;
 
-    /* 현재 읽기 진행중인 바이트 버퍼 */
-  dx_buffer_t* pbuf_reading;
+	/* 현재 읽기 진행중인 바이트 버퍼 */
+	dx_buffer_t* pbuf_reading;
 
-  /* 현재 쓰기 진행중인 바이트 버퍼 리스트 */
-  dx_list_t* plist_writing;
+	/* 현재 쓰기 진행중인 바이트 버퍼 리스트 */
+	dx_list_t* plist_writing;
 
-  /* 사용자정의 이벤트 핸들러 - 커스터마이징 용도 */
-  void* user_handler;
-  /* 사용자정의 데이타 - 커스터마이징 용도 */
-  void* pdata;
-  /* 사용자 데이타 destroyer */
-  dx_event_context_destroy_handler on_destroy;
+	/* 사용자정의 이벤트 핸들러 - 커스터마이징 용도 */
+	void* user_handler;
+	/* 사용자정의 데이타 - 커스터마이징 용도 */
+	void* pdata;
+	/* 사용자 데이타 destroyer */
+
+	LONGLONG *last_clock_touch;
+	dx_event_context_destroy_handler on_destroy;
 };
 
 struct dx_event_mplexer {
-  int fd;
-  int state;
-  int signo;
-  dx_list_t context_list;
-  pthread_t polling_thread;
-  struct epoll_event* events;
-  int control_fd;
+	int fd;
+	int state;
+	int signo;
+	dx_list_t context_list;
+	pthread_t polling_thread;
+	struct epoll_event* events;
+	int control_fd;
 };
 
 typedef struct dx_event_mplexer dx_event_mplexer_t;
@@ -77,5 +80,7 @@ int dx_add_event_context(struct dx_event_context* pcontext, uint32_t events);
 int dx_mod_event_context(dx_event_context_t* context, uint32_t events);
 int dx_del_event_context(dx_event_context_t* context);
 int dx_clear_event_context();
+
+void dx_event_context_touch(dx_event_context_t* context);
 
 #endif /* __DX_EVENT_MPLEXER_H */

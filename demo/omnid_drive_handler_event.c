@@ -12,15 +12,23 @@
 
 #include "omnid.h"
 
+int demo_client_fd_in_server = -1;
+
+int od_drive_handler_evt_connect(int fd, dx_packet_t* packet);
+int od_drive_handler_evt_disconnect(int fd, dx_packet_t* packet);
+
 int od_drive_handler_event(int fd, dx_packet_t* packet) {
     printf("(Drive Event Handling) Event(%d)\n", packet->header.code);
 
     switch(packet->header.code) {
 
     case OD_EVT_CONNECT                  :   /* 옴니드라이브가 연결되었을 때 발생 */
+    	demo_client_fd_in_server = fd;
+    	od_drive_handler_evt_connect(fd, packet);
         break;
     case OD_EVT_DISCONNECT               :   /* 옴니드라이브 연결이 끊겼을 때 발생 */
     	od_drive_handler_evt_disconnect(fd, packet);
+    	demo_client_fd_in_server = -1;
         break;
     case OD_EVT_ERROR                    :   /* 오류 발생 이벤트 */
         break;
@@ -55,6 +63,12 @@ int od_drive_handler_event(int fd, dx_packet_t* packet) {
         break;
 
     }
+
+    return 0;
+}
+
+int od_drive_handler_evt_connect(int fd, dx_packet_t* packet) {
+	CONSOLE("(Drive Event Handler) Host Connected\n");
 
     return 0;
 }

@@ -53,6 +53,7 @@ typedef struct demo_menu_asso {
  */
 extern int demo_server;
 extern int demo_client;
+extern int demo_client_fd_in_server;
 extern int demo_discovery_server;
 extern int demo_discovery_client;
 
