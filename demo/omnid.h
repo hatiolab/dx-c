@@ -317,6 +317,10 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_CMD_STOP_PLAYBACK              	(OD_CMD_BASE + 8)   /* 프레이백 스트림 종료 명령 */
 #define OD_CMD_START_STREAM             	(OD_CMD_BASE + 9)   /* 영상 스트림 시작 명령 */
 #define OD_CMD_STOP_STREAM              	(OD_CMD_BASE + 10)   /* 영상 스트림 종료 명령 */
+#define OD_CMD_START_LIVE_4CH             	(OD_CMD_BASE + 11)
+#define OD_CMD_START_LIVE_HD             	(OD_CMD_BASE + 12)
+#define OD_CMD_STOP_LIVE_4CH	            (OD_CMD_BASE + 13)
+#define OD_CMD_STOP_LIVE_HD	            	(OD_CMD_BASE + 14)
 
 /* File */
 #define OD_FILE_BASE                    0x00
@@ -330,6 +334,8 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_STREAM_BASE					0x00
 #define OD_STREAM						(OD_STREAM_BASE + 0)
 #define OD_STREAM_PLAYBACK				(OD_STREAM_BASE + 1)
+#define OD_STREAM_LIVE_4CH				(OD_STREAM_BASE + 2)
+#define OD_STREAM_LIVE_HD				(OD_STREAM_BASE + 3)
 
 /* Movie Playback */
 #define OD_MOVIE_BASE					0x00
