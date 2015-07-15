@@ -72,6 +72,8 @@ int dx_accept_client(int fd) {
 	setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
 	yes = 1;
 	setsockopt(client_fd, IPPROTO_TCP, TCP_QUICKACK, &yes, sizeof(yes));
+	yes = 1;
+	setsockopt(client_fd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof(yes));
 
 	return client_fd;
 }

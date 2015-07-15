@@ -55,6 +55,8 @@ int dx_client_connect(char* hostname, uint16_t port) {
   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
   yes = 1;
   setsockopt(fd, IPPROTO_TCP, TCP_QUICKACK, &yes, sizeof(yes));
+  yes = 1;
+  setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof(yes));
 
   /* Set socket to non-blocking mode */
   flags = fcntl(fd, F_GETFL);
