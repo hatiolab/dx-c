@@ -42,7 +42,7 @@ int od_host_handler_event(int fd, dx_packet_t* packet) {
 			printf("(Host Event Handling) Event(OD_EVT_CHANGE_VIEW_MODE, %d)\n", viewmode);
 		}
         break;
-    case OD_EVT_CHAGET_TURN_SIGNAL       :   /* 방향지시등 상태 변화 : LEFT, WRITE, NONE */
+    case OD_EVT_CHANGE_TURN_SIGNAL       :   /* 방향지시등 상태 변화 : LEFT, WRITE, NONE */
         break;
     case OD_EVT_CHANGE_R_GEAR      :   /* 후진 기어 상태 변화 : ON/OFF */
         break;

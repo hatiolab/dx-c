@@ -39,7 +39,7 @@ int od_host_handler_stream_playback(int fd, dx_packet_t* packet) {
 	dx_stream_packet_t* stream = (dx_stream_packet_t*)packet;
 	int framerate = 0;
 	time_t now = time(NULL);
-	unsigned long long elapsed = 0;
+	long long elapsed = 0;
 
 	if(now - demo_stream_last_received_time > 1) {
 		/* reset all */
