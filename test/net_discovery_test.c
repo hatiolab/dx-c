@@ -37,7 +37,7 @@ void net_discovery_test() {
 	discovery_client_fd = dx_discovery_client_start(0, discovery_test_server_found_callback);
 
 	/* Big Loop */
-	while(i++ < 1000) {
+	while(i++ < 100) {
 		dx_event_mplexer_poll(1000);
 
 		dx_discovery_send_broadcast(discovery_client_fd, dx_dgram_get_service_port(discovery_server_fd));

@@ -31,7 +31,10 @@ int od_drive_handler_command(int fd, dx_packet_t* packet) {
     case OD_CMD_STOP_PLAYBACK  :   /* 플레이백 스트림 종료 명령 */
     	od_on_playback_stop(fd);
     	break;
-
+    case OD_CMD_FORMAT_SDCARD_1 :  /* SD 카드 1 포맷 명령 */
+    	break;
+    case OD_CMD_FORMAT_SDCARD_2 :  /* SD 카드 2 포맷 명령 */
+    	break;
     default :
         break;
 

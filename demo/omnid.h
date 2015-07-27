@@ -261,6 +261,8 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_STAT_EMERGENCY_SIGNAL        (OD_STAT_BASE + 11) /* 비상등 상태 */
 #define OD_STAT_EMERGENCY_RECORDING     (OD_STAT_BASE + 12) /* 블랙박스 비상 녹화 상태 */
 #define OD_STAT_RECORDING_TIME          (OD_STAT_BASE + 13) /* 블랙박스 상시 녹화 경과 시간 */
+#define OD_STAT_STORAGE_1_USAGE			(OD_STAT_BASE + 14) /* SD카드 1 사용량 */
+#define OD_STAT_STORAGE_2_USAGE			(OD_STAT_BASE + 15) /* SD카드 2 사용량 */
 
 /* Event Types */
 
@@ -270,9 +272,9 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_EVT_ERROR                    (OD_EVT_BASE + 2)   /* 오류 발생 이벤트 */
 #define OD_EVT_ALARM                    (OD_EVT_BASE + 3)   /* 경고 발생 이벤트 */
 #define OD_EVT_CHANGE_VIEW_MODE         (OD_EVT_BASE + 4)   /* 현재 뷰모드의 변화 */
-#define OD_EVT_CHAGET_TURN_SIGNAL       (OD_EVT_BASE + 5)   /* 방향지시등 상태 변화 : LEFT, WRITE, NONE */
+#define OD_EVT_CHANGE_TURN_SIGNAL       (OD_EVT_BASE + 5)   /* 방향지시등 상태 변화 : LEFT, WRITE, NONE */
 #define OD_EVT_CHANGE_R_GEAR            (OD_EVT_BASE + 6)   /* 후진 기어 상태 변화 : ON/OFF */
-#define OD_EVT_CHANGE_EMERGENCY_SIGNAL  (OD_EVT_BASE + 7)   /* 비상등 상태 변화 : ON/OFF */
+#define OD_EVT_CHANGE_EMERGENCY_SIGNAL  (OD_EVT_BASE + 7)   /* 비상등 상태 변화 : ON/OFF - 사용안함. (OD_EVT_CHANGE_TURN_SIGNAL로 커버함) */
 #define OD_EVT_CHANGE_GPS_ONOFF         (OD_EVT_BASE + 8)   /* GPS 상태 변화 : ON/OFF */
 #define OD_EVT_CHANGE_EMERGENCY_RECORD  (OD_EVT_BASE + 9)   /* 긴급녹화 상태 변화 : BEGIN / END */
 #define OD_EVT_CHANGE_RECORD            (OD_EVT_BASE + 10)  /* 블랙박스 상시녹화 상태 변화 : BEGIN / END */
@@ -281,6 +283,9 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_EVT_UPDATE_PROGRESS          (OD_EVT_BASE + 13)  /* 옴니드라이브 프로그램 업데이트 진행율 변화 */
 #define OD_EVT_UPDATE_END               (OD_EVT_BASE + 14)  /* 옴니드라이브 프로그램 업데이트 종료 */
 #define OD_EVT_CHANGE_RECORDING_TIME    (OD_EVT_BASE + 15)  /* 녹화 진행 시간 변화 */
+#define OD_EVT_RECORD_EVENT_FINISH		(OD_EVT_BASE + 16)	/* 이벤트 녹화 완료 */
+#define OD_EVT_FORMAT_SDCARD_1_FINISH	(OD_EVT_BASE + 17)  /* SD카드 1 포맷 완료 */
+#define OD_EVT_FORMAT_SDCARD_2_FINISH	(OD_EVT_BASE + 18)  /* SD카드 2 포맷 완료 */
 
 /* Alarm Code */
 
@@ -311,16 +316,16 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_CMD_CHANGE_VIEW_MODE             (OD_CMD_BASE + 4)   /* 뷰모드 변경 명령 */
 #define OD_CMD_CAPTURE_STILLCUT             (OD_CMD_BASE + 5)   /* 현재 뷰모드 영상 스틸컷 캡쳐 명령 */
 #define OD_CMD_START_UPGRADE                (OD_CMD_BASE + 6)   /* 소프트웨어 업그레이드 시작 명령 */
-
-/* For Test Only */
 #define OD_CMD_START_PLAYBACK             	(OD_CMD_BASE + 7)   /* 프레이백 스트림 시작 명령 */
 #define OD_CMD_STOP_PLAYBACK              	(OD_CMD_BASE + 8)   /* 프레이백 스트림 종료 명령 */
 #define OD_CMD_START_STREAM             	(OD_CMD_BASE + 9)   /* 영상 스트림 시작 명령 */
-#define OD_CMD_STOP_STREAM              	(OD_CMD_BASE + 10)   /* 영상 스트림 종료 명령 */
+#define OD_CMD_STOP_STREAM              	(OD_CMD_BASE + 10)  /* 영상 스트림 종료 명령 */
 #define OD_CMD_START_LIVE_4CH             	(OD_CMD_BASE + 11)
 #define OD_CMD_START_LIVE_HD             	(OD_CMD_BASE + 12)
 #define OD_CMD_STOP_LIVE_4CH	            (OD_CMD_BASE + 13)
 #define OD_CMD_STOP_LIVE_HD	            	(OD_CMD_BASE + 14)
+#define OD_CMD_FORMAT_SDCARD_1				(OD_CMD_BASE + 15)  /* SD 카드 1 포맷 명령 */
+#define OD_CMD_FORMAT_SDCARD_2				(OD_CMD_BASE + 16)  /* SD 카드 2 포맷 명령 */
 
 /* File */
 #define OD_FILE_BASE                    0x00
@@ -329,6 +334,8 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_FILE_GET                     (OD_FILE_BASE + 2)
 #define OD_FILE                         (OD_FILE_BASE + 3)
 #define OD_FILE_DELETE                  (OD_FILE_BASE + 4)
+#define OD_FILE_GET_CALIBRATION_INFO	(OD_FILE_BASE + 10)		/* OmniVue Calibration 정보 파일 요청 */
+#define OD_FILE_SET_CALIBRATION_INFO	(OD_FILE_BASE + 11)		/* OmniVue Calibration 정보 파일 업로드/다운로드 */
 
 /* Stream */
 #define OD_STREAM_BASE					0x00

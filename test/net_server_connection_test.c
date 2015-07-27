@@ -29,8 +29,6 @@ int connection_test_client_connect_event_called = 0;
 
 void net_server_connection_test() {
 
-	int i = 0;
-
 	int connection_test_schedule_count = 0;
 
 	dx_event_mplexer_create();

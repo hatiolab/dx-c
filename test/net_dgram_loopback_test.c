@@ -35,7 +35,7 @@ void net_dgram_loopback_test() {
 	fd = dx_dgram_start(TEST_DGRAM_PORT, net_dgram_loopback_handler);
 
 	/* Big Loop */
-	while(i++ < 1000) {
+	while(i++ < 100) {
 		dx_event_mplexer_poll(1000);
 
 		if(i == 1) {

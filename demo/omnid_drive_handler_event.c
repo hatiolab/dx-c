@@ -36,7 +36,7 @@ int od_drive_handler_event(int fd, dx_packet_t* packet) {
         break;
     case OD_EVT_CHANGE_VIEW_MODE         :   /* 현재 뷰모드의 변화 */
         break;
-    case OD_EVT_CHAGET_TURN_SIGNAL       :   /* 방향지시등 상태 변화 : LEFT, WRITE, NONE */
+    case OD_EVT_CHANGE_TURN_SIGNAL       :   /* 방향지시등 상태 변화 : LEFT, WRITE, NONE */
         break;
     case OD_EVT_CHANGE_R_GEAR      :   /* 후진 기어 상태 변화 : ON/OFF */
         break;
@@ -58,7 +58,12 @@ int od_drive_handler_event(int fd, dx_packet_t* packet) {
         break;
     case OD_EVT_CHANGE_RECORDING_TIME    :   /* 녹화 진행 시간 변화 */
         break;
-
+    case OD_EVT_RECORD_EVENT_FINISH      :   /* 이벤트 녹화 완료 */
+    	break;
+    case OD_EVT_FORMAT_SDCARD_1_FINISH   :   /* SD카드 1 포맷 완료 */
+    	break;
+    case OD_EVT_FORMAT_SDCARD_2_FINISH   :   /* SD카드 2 포맷 완료 */
+    	break;
     default :
         break;
 

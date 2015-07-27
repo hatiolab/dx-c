@@ -20,6 +20,7 @@
 #include <errno.h>    // For errno
 
 #include "dx.h"
+#include "dx_net.h"
 
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
@@ -240,10 +241,13 @@ int dx_packet_send_string(int fd, int type, int code, char* data) {
   return ret;
 }
 
-int dx_packet_send_stream(int fd, int code, int enctype, int8_t* data, int datalen) {
+int dx_packet_send_stream(int fd, int code, int enctype, int flags, int sequence, int8_t* data, int datalen) {
   dx_stream_packet_t* packet;
   uint32_t len = DX_STREAM_PACKET_SIZE(datalen);
   int ret;
+  unsigned long long ts;
+
+  dx_clock_get_abs_msec(&ts);
 
   packet = (dx_stream_packet_t*)MALLOC(len);
 
@@ -251,6 +255,9 @@ int dx_packet_send_stream(int fd, int code, int enctype, int8_t* data, int datal
 
   packet->data.type = htonl(enctype);
   packet->data.len = htonl(datalen);
+  packet->data.flags = htons(flags);
+  packet->data.sequence = htonl(sequence);
+  packet->data.ts = htonll(ts);
   packet->header.flags = DX_PACKET_FLAG_DISCARDABLE;
 
   if(datalen)

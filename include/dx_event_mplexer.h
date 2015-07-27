@@ -52,7 +52,7 @@ struct dx_event_context {
 	void* pdata;
 	/* 사용자 데이타 destroyer */
 
-	LONGLONG *last_clock_touch;
+	LONGLONG last_clock_touch;
 	dx_event_context_destroy_handler on_destroy;
 };
 

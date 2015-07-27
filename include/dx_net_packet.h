@@ -217,7 +217,9 @@ typedef struct dx_f32_array_packet {
 typedef struct dx_stream_data {
 	uint32_t	len;
 	uint16_t	type;
-	uint16_t	reserved;
+	uint16_t	flags;
+	uint32_t	sequence;
+	uint64_t	ts;
 	uint8_t		data[];
 } __attribute__((__packed__)) dx_stream_data_t;
 
@@ -226,7 +228,7 @@ typedef struct dx_stream_packet {
 	struct dx_stream_data data;
 } __attribute__((__packed__)) dx_stream_packet_t;
 
-#define DX_STREAM_PACKET_SIZE(n) (16+(n))
+#define DX_STREAM_PACKET_SIZE(n) (8+20+(n))
 
 /* Functions */
 
@@ -277,6 +279,6 @@ int dx_packet_send_command_f32(int fd, int code, float value);
 int dx_packet_send_array_u8(int fd, int type, int code, uint8_t* data, int datalen);
 int dx_packet_send_string(int fd, int type, int code, char* data);
 
-int dx_packet_send_stream(int fd, int code, int enctype, int8_t* data, int datalen);
+int dx_packet_send_stream(int fd, int code, int enctype, int flags, int sequence, int8_t* data, int datalen);
 
 #endif /* DX_NET_PACKET_H */

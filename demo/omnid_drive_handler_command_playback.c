@@ -16,6 +16,7 @@ dx_movie_context_t* demo_movie_context = NULL;
 dx_schedule_t* demo_playback_stream_schedule = NULL;
 
 int demo_playback_fragment_idx = 0;
+int demo_playback_stream_idx = 0;
 
 int8_t* demo_playback_buffer = NULL;
 
@@ -36,8 +37,8 @@ int demo_playback_schedule_callback(void* sender_fd) {
 			continue;
 		}
 
-		LOG("%05d - INDEX %-6.4s (%d bytes from %d)",
-				demo_playback_fragment_idx, entry.ckid, entry.length, entry.offset);
+		LOG("%05d - INDEX %-6.4s (%d bytes from %d)[flag:%d]",
+				demo_playback_fragment_idx, entry.ckid, entry.length, entry.offset, entry.flags);
 
 		/*
 		 * TODO 여기서 프레임버퍼로
@@ -48,7 +49,8 @@ int demo_playback_schedule_callback(void* sender_fd) {
 		lseek(context->fd, context->frame_offset + entry.offset, SEEK_SET);
 		read(context->fd, demo_playback_buffer, entry.length);
 
-		if(-1 == dx_packet_send_stream((int)sender_fd, DX_STREAM_PLAYBACK, 0 /* enctype */, demo_playback_buffer, entry.length)) {
+		if(-1 == dx_packet_send_stream((int)sender_fd, DX_STREAM_PLAYBACK, 0 /* enctype */,
+			entry.flags & 0x10 ? 1 : 0, demo_playback_stream_idx++, demo_playback_buffer, entry.length)) {
 			/* Network Error */
 			break;
 		}
@@ -58,6 +60,7 @@ int demo_playback_schedule_callback(void* sender_fd) {
 	}
 
 	demo_playback_fragment_idx = 0;
+	demo_playback_stream_idx = 0;
 	dx_schedule_cancel(demo_playback_stream_schedule);
 
 	if(demo_playback_buffer != NULL) {
@@ -87,6 +90,7 @@ void od_on_playback_start(int fd, dx_packet_t* packet) {
 	}
 
 	demo_playback_fragment_idx = 0;
+	demo_playback_stream_idx = 0;
 
 	bzero(path, 256);
 	memcpy(path, strpacket->array.data, ntohl(strpacket->array.len));
@@ -129,4 +133,5 @@ void od_on_playback_stop(int fd) {
 	}
 
 	demo_playback_fragment_idx = 0;
+	demo_playback_stream_idx = 0;
 }
