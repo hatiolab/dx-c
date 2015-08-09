@@ -177,44 +177,54 @@ int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 
 	dx_buffer_t* pbuf_reading = pcontext->pbuf_reading;
 	int fd = pcontext->fd;
-	int nread;
+	int nread = 0, tread = 0;
 
 	/* 각 세션별 패킷용 바이트버퍼를 찾아와서, 상태를 확인한다. */
-	if (pbuf_reading == NULL || dx_buffer_getpos(pbuf_reading) == 0) {
-		uint32_t read_len;
+	if (pbuf_reading == NULL || dx_buffer_getpos(pbuf_reading) < 4) {
 		uint32_t packet_len;
+
+		if(pbuf_reading == NULL) {
+			pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(DX_PACKET_HEADER_SIZE);
+		}
 
 		/*
 		 * 먼저 패킷 길이를 읽는다.
+		 * TODO 4바이트를 모두 못읽을 상황에 대한 처리가 필요하다.
 		 */
-		nread = read(fd, &read_len, sizeof(read_len));
-		if (nread <= 0) /* 오류 상황임 */
-			return nread;
-		ASSERT("Packet length should be read at a time.\n",
-				nread == sizeof(read_len))
 
-		packet_len = ntohl(read_len);
+		tread = dx_buffer_nread_from(pbuf_reading, 4 - dx_buffer_getpos(pbuf_reading), fd);
+
+		if (tread <= 0) /* 오류 상황임 */
+			return tread;
+		if (dx_buffer_getpos(pbuf_reading) < 4) {
+			*ppacket = NULL;
+			return tread;
+		}
+
+		packet_len = ntohl(((dx_packet_header_t*)pbuf_reading->data)->len);
 
 		/*
 		 * 읽기 전용 버퍼를 재활용하거나, 폐기 후 새로 할당한다.
 		 */
-		if (pbuf_reading == NULL) {
+		if (pbuf_reading->capacity < packet_len) {
 
-			pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(packet_len);
-		} else if (pbuf_reading->capacity < packet_len) {
+			pcontext->pbuf_reading = dx_buffer_alloc(packet_len);
+			dx_buffer_put(pcontext->pbuf_reading, pbuf_reading->data, 4);
 
 			dx_buffer_free(pbuf_reading);
-			pbuf_reading = pcontext->pbuf_reading = dx_buffer_alloc(packet_len);
+			pbuf_reading = pcontext->pbuf_reading;
 		} else {
 
-			dx_buffer_clear(pbuf_reading);
 			dx_buffer_setlimit(pbuf_reading, packet_len);
 		}
-
-		dx_buffer_put(pbuf_reading, &read_len, sizeof(read_len));
 	}
 
 	nread = dx_buffer_read_from(pbuf_reading, fd);
+	if(nread < 0) {
+		*ppacket = NULL;
+		dx_buffer_clear(pbuf_reading);
+		return nread;
+	}
 
 	if (dx_buffer_remains(pbuf_reading) == 0) {
 		*ppacket = (dx_packet_t*) pbuf_reading->data;
@@ -223,7 +233,7 @@ int dx_receive_packet(dx_event_context_t* pcontext, dx_packet_t** ppacket) {
 		*ppacket = NULL;
 	}
 
-	return nread;
+	return tread + nread;
 }
 
 int dx_receive_dgram(dx_event_context_t* pcontext, dx_packet_t** ppacket,

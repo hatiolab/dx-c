@@ -122,7 +122,13 @@ int dx_buffer_get(dx_buffer_t* pbuf, void* pdest, int sz) {
 int dx_buffer_read_from(dx_buffer_t* pbuf, int fd) {
 	int nread = dx_buffer_remains(pbuf);
 
-	nread = read(fd, dx_buffer_ppos(pbuf), nread);
+	return dx_buffer_nread_from(pbuf, nread, fd);
+}
+
+int dx_buffer_nread_from(dx_buffer_t* pbuf, int sz, int fd) {
+	int nread = read(fd, dx_buffer_ppos(pbuf), sz);
+	if(nread <= 0)
+		return nread;
 
 	dx_buffer_step_forward(pbuf, nread);
 

@@ -56,5 +56,6 @@ int dx_buffer_get(dx_buffer_t* pbuf, void* pdest, int sz);
  * 파일로부터 버퍼로 읽어온다.
  */
 int dx_buffer_read_from(dx_buffer_t* pbuf, int fd);
+int dx_buffer_nread_from(dx_buffer_t* pbuf, int sz, int fd);
 
 #endif /* __DX_UTIL_BUFFER_H */

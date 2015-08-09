@@ -95,7 +95,7 @@ int dx_client_writable_handler(dx_event_context_t* context) {
     return 0;
   } else {
     int nwrite = dx_write_by_poller(context);
-    if(nwrite < 0) {
+    if(nwrite < 0 && errno != EAGAIN) {
       perror("Server write() error");
       close(context->fd);
       dx_del_event_context(context);
