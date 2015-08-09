@@ -66,8 +66,8 @@ int dx_accept_client(int fd) {
 	}
 
 	/* Set Receive Buffer Size */
-//	setsockopt(client_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
-//	setsockopt(client_fd, SOL_SOCKET, SO_SNDBUF, &sndbufsize, sizeof(sndbufsize));
+	setsockopt(client_fd, SOL_SOCKET, SO_RCVBUF, &rcvbufsize, sizeof(rcvbufsize));
+	setsockopt(client_fd, SOL_SOCKET, SO_SNDBUF, &sndbufsize, sizeof(sndbufsize));
 
 	setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
 	yes = 1;
