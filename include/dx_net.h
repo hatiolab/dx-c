@@ -20,7 +20,8 @@
  */
 
 #define DX_DEFAULT_SERVICE_PORT 2015
-#define DX_SOCKET_BUF_SIZE    (8192 * 4)
+#define DX_SOCKET_BUF_SIZE  (8192 * 4)
+#define DX_DGRAM_BUF_SIZE  (8192 * 4)
 
 #define ntohll(x) (((uint64_t)(ntohl((uint32_t)((x<<32)>>32))) << 32) | ntohl( ((uint32_t)(x >> 32))))
 #define htonll(x) ntohll(x)

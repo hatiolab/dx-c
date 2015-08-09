@@ -23,7 +23,7 @@
  * Definitions
  */
 
-#define DX_DGRAM_MAX_PACKET_SIZE  2048
+#define DX_DGRAM_MAX_PACKET_SIZE  1024
 
 typedef void (*dx_dgram_event_handler)(dx_event_context_t* pcontext, dx_packet_t* ppacket, struct sockaddr_in* peer_addr);
 

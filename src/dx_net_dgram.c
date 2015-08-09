@@ -56,8 +56,8 @@ int dx_dgram_create() {
 
   int yes = 1;
   int flags;
-  int rcvbufsize = DX_SOCKET_BUF_SIZE;
-  int sndbufsize = DX_SOCKET_BUF_SIZE;
+  int rcvbufsize = DX_DGRAM_BUF_SIZE;
+  int sndbufsize = DX_DGRAM_BUF_SIZE;
 
   int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
