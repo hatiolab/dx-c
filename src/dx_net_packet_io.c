@@ -32,8 +32,6 @@
 
 #include "dx_net_dgram.h" // For DX_DGRAM_MAX_PACKET_SIZE
 
-int send_count = 0;
-
 int dx_write_by_poller(dx_event_context_t* pcontext) {
 	dx_list_t* plist = pcontext->plist_writing;
 	dx_buffer_t* pbuf;
