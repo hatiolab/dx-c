@@ -20,7 +20,7 @@ dx_console_menu_t demo_console_menus[]  = {
 	{2, "server", "", "do something with server ..",  NULL},
 		{20, "send", "", "send some packet to clients",  demo_server_send_handler},
 		{21, "hb", "", "send heartbeat to clients",  demo_server_hb_handler},
-		{22, "event", "", "send some events to clients",  demo_client_event_send_handler},
+		{22, "event", "", "send some events to clients",  demo_server_event_send_handler},
 		{23, "file", "", "send a file to clients", demo_server_file_handler},
 		{24, "stop", "", "stop server", demo_server_stop_handler},
 	{3, "client", "", "do something with client ..",  NULL},
