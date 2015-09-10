@@ -17,6 +17,8 @@
 
 #include "dx.h"
 
+#include "dx_util_lock.h"
+
 #include "dx_debug_assert.h"
 #include "dx_debug_malloc.h"
 
@@ -38,7 +40,7 @@ int dx_list_init(dx_list_t* plist, dx_find_function finder,
 	plist->destroyer =
 			destroyer == NULL ? dx_list_destroyer_default : destroyer;
 
-	DX_LIST_LOCK_INIT()
+	DX_LOCK_INIT(&plist->mutex, &plist->mutex_attr)
 
 	return 0;
 }
@@ -47,14 +49,14 @@ void dx_list_close(dx_list_t* plist) {
 
 	dx_list_clear(plist);
 
-	DX_LIST_LOCK_DESTROY()
+	DX_LOCK_DESTROY(&plist->mutex)
 }
 
 int dx_list_size(dx_list_t* plist) {
 	int sz = 0;
 	dx_list_node_t* pnode = NULL;
 
-	DX_LIST_LOCK()
+	DX_LOCK(&plist->mutex)
 
 	pnode = plist->head;
 
@@ -63,7 +65,7 @@ int dx_list_size(dx_list_t* plist) {
 		pnode = pnode->next;
 	}
 
-	DX_LIST_UNLOCK()
+	DX_UNLOCK(&plist->mutex)
 
 	return sz;
 }
@@ -71,7 +73,7 @@ int dx_list_size(dx_list_t* plist) {
 int dx_list_add(dx_list_t* plist, void* data) {
 	dx_list_node_t* pnode;
 
-	DX_LIST_LOCK()
+	DX_LOCK(&plist->mutex)
 
 	pnode = (dx_list_node_t*) MALLOC(sizeof(dx_list_node_t));
 
@@ -87,7 +89,7 @@ int dx_list_add(dx_list_t* plist, void* data) {
 
 	plist->tail = pnode;
 
-	DX_LIST_UNLOCK()
+	DX_UNLOCK(&plist->mutex)
 
 	return 0;
 }
@@ -95,7 +97,7 @@ int dx_list_add(dx_list_t* plist, void* data) {
 int dx_list_remove(dx_list_t* plist, void* data) {
 	dx_list_node_t* pnode = NULL;
 
-	DX_LIST_LOCK()
+	DX_LOCK(&plist->mutex)
 
 	pnode = plist->head;
 
@@ -104,7 +106,7 @@ int dx_list_remove(dx_list_t* plist, void* data) {
 	}
 
 	if (pnode == NULL) {
-		DX_LIST_UNLOCK()
+		DX_UNLOCK(&plist->mutex)
 		return -1; // Not found.
 	}
 
@@ -124,7 +126,7 @@ int dx_list_remove(dx_list_t* plist, void* data) {
 
 	FREE(pnode);
 
-	DX_LIST_UNLOCK()
+	DX_UNLOCK(&plist->mutex)
 
 	return 0;
 }
@@ -133,7 +135,7 @@ int dx_list_iterator(dx_list_t* plist, dx_list_iterator_callback callback, ...) 
 	va_list	ap;
 	dx_list_node_t* pnode = NULL;
 
-	DX_LIST_LOCK()
+	DX_LOCK(&plist->mutex)
 
 	pnode = plist->head;
 
@@ -145,14 +147,14 @@ int dx_list_iterator(dx_list_t* plist, dx_list_iterator_callback callback, ...) 
 		pnode = pnode->next;
 	}
 
-	DX_LIST_UNLOCK()
+	DX_UNLOCK(&plist->mutex)
 
 	return 0;
 }
 
 int dx_list_clear(dx_list_t* plist) {
 
-	DX_LIST_LOCK()
+	DX_LOCK(&plist->mutex)
 
 	while (plist->head) {
 		dx_list_remove(plist, plist->head->data);
@@ -160,7 +162,7 @@ int dx_list_clear(dx_list_t* plist) {
 
 	ASSERT("plist->last should be NULL", !plist->tail);
 
-	DX_LIST_UNLOCK()
+	DX_UNLOCK(&plist->mutex)
 
 	return 0;
 }

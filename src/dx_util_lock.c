@@ -20,9 +20,12 @@
 #ifdef DX_MULTITHREADED
 
 pthread_mutex_t __dx_lock;
+pthread_mutexattr_t __dx_lock_attr;
 
 void dx_lock_global_init() {
-	int success = pthread_mutex_init(&__dx_lock, NULL);
+	pthread_mutexattr_init(&__dx_lock_attr);
+	pthread_mutexattr_settype(&__dx_lock_attr, PTHREAD_MUTEX_RECURSIVE);
+	int success = pthread_mutex_init(&__dx_lock, &__dx_lock_attr);
 	ASSERT("Mutex Init Failed.\n", success == 0);
 }
 
@@ -38,8 +41,10 @@ void dx_unlock_global() {
 	pthread_mutex_unlock(&__dx_lock);
 }
 
-void dx_lock_init(pthread_mutex_t* mutex) {
-	int success = pthread_mutex_init(mutex, NULL);
+void dx_lock_init(pthread_mutex_t* mutex, pthread_mutexattr_t* attr) {
+	pthread_mutexattr_init(attr);
+	pthread_mutexattr_settype(attr, PTHREAD_MUTEX_RECURSIVE);
+	int success = pthread_mutex_init(mutex, attr);
 	ASSERT("Mutex Init Failed.\n", success == 0);
 }
 

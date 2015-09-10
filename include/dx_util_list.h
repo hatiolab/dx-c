@@ -16,6 +16,8 @@
 #include <stdarg.h>
 #include <pthread.h>
 
+#include "dx.h"
+
 /*
  * Definitions
  */
@@ -40,6 +42,7 @@ typedef struct dx_list {
   dx_find_function    finder;
   dx_destroyer_function   destroyer;
 #ifdef DX_MULTITHREADED
+  pthread_mutexattr_t mutex_attr;
   pthread_mutex_t	mutex;
 #endif
 } dx_list_t;
@@ -52,21 +55,5 @@ int dx_list_add(dx_list_t* plist, void* data);
 int dx_list_remove(dx_list_t* plist, void* data);
 int dx_list_clear(dx_list_t* plist);
 int dx_list_iterator(dx_list_t* plist, dx_list_iterator_callback callback, ...);
-
-#ifdef DX_MULTITHREADED
-
-#define DX_LIST_LOCK_INIT(plist)	DX_LOCK_INIT(&plist->mutex)
-#define DX_LIST_LOCK_DESTROY(plist)	DX_LOCK_DESTROY(&plist->mutex)
-#define DX_LIST_LOCK(plist)	DX_LOCK(&plist->mutex)
-#define DX_LIST_UNLOCK(plist)	DX_UNLOCK(&plist->mutex)
-
-#else
-
-#define DX_LIST_LOCK_INIT(plist)
-#define DX_LIST_LOCK_DESTROY(plist)
-#define DX_LIST_LOCK(plist)
-#define DX_LIST_UNLOCK(plist)
-
-#endif
 
 #endif /* __DX_UTIL_LIST_H */

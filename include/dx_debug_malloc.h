@@ -15,11 +15,13 @@
 
 #include <stddef.h>
 
+#include "dx.h"
+
 /*
  * Definitions
  */
 
-#ifdef DX_DEBUG
+#ifdef DX_MALLOC_DEBUG
 
 void* dx_malloc(size_t sz, char* fname, int line);
 void dx_free(void* p, char* filename, int line);

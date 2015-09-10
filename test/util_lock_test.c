@@ -19,11 +19,13 @@ void* util_lock_test_task(void* arg) {
 	unsigned long i = 0;
 
 	DX_LOCK_GLOBAL()
+	DX_LOCK_GLOBAL()
 
 	for(i = 0;i < 0xFFFFFFL;i++) {
 		_util_lock_test_counter++;
 	}
 
+	DX_UNLOCK_GLOBAL()
 	DX_UNLOCK_GLOBAL()
 
 	return NULL;

@@ -11,8 +11,14 @@
 //
 
 #include <stdio.h>
+#include <execinfo.h>
+#include <malloc.h>
 
 #include "dx.h"
+
+#include "dx_util_log.h"
+
+#define DX_TRACE_STACK_SIZE 100
 
 FILE* _dx_logfile = NULL;
 
@@ -25,4 +31,25 @@ FILE* dx_logfile() {
 		dx_loginit();
 
 	return _dx_logfile;
+}
+
+void dx_trace() {
+	/* -rdynamic link option 필요 */
+	void* buffer[DX_TRACE_STACK_SIZE];
+	char** funcNames;
+	int i, nptrs;
+
+	nptrs = backtrace(buffer, DX_TRACE_STACK_SIZE);
+
+	funcNames = backtrace_symbols(buffer, nptrs);
+
+	if(funcNames == NULL) {
+		perror("Backtrace Symbols");
+		return;
+	}
+
+	for(i = 0;i < nptrs;i++)
+		CONSOLE("%s\n", funcNames[i]);
+
+	free(funcNames);
 }

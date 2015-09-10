@@ -21,6 +21,7 @@
 
 #include "dx_util_log.h"
 #include "dx_util_list.h"
+#include "dx_util_lock.h"
 
 #ifdef DX_DEBUG
 
@@ -72,8 +73,14 @@ void* dx_malloc(size_t sz, char* fname, int line) {
 	void* p;
 	dx_malloc_head_t* head;
 
-	if (__dx_alloc_except_flag)
+	DX_LOCK(&__dx_alloc_list.mutex);
+
+	if (__dx_alloc_except_flag) {
+		DX_UNLOCK(&__dx_alloc_list.mutex);
 		return malloc(sz);
+	}
+
+	DX_UNLOCK(&__dx_alloc_list.mutex);
 
 	p = malloc(sz + DX_MALLOC_HEAD_SIZE);
 	ASSERT("Memory allocation failed.", p != NULL)
@@ -93,9 +100,13 @@ void* dx_malloc(size_t sz, char* fname, int line) {
 
 	__dx_alloc_count++;
 
+	DX_LOCK(&__dx_alloc_list.mutex);
+
 	dx_malloc_set_except_flag(1);
 	dx_list_add(&__dx_alloc_list, p);
 	dx_malloc_set_except_flag(0);
+
+	DX_UNLOCK(&__dx_alloc_list.mutex);
 
 	return (void*) &(((dx_malloc_t*) head)->allocated[0]);
 }
@@ -107,15 +118,21 @@ void* dx_malloc(size_t sz, char* fname, int line) {
  *
  */
 void dx_free(void* p, char* filename, int line) {
+	DX_LOCK(&__dx_alloc_list.mutex);
+
 	if (__dx_alloc_except_flag) {
+		DX_UNLOCK(&__dx_alloc_list.mutex);
 		free(p);
 		return;
 	}
+
+	DX_UNLOCK(&__dx_alloc_list.mutex);
 
 	dx_malloc_head_t* head = (dx_malloc_head_t*) (p - DX_MALLOC_HEAD_SIZE);
 	if (0 != memcmp(head->watermark, DX_MALLOC_WATERMARK,
 	DX_MALLOC_WATERMARK_SIZE)) {
 		CONSOLE("[ASSERT FREE] allocated at %20s:%d(sized %d), freed at %s:%d", head->filename, head->line, head->size, filename, line);
+		dx_trace();
 		exit(0);
 	}
 
@@ -123,24 +140,29 @@ void dx_free(void* p, char* filename, int line) {
 
 	__dx_free_count++;
 
+	DX_LOCK(&__dx_alloc_list.mutex);
+
 	dx_malloc_set_except_flag(1);
 	dx_list_remove(&__dx_alloc_list, head);
 	dx_malloc_set_except_flag(0);
+
+	DX_UNLOCK(&__dx_alloc_list.mutex);
 
 	free(head);
 }
 
 void dx_chkmem_callback(dx_malloc_head_t* p) {
 	CONSOLE("[MEM] allocated on %48s:%d(size %d)\n", p->filename, p->line, p->size);
-	__dx_alloc_count = 0;
-	__dx_free_count = 0;
 }
 
 void dx_chkmem() {
 	CONSOLE("[CHKMEM] %ld Allocated, %ld Freed. \n", __dx_alloc_count, __dx_free_count);
 
 	dx_list_iterator(&__dx_alloc_list, (dx_list_iterator_callback) dx_chkmem_callback);
-	dx_list_close(&__dx_alloc_list);
+	dx_list_clear(&__dx_alloc_list);
+
+	__dx_alloc_count = 0;
+	__dx_free_count = 0;
 }
 
 #endif

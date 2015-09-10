@@ -484,12 +484,14 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dx-c/include}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.735941608" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.debugging.other.2108949975" name="Other debugging flags" superClass="gnu.c.compiler.option.debugging.other" value="" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.890076159" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1628527159" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base">
 								<option id="gnu.c.link.option.libs.653406656" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pthread"/>
 								</option>
+								<option id="gnu.c.link.option.ldflags.1787630526" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-rdynamic" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.348635577" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
