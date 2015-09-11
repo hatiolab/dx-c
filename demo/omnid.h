@@ -286,6 +286,8 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_EVT_RECORD_EVENT_FINISH		(OD_EVT_BASE + 16)	/* 이벤트 녹화 완료 */
 #define OD_EVT_FORMAT_SDCARD_1_FINISH	(OD_EVT_BASE + 17)  /* SD카드 1 포맷 완료 */
 #define OD_EVT_FORMAT_SDCARD_2_FINISH	(OD_EVT_BASE + 18)  /* SD카드 2 포맷 완료 */
+#define OD_EVT_NEXT_VIEW_MODE			(OD_EVT_BASE + 19)  /* 다음 뷰모드로 전환 */
+#define OD_EVT_APP_ON_OFF				(OD_EVT_BASE + 20)  /* APP시작/종료 */
 
 /* Alarm Code */
 
