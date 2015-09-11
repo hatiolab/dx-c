@@ -24,7 +24,7 @@
  */
 
 #define DX_DEBUG
-#define DX_MALLOC_DEBUG
+//#define DX_MALLOC_DEBUG
 #define DX_MULTITHREADED
 
 /* Discovery Code */
