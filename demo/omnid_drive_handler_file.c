@@ -85,19 +85,17 @@ int od_drive_handler_file_get(int fd, dx_packet_t* p) {
 }
 
 int od_drive_handler_file_delete(int fd, dx_packet_t* p) {
-//	int pathlen;
-//	char buf[DX_PATH_MAX_SIZE + 1];
-//	od_file_query_packet_t* packet = (dx_file_query_packet_t*)p;
-//	uint32_t begin, end;
-//
-//	bzero(buf, sizeof(buf));
-//	strncpy(buf, packet->file.path, DX_PATH_MAX_SIZE);
-//	begin = ntohl(packet->file.offset_begin);
-//	end = ntohl(packet->file.offset_end);
-//
-//    printf("(Drive Event Handling) File(path : %s [%d-%d])\n", buf, begin, end);
-//
-//    od_packet_send_file(fd, buf, begin, end);
-//
+	int pathlen;
+	char buf[129];
+	dx_u8_array_packet_t* packet = (dx_u8_array_packet_t*)p;
+
+	pathlen = ntohl(packet->array.len);
+	bzero(buf, sizeof(buf));
+	strncpy(buf, (char*)packet->array.data, pathlen > DX_PATH_MAX_SIZE ? DX_PATH_MAX_SIZE : pathlen);
+
+    printf("(Drive Event Handling) File Delete(path : %s)\n", buf);
+
+    od_packet_delete_file(fd, buf);
+
 	return 0;
 }
