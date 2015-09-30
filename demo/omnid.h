@@ -111,6 +111,8 @@ int od_host_handler_movie(int fd, dx_packet_t* packet);
 #define OD_SET_FW_VERSION               (OD_SET_OMNIVUE_BASE + 21)  /* 펌웨어 버전 - READ ONLY */
 #define OD_SET_MICOM_VERSION            (OD_SET_OMNIVUE_BASE + 22)  /* 마이콤 버전 - READ ONLY */
 
+#define OD_SET_SPEED_INFO_FROM_ECU		(OD_SET_OMNIVUE_BASE + 23)  /* ECU의 속도정보를 받는지 여부. */
+
 /* My Car Settings */
 
 #define OD_SET_MYCAR_BASE               0x20
