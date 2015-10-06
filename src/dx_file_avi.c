@@ -123,6 +123,7 @@ dx_movie_frame_index_t* dx_avi_get_frame_index(dx_movie_context_t* context) {
 
 		index->length = entry.length;
 		index->offset = entry.offset;
+		index->flag = entry.flags;
 		frame_length += index->length;
 		track_count++;
 

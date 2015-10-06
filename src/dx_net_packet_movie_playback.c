@@ -122,7 +122,7 @@ int dx_packet_send_movie_frame(int fd, dx_movie_context_t* context) {
 		dx_data_movie_track_index_t* packet_index = packet->data.track_index + i;
 		dx_movie_frame_track_index_t* movie_index = current_frame->track + i;
 
-		packet_index->flags = htonl(movie_index->flag); /* TODO i-frame / p-frame 같은 정보를 담아야 한다. */
+		packet_index->flags = (char)(movie_index->flag); /* TODO i-frame / p-frame 같은 정보를 담아야 한다. */
 		packet_index->length = htonl(movie_index->length);
 		packet_index->offset = htonl(offset);
 		memcpy(packet_index->track_id, movie_index->track_id, 4);

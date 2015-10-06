@@ -72,7 +72,7 @@ dx_avi_chunk_map_t dx_avi_chunk_parser_map[] = {
 	{ "strf", dx_avi_chunk_handler },
 	{ "strn", dx_avi_chunk_strn_handler }, /* 샘플파일에서 이 청크를 찾을 수 없었음. */
 	{ "strn", dx_avi_chunk_handler },
-	{ "idx1", dx_avi_chunk_idx1_handler },
+	{ "idx1", dx_avi_chunk_idx1_handler },	// idx1 index Chunk: Contains a list of the offsets and chunk types of every chunk inside the LIST 'movi' chunk
 	{ "    ", NULL },
 };
 
