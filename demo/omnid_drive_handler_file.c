@@ -95,7 +95,7 @@ int od_drive_handler_file_delete(int fd, dx_packet_t* p) {
 
     printf("(Drive Event Handling) File Delete(path : %s)\n", buf);
 
-    od_packet_delete_file(fd, buf);
+    dx_packet_delete_file(fd, buf);
 
 	return 0;
 }

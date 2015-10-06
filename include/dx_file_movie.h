@@ -23,6 +23,7 @@ typedef struct dx_movie_fragment dx_movie_fragment_t;
 typedef struct dx_movie_frame_track_index {
 	char	track_id[4];
 	off_t	offset;
+	uint32_t flag;
 	int		length;
 } dx_movie_frame_track_index_t;
 
