@@ -72,6 +72,10 @@ int od_handler_movie_get_info(int fd, dx_packet_t* packet) {
 	dx_packet_movie_get_info_t* p = (dx_packet_movie_get_info_t*)packet;
 
 	demo_movie_playback_context = dx_movie_context_create((char*)p->data.path);
+	if(demo_movie_playback_context == NULL) {
+		ERROR("동영상 파일 오픈에 실패하였습니다.");
+		return -1;
+	}
 
 	dx_packet_send_movie_info(fd, (char*)p->data.path, demo_movie_playback_context);
 
