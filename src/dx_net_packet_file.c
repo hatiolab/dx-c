@@ -82,7 +82,9 @@ dx_fileinfo_array_packet_t* dx_packet_fill_fileinfo_array_packet(char* path) {
   if(count < 0) { // TODO 잘못된 폴더인 경우에는 빈 패킷을 만든다.
 	  packet_len = DX_FILEINFO_ARRAY_PACKET_SIZE(0);
 	  packet = (dx_fileinfo_array_packet_t*)MALLOC(packet_len);
-	  strncpy((char*)packet->array.path, path, DX_PATH_MAX_SIZE);
+
+	  bzero(packet, packet_len);
+//	  strncpy((char*)packet->array.path, path, DX_PATH_MAX_SIZE);
 
 	  dx_packet_set_header((dx_packet_t*)packet, packet_len, DX_PACKET_TYPE_FILE, DX_FILE_LIST, DX_DATA_TYPE_FILEINFO_ARRAY);
 
@@ -94,7 +96,8 @@ dx_fileinfo_array_packet_t* dx_packet_fill_fileinfo_array_packet(char* path) {
 
   packet_len = DX_FILEINFO_ARRAY_PACKET_SIZE(count);
   packet = (dx_fileinfo_array_packet_t*)MALLOC(packet_len);
-  strncpy((char*)packet->array.path, path, DX_PATH_MAX_SIZE);
+//  strncpy((char*)packet->array.path, path, DX_PATH_MAX_SIZE);
+  bzero(packet, packet_len);
 
   dx_packet_set_header((dx_packet_t*)packet, packet_len, DX_PACKET_TYPE_FILE, DX_FILE_LIST, DX_DATA_TYPE_FILEINFO_ARRAY);
 
@@ -142,6 +145,7 @@ int dx_packet_get_file(int fd, char* path, uint32_t begin, uint32_t end) {
   uint32_t len = DX_FILE_QUERY_PACKET_SIZE;
 
   packet = (dx_file_query_packet_t*)MALLOC(len);
+  bzero(packet, len);
 
   dx_packet_set_header((dx_packet_t*)packet, len, DX_PACKET_TYPE_FILE, DX_FILE_GET, DX_DATA_TYPE_FILE_PARTIAL_QUERY);
 
@@ -214,6 +218,7 @@ int dx_packet_send_file(int fd, char* path, uint32_t begin, uint32_t end) {
     uint32_t packet_len = DX_FILE_PACKET_SIZE(partial_len);
 
     packet = (dx_file_packet_t*)MALLOC(packet_len);
+    bzero(packet, packet_len);
 
     dx_packet_set_header((dx_packet_t*)packet, packet_len, DX_PACKET_TYPE_FILE, DX_FILE, DX_DATA_TYPE_FILE_PARTIAL);
 
