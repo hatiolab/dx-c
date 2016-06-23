@@ -28,7 +28,6 @@
 #include "dx_camera.h"
 
 dx_camera_context_t* dx_camera_context_create(char* path) {
-
 	int fd;
 
 	if(dx_v4l2_open_device(path, &fd)) {
