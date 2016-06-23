@@ -10,7 +10,7 @@
 // PARTICULAR PURPOSE.
 //
 
-#include "omnid.h"
+#include "demo.h"
 
 int od_host_handler_evt_disconnect(int fd, dx_packet_t* packet);
 

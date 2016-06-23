@@ -10,13 +10,15 @@
 // PARTICULAR PURPOSE.
 //
 
-#ifndef __DX_V4L2_H
-#define __DX_V4L2_H
+#ifndef __DX_CAMERA_H
+#define __DX_CAMERA_H
 
-int dx_v4l2_print_caps(int fd);
-int dx_v4l2_init_mmap(int fd, uint8_t* buffer);
-int dx_v4l2_capture_image(int fd, uint8_t* buffer);
-int dx_v4l2_open_device(char* dev_name, int* fd);
-int dx_v4l2_close_device(int fd);
+typedef struct dx_camera_context {
+	int	fd;
+	uint8_t* buffer;
+} dx_camera_context_t;
 
-#endif /* __DX_V4L2_H */
+dx_camera_context_t* dx_camera_context_create(char* device_path);
+void dx_camera_context_destroy(dx_camera_context_t* pcontext);
+
+#endif /* __DX_CAMERA_H */

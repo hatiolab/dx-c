@@ -1,36 +1,6 @@
 #ifndef __DEMO_H
 #define __DEMO_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <string.h>
-#include <strings.h>
-#include <unistd.h>
-
-#include "dx.h"
-
-#include "dx_debug_malloc.h"
-#include "dx_debug_assert.h"
-
-#include "dx_util_schedule.h"
-#include "dx_util_log.h"
-
-#include "dx_file_avi.h"
-
-#include "dx_console.h"
-
-#include "dx_event_mplexer.h"
-
-#include "dx_net_discovery.h"
-#include "dx_net_server.h"
-#include "dx_net_client.h"
-#include "dx_net_packet.h"
-#include "dx_net_packet_file.h"
-#include "dx_net_packet_io.h"
-#include "dx_net_packet_movie_playback.h"
-
 #include "omnid.h"
 
 /*
@@ -94,6 +64,10 @@ void demo_movie_playback_stop_handler(char* cmdline);
 void demo_video_file_open(char* cmdline);
 void demo_video_file_info(char* cmdline);
 void demo_video_file_close(char* cmdline);
+
+void demo_camera_open(char* cmdline);
+void demo_camera_info(char* cmdline);
+void demo_camera_close(char* cmdline);
 
 int demo_server_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);
 int demo_client_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);

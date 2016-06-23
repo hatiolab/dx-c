@@ -13,7 +13,37 @@
 #ifndef __OMNID_H
 #define __OMNID_H
 
-#include "demo.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <fcntl.h>
+#include <string.h>
+#include <strings.h>
+#include <unistd.h>
+
+#include "dx.h"
+
+#include "dx_debug_malloc.h"
+#include "dx_debug_assert.h"
+
+#include "dx_util_schedule.h"
+#include "dx_util_log.h"
+
+#include "dx_file_avi.h"
+
+#include "dx_console.h"
+
+#include "dx_event_mplexer.h"
+
+#include "dx_net_discovery.h"
+#include "dx_net_server.h"
+#include "dx_net_client.h"
+#include "dx_net_packet.h"
+#include "dx_net_packet_file.h"
+#include "dx_net_packet_io.h"
+#include "dx_net_packet_movie_playback.h"
+
+#include "dx_camera.h"
 
 /*
  * Definitions
