@@ -31,10 +31,28 @@ void demo_camera_close(char* cmdline) {
 	}
 }
 
-void demo_camera_info(char* cmdline) {
+int demo_camera_check_open() {
 	if(demo_camera_context == NULL) {
 		ERROR("Camera Open Please.");
-		return;
+		return 1;
 	}
+
+	return 0;
+}
+
+void demo_camera_info(char* cmdline) {
+	if(demo_camera_check_open())
+		return;
+
 	dx_v4l2_print_caps(demo_camera_context->fd);
+}
+
+void demo_camera_capture(char* cmdline) {
+	if(demo_camera_check_open())
+		return;
+
+	if(dx_v4l2_init_mmap(demo_camera_context->fd, &demo_camera_context->buffer))
+		return;
+
+	dx_v4l2_capture_image(demo_camera_context->fd, demo_camera_context->buffer);
 }

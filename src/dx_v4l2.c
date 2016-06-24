@@ -325,7 +325,7 @@ int dx_v4l2_print_caps(int fd) {
 	return 0;
 }
 
-int dx_v4l2_init_mmap(int fd, uint8_t* buffer) {
+int dx_v4l2_init_mmap(int fd, uint8_t** buffer) {
     struct v4l2_requestbuffers req = {0};
     req.count = 1;
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -345,7 +345,7 @@ int dx_v4l2_init_mmap(int fd, uint8_t* buffer) {
         return 1;
     }
 
-    buffer = mmap (NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.offset);
+    *buffer = mmap (NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.offset);
     CONSOLE("Length: %d\nAddress: %p\n", buf.length, buffer);
     CONSOLE("Image Length: %d\n", buf.bytesused);
 
@@ -363,7 +363,9 @@ int dx_v4l2_capture_image(int fd, uint8_t* buffer) {
     }
 
     if(-1 == xioctl(fd, VIDIOC_STREAMON, &buf.type)) {
-    	ERROR("Start Capture");
+    	ERROR("Start Capture Error %d, %s", errno, strerror(errno));
+    	if(errno == EIO)
+    		ERROR("You may run this program on virtual machine.")
         return 1;
     }
 
@@ -383,7 +385,12 @@ int dx_v4l2_capture_image(int fd, uint8_t* buffer) {
         return 1;
     }
 
-    int outfd = open("out.img", O_RDWR);
+    int outfd = open("out.img", O_CREAT | O_WRONLY);
+    if(outfd < 0) {
+    	ERROR("File open error : %d, %s", errno, strerror(errno));
+    	return 1;
+    }
+    CONSOLE("Trying to write image file (size: %d)", buf.bytesused);
     write(outfd, buffer, buf.bytesused);
     close(outfd);
 

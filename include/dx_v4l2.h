@@ -14,7 +14,7 @@
 #define __DX_V4L2_H
 
 int dx_v4l2_print_caps(int fd);
-int dx_v4l2_init_mmap(int fd, uint8_t* buffer);
+int dx_v4l2_init_mmap(int fd, uint8_t** buffer);
 int dx_v4l2_capture_image(int fd, uint8_t* buffer);
 int dx_v4l2_open_device(char* dev_name, int* fd);
 int dx_v4l2_close_device(int fd);

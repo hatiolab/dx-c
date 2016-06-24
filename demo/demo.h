@@ -67,6 +67,7 @@ void demo_video_file_close(char* cmdline);
 
 void demo_camera_open(char* cmdline);
 void demo_camera_info(char* cmdline);
+void demo_camera_capture(char* cmdline);
 void demo_camera_close(char* cmdline);
 
 int demo_server_event_handler(dx_event_context_t* pcontext, dx_packet_t* packet);

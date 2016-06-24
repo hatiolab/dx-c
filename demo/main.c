@@ -43,8 +43,9 @@ dx_console_menu_t demo_console_menus[]  = {
 			{502, "close", "", "close video file", demo_video_file_close},
 	{6, "camera", "", "do something about camera ..", NULL},
 		{60, "open", "[device]", "open camera", demo_camera_open},
-		{61, "info", "", "read video frames, print frame info", demo_camera_info},
-		{62, "close", "", "close video camera", demo_camera_close},
+		{61, "info", "", "print camera info", demo_camera_info},
+		{62, "capture", "", "capture image", demo_camera_capture},
+		{63, "close", "", "close camera", demo_camera_close},
 	{0},
 };
 
